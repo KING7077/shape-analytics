@@ -20,6 +20,9 @@
             <button role="tab" id="tab-axial" aria-controls="view-axial" aria-selected="false">Axial Loading</button>
             <button role="tab" id="tab-pressure" aria-controls="view-pressure" aria-selected="false">Pressure Vessel</button>
             <button role="tab" id="tab-thermal" aria-controls="view-thermal" aria-selected="false">Thermal Stress</button>
+            <button role="tab" id="tab-section" aria-controls="view-section" aria-selected="false">Section Properties</button>
+            <button role="tab" id="tab-buckling" aria-controls="view-buckling" aria-selected="false">Column Buckling</button>
+
         </nav>
     </header>
 
@@ -445,6 +448,127 @@
             </article>
         </section>
     </main>
+
+    
+    <!-- Cross-Section Properties Lab -->
+    <main class="dashboard" id="view-section" role="tabpanel" aria-labelledby="tab-section" aria-hidden="true">
+        <section class="top-section">
+            <article class="panel">
+                <h2>Thin-Walled C-Channel Properties</h2>
+                <div class="input-flex-container">
+                    <div class="input-column">
+                        <div class="input-group">
+                            <label for="sec-b">Flange Width <span class="math">b</span> (mm):</label>
+                            <input type="number" id="sec-b" value="50" step="5">
+                        </div>
+                        <div class="input-group">
+                            <label for="sec-h">Web Height <span class="math">h</span> (mm):</label>
+                            <input type="number" id="sec-h" value="100" step="10">
+                        </div>
+                    </div>
+                    <div class="input-column">
+                        <div class="input-group">
+                            <label for="sec-t">Thickness <span class="math">t</span> (mm):</label>
+                            <input type="number" id="sec-t" value="5" step="1">
+                        </div>
+                    </div>
+                </div>
+                <div class="export-bar">
+                    <button id="calculate-sec-btn" class="primary-btn">Analyze Section</button>
+                    <button class="secondary-btn btn-baseline" data-target="section">Save Baseline A/B</button>
+                    <button class="secondary-btn btn-export" data-target="section">Export Lab Report</button>
+                </div>
+                <div class="error-banner" id="error-section" role="alert">⚠ Could not connect to backend.</div>
+                
+                <div class="results results-grid">
+                    <div>
+                        <h3>Geometric Properties</h3>
+                        <p><span>Area <span class="math">A</span>:</span> <span><span id="sec-area">-</span> mm²</span></p>
+                        <p><span>Centroid <span class="math">x̄</span>:</span> <span><span id="sec-xc">-</span> mm</span></p>
+                        <p><span>Moment Inertia <span class="math">I<sub>x</sub></span>:</span> <span><span id="sec-ix">-</span> mm⁴</span></p>
+                        <h3>Shear Center</h3>
+                        <p><span>Eccentricity <span class="math">e</span>:</span> <span><span id="sec-e">-</span> mm</span></p>
+                    </div>
+                </div>
+            </article>
+        </section>
+        <section class="bottom-section">
+            <article class="panel viz-panel">
+                <h2>Cross-Section Layout</h2>
+                <div class="canvas-wrapper">
+                    <div id="plot-sec-layout" class="canvas-inner"></div>
+                </div>
+            </article>
+        </section>
+    </main>
+
+    <!-- Column Buckling Lab -->
+    <main class="dashboard" id="view-buckling" role="tabpanel" aria-labelledby="tab-buckling" aria-hidden="true">
+        <section class="top-section">
+            <article class="panel">
+                <h2>Column Buckling Parameters</h2>
+                <div class="input-flex-container">
+                    <div class="input-column">
+                        <div class="input-group">
+                            <label for="buck-bc">Boundary Condition:</label>
+                            <select id="buck-bc" class="select-input">
+                                <option value="pinned-pinned">Pinned - Pinned (K=1.0)</option>
+                                <option value="fixed-free">Fixed - Free (K=2.0)</option>
+                                <option value="fixed-pinned">Fixed - Pinned (K=0.7)</option>
+                                <option value="fixed-fixed">Fixed - Fixed (K=0.5)</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="buck-l">Length <span class="math">L</span> (m):</label>
+                            <input type="number" id="buck-l" value="3.0" step="0.1">
+                        </div>
+                        <div class="input-group">
+                            <label for="buck-e">Young's Modulus <span class="math">E</span> (GPa):</label>
+                            <input type="number" id="buck-e" value="200" step="10">
+                        </div>
+                    </div>
+                    <div class="input-column">
+                        <div class="input-group">
+                            <label for="buck-sy">Yield Strength <span class="math">S<sub>y</sub></span> (MPa):</label>
+                            <input type="number" id="buck-sy" value="250" step="10">
+                        </div>
+                        <div class="input-group">
+                            <label for="buck-a">Area <span class="math">A</span> (cm²):</label>
+                            <input type="number" id="buck-a" value="20" step="1">
+                        </div>
+                        <div class="input-group">
+                            <label for="buck-i">Min. Inertia <span class="math">I</span> (cm⁴):</label>
+                            <input type="number" id="buck-i" value="500" step="10">
+                        </div>
+                    </div>
+                </div>
+                <div class="export-bar">
+                    <button id="calculate-buck-btn" class="primary-btn">Analyze Buckling</button>
+                    <button class="secondary-btn btn-baseline" data-target="buckling">Save Baseline A/B</button>
+                    <button class="secondary-btn btn-export" data-target="buckling">Export Lab Report</button>
+                </div>
+                <div class="error-banner" id="error-buckling" role="alert">⚠ Could not connect to backend.</div>
+                
+                <div class="results results-grid">
+                    <div>
+                        <h3>Critical Load Analysis</h3>
+                        <p><span>Crit. Load <span class="math">P<sub>cr</sub></span>:</span> <span><span id="buck-pcr">-</span> kN</span></p>
+                        <p><span>Slenderness <span class="math">L<sub>e</sub>/r</span>:</span> <span><span id="buck-slend">-</span></span></p>
+                        <p><span>Failure Regime:</span> <span><span id="buck-regime">-</span></span></p>
+                    </div>
+                </div>
+            </article>
+        </section>
+        <section class="bottom-section">
+            <article class="panel viz-panel">
+                <h2>Buckling Mode Shape</h2>
+                <div class="canvas-wrapper">
+                    <div id="plot-buck-mode" class="canvas-inner"></div>
+                </div>
+            </article>
+        </section>
+    </main>
+
 
     <script src="app.js"></script>
 </body>

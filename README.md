@@ -43,3 +43,5 @@ The web application features an "Industrial Precision" aesthetic, live safety fa
    ```bash
    python src/main.py
    ```
+
+> **Note on Desktop App:** The Desktop App (`solid_mechanics_app`) has been completely overhauled to feature an 8-tab PyQt6 interface matching the Web App. It now uses the same Python Math Engine by directly calling the FastAPI server endpoints. **Therefore, you must have the FastAPI web server running (`python server.py`) before calculating in the Desktop App.**

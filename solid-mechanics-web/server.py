@@ -241,3 +241,79 @@ async def analyze_thermal(data: ThermalInput):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="127.0.0.1", port=8000)
+
+class SectionInput(BaseModel):
+    shape: str
+    b: float # flange width
+    h: float # web height
+    t: float # thickness
+
+class BucklingInput(BaseModel):
+    E: float
+    Sy: float
+    L: float
+    I: float
+    A: float
+    bc: str # boundary condition
+
+@app.post("/api/analyze_section")
+async def analyze_section(data: SectionInput):
+    # Currently supports thin-walled C-channel
+    b, h, t = data.b, data.h, data.t
+    
+    A = t * (h + 2*b)
+    xc = (b**2 * t) / A  # from web
+    
+    Ix = (t * h**3)/12.0 + 2 * (b * t * (h/2)**2)
+    
+    # Shear center distance from web
+    e = (b**2 * h**2 * t) / (4 * Ix) if Ix > 0 else 0
+    
+    return {
+        "Area": A,
+        "centroid_x": xc,
+        "Ix": Ix,
+        "shear_center_e": e
+    }
+
+@app.post("/api/analyze_buckling")
+async def analyze_buckling(data: BucklingInput):
+    K_map = {"pinned-pinned": 1.0, "fixed-free": 2.0, "fixed-pinned": 0.7, "fixed-fixed": 0.5}
+    K = K_map.get(data.bc, 1.0)
+    
+    Le = K * data.L
+    r = math.sqrt(data.I / data.A) if data.A > 0 else 1e-9
+    slenderness = Le / r
+    
+    # Euler critical load
+    Pcr_euler = (math.pi**2 * data.E * data.I) / (Le**2)
+    
+    # Check yield/Johnson transition
+    sig_cr = Pcr_euler / data.A
+    if sig_cr > data.Sy / 2:
+        # Johnson parabola
+        sig_cr = data.Sy - (data.Sy**2 * slenderness**2) / (4 * math.pi**2 * data.E)
+        Pcr = sig_cr * data.A
+        regime = "Johnson (Inelastic)"
+    else:
+        Pcr = Pcr_euler
+        regime = "Euler (Elastic)"
+
+    # Mode shape
+    x_vals = np.linspace(0, data.L, 50)
+    if data.bc == "pinned-pinned":
+        y_vals = np.sin(math.pi * x_vals / data.L)
+    elif data.bc == "fixed-free":
+        y_vals = 1 - np.cos(math.pi * x_vals / (2 * data.L))
+    elif data.bc == "fixed-fixed":
+        y_vals = 1 - np.cos(2 * math.pi * x_vals / data.L)
+    else: # fixed-pinned
+        y_vals = np.sin(math.pi * x_vals / data.L) - (x_vals/data.L) * np.sin(math.pi) # Approx
+
+    return {
+        "Pcr": Pcr,
+        "slenderness": slenderness,
+        "regime": regime,
+        "x": x_vals.tolist(),
+        "mode_shape": y_vals.tolist()
+    }

@@ -418,9 +418,10 @@
     // ==========================================
     // 7. SECTION PROPERTIES LABORATORY
     // ==========================================
-    async function updateSectionApplication() {
+        async function updateSectionApplication() {
         var params = { b: val('sec-b'), h: val('sec-h'), t: val('sec-t'), shape: 'c-channel' };
-        var btn = ; setButtonLoading(btn, true, 'Analyze Section');
+        var btn = $('calculate-sec-btn'); 
+        setButtonLoading(btn, true, 'Analyze Section');
         try {
             var d = await apiPost('/api/analyze_section', params, 'section');
             setText('sec-area', d.Area.toFixed(2));
@@ -447,9 +448,10 @@
     // ==========================================
     // 8. COLUMN BUCKLING LABORATORY
     // ==========================================
-    async function updateBucklingApplication() {
-        var params = { E: val('buck-e') * 1e9, Sy: val('buck-sy') * 1e6, L: val('buck-l'), I: val('buck-i') * 1e-8, A: val('buck-a') * 1e-4, bc: .value };
-        var btn = ; setButtonLoading(btn, true, 'Analyze Buckling');
+        async function updateBucklingApplication() {
+        var params = { E: val('buck-e') * 1e9, Sy: val('buck-sy') * 1e6, L: val('buck-l'), I: val('buck-i') * 1e-8, A: val('buck-a') * 1e-4, bc: $('buck-bc').value };
+        var btn = $('calculate-buck-btn'); 
+        setButtonLoading(btn, true, 'Analyze Buckling');
         try {
             var d = await apiPost('/api/analyze_buckling', params, 'buckling');
             setText('buck-pcr', (d.Pcr / 1000).toFixed(2));

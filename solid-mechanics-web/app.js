@@ -473,15 +473,15 @@
         });
     }
 
-    function initButtons() {
+        function initButtons() {
         $('calculate-btn').addEventListener('click', updatePointApplication);
         $('calculate-beam-btn').addEventListener('click', updateBeamApplication);
         $('calculate-torsion-btn').addEventListener('click', updateTorsionApplication);
         $('calculate-axial-btn').addEventListener('click', updateAxialApplication);
         $('calculate-pv-btn').addEventListener('click', updatePressureApplication);
         $('calculate-thermal-btn').addEventListener('click', updateThermalApplication);
-        .addEventListener('click', updateSectionApplication);
-        .addEventListener('click', updateBucklingApplication);
+        $('calculate-sec-btn').addEventListener('click', updateSectionApplication);
+        $('calculate-buck-btn').addEventListener('click', updateBucklingApplication);
     }
 
     window.addEventListener('load', function () {

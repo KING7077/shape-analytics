@@ -4,6 +4,8 @@ import numpy as np
 import math
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'solid_mechanics_app', 'src')))
@@ -14,6 +16,18 @@ from math_engine.tensor_math import (
 
 app = FastAPI()
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
+
+# Mount the current directory to serve static files (index.html, app.js, style.css)
+app.mount('/static', StaticFiles(directory=os.path.dirname(__file__)), name='static')
+@app.get('/')
+async def serve_index():
+    return FileResponse(os.path.join(os.path.dirname(__file__), 'index.html'))
+@app.get('/{filename}')
+async def serve_root_files(filename: str):
+    file_path = os.path.join(os.path.dirname(__file__), filename)
+    if os.path.isfile(file_path):
+        return FileResponse(file_path)
+    return FileResponse(os.path.join(os.path.dirname(__file__), 'index.html'))
 
 class TensorInput(BaseModel):
     matrix: list[list[float]]

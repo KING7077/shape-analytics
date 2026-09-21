@@ -252,10 +252,6 @@ async def analyze_thermal(data: ThermalInput):
         "sigma": sigma / 1e6, "delta": actual_delta * 1000
     }
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8000)
-
 class SectionInput(BaseModel):
     shape: str
     b: float # flange width
@@ -331,3 +327,7 @@ async def analyze_buckling(data: BucklingInput):
         "x": x_vals.tolist(),
         "mode_shape": y_vals.tolist()
     }
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=8000)
+

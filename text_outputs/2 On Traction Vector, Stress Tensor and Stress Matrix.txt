@@ -1,0 +1,2480 @@
+Chapter 2
+On Traction Vector, Stress Tensor and Stress Matrix
+In this chapter, we will learn about the concept of traction vector, stress tensor and its matrix representation.
+We will also learn how to transform stress matrix corresponding to one coordinate system into another.
+(For author information and the accompanying book: click here
+    If you would like to share any feedback/comment: click here)
+2.1 Definition of traction vector: NPTEL link
+Consider an arbitrary body which is clamped at one part of the boundary and some external load is applied
+elsewhere on its boundary (see Figure 2.1). The clamped boundary of the body does not move but the
+remaining body deforms due to the applied load.
+Figure 2.1: A body deforming under the action of an applied load
+In the deformed state, we say that the body is under some stress. Let us imagine cutting the deformed body
+into two parts A and B through an internal section as shown by the dashed lines in Figure 2.2.
+Figure 2.2: An internal section (shown as dashed lines) in the deformed body divides it into two parts
+Let us analyze part A. The part B exerts some force on part A through the internal section - this force is
+distributed over the internal section as shown in Figure 2.3a.
+8/27/26, 4:38 PM
+2 On Traction Vector, Stress Tensor and Stress Matrix
+https://web.iitd.ac.in/~ajeetk/smb/OnTractionVectorStressTensorandStressMatrix.html
+1/19
+Figure 2.3: (a) Part A of the body when considered alone is acted upon by forces applied by Part B (b) A
+small circular area around a point  on the internal section having outward normal 
+We define traction to be the intensity of the force (force per unit area) with which Part B is pulling or pushing
+part A. At different points in the section, this force intensity would be different in both magnitude and
+direction. For example, the upper portion of the section is being pulled while the bottom portion is being
+pushed. To find traction at some point  on the section (see Figure 2.3b), we draw a circle around this point in
+the plane of the section. Let the area enclosed by the circle be 
+ and the net force acting on this circular area
+be 
+. We then shrink the area of the circle such that the circle always contains . As we shrink the area, the
+total force acting on it decreases but the ratio of this force and the area of the enclosing circle attains a limiting
+value which is called traction. We represent it by 
+ where  denotes the normal to the section but
+pointing outward/away from part A on which it is acting. Mathematically, we write
+Although it has the unit of pressure, it is more general than pressure: pressure always acts in the direction
+opposite to the outward plane normal whereas traction can act in an arbitrary direction.
+Dependence of traction on plane normal
+Think of an arbitrary body under the influence of external load and consider three points inside it (see Figure
+2.4).
+Figure 2.4: Three arbitrary points (
+, ) shown in a body along with two different internal
+sections/planes at point  having normals 
+ and 
+In general, traction will be different at these three points. At a given point also, say , several planes/internal
+sections can be imagined and traction on each of these planes will be different. In Figure 2.4 for example,
+traction on the plane having normal 
+ will be different from traction on plane having normal 
+. To see this
+x
+–
+n
+–
+x
+–
+ΔA
+Δ
+→
+F
+x
+–
+t–(x; n)
+–
+n
+–
+t–(x; n) = lim
+ΔA→0
+Δ
+→
+F
+ΔA .
+–
+(1)
+x, y–
+–
+z–
+x
+–
+n1
+–
+n2
+–
+x
+–
+n1
+–
+n2
+–
+8/27/26, 4:38 PM
+2 On Traction Vector, Stress Tensor and Stress Matrix
+https://web.iitd.ac.in/~ajeetk/smb/OnTractionVectorStressTensorandStressMatrix.html
+2/19
+more clearly, let us consider a rectangular beam which is clamped at one end (see Figure 2.5). A force P is
+being applied to its other end. The cross-sectional area of the beam is 
+. From force balance of the entire
+beam, we can show that the clamped support at the left end exerts a force 
+ to the leftmost end of the
+beam.
+Figure 2.5: A cantilever beam acted upon by a force P: two internal sections are shown both having the
+same centroidal location
+Let us now consider an internal section of the beam whose normal vector (denoted by 
+) is along the axis of
+the beam (also shown as the blue plane in Figure 2.5). This section divides the beam into two parts. From the
+force balance of left portion of the beam, one can show that the total internal force on this section also equals
+. Hence, the traction on this plane (denoted by 
+) is given by
+Notice that traction is acting along the plane normal only and hence we call it the normal traction.∗ Now, let us
+take an inclined internal section (shown in green in Figure 2.5) but at the same axial location as the vertical
+plane. The unit normal to this new section (
+) makes an angle  with the beam’s axis. So, the area of this
+section  is given by
+From force balance of the new left portion of the beam, one can show that the total force on the new
+inclined/green section is still P
+. So, the traction on this section (denoted by 
+) will be
+Thus, we see that traction on two different planes at the same point are different. Also note that the traction
+vector now is not aligned with the plane normal. Its component along the plane normal is called the normal
+component of traction and equals 
+ in this case. On the other hand, the component of traction
+perpendicular to the plane normal is called the shear component of traction and equals 
+. Note that
+the shear component becomes maximum for the section for which 
+.
+Importance of traction
+By definition, it gives us the intensity of force with which one part of the body is pulling or pushing the other
+part of the body. If the value of this traction is lower than a threshold limit, the body will not fracture/fail. At a
+given point, as traction varies from one plane to the other, the probability of failure is higher on the plane on
+which traction has got larger value. Thus, traction can tell us at what point in the body and on what plane at
+that point would the body fail! For example, it has been experimentally observed during tensile loading of a
+steel bar that at a critical value of applied load, the steel bar develops a crack in a plane that is inclined at
+around 
+ to the direction of loading. This is because on this plane, the magnitude of shear component of
+A
+−Pe–1
+e–1
+Pe–1
+t–
+1
+t–
+1 =
+Pe–1
+A
+= P
+A  e–1.
+(2)
+^e–1
+θ
+^A
+^A =
+A
+cos θ .
+(3)
+e–1
+t–
+^1
+t–
+^1 =
+Pe–1
+A/ cos θ = P cos θ
+A
+e–1
+(4)
+P
+A cos2 θ
+P
+A cos θ sin θ
+θ = 45∘
+45∘
+8/27/26, 4:38 PM
+2 On Traction Vector, Stress Tensor and Stress Matrix
+https://web.iitd.ac.in/~ajeetk/smb/OnTractionVectorStressTensorandStressMatrix.html
+3/19
+traction is highest as we saw earlier. We clarify at this point that failure due to shear component of traction
+reaching a critical value is just one mechanism of failure and different materials obey different mechanisms of
+failure.
+2.2 Relating traction on different planes at a point: NPTEL link
+We will now prove that if we know traction on three mutually perpendicular planes at a point, we can find
+traction on any plane at that point. Let us consider a point  in the body as shown in Figure 2.6 and imagine a
+small volume there in the shape of a tetrahedron with its vertex at . The tetrahedron’s three edges at this point
+are assumed to be perpendicular to each other and lying along the three coordinate axes.
+Figure 2.6: A small tetrahedron is considered at a point of interest in the body
+This tetrahedron has four faces having the following outward normals (by outward we mean pointing out of
+the tetrahedron volume):
+Suppose, we know traction on three of these planes having outward normals (
+) and we want to
+find traction on the tilted plane ABC (having normal say ). Let us apply Newton’s 
+ law of motion to the
+mass contained in the tetrahedron:
+Here  denotes the linear momentum of the tetrahedron’s mass. To visualize the external forces acting on the
+tetrahedron, we can imagine taking out the tetrahedron from the original body as shown on the right of Figure
+2.6. The remaining part of the body exerts traction force on the four faces of the tetrahedron which are also
+categorized as surface force. However, the total external force consists of both surface and body forces:
+x
+–
+x
+–
+Plane : Outward normal
+OAB : −e–3
+OBC : −e–1
+OAC : −e–2
+ABC :   n
+–
+–
+–
+−e–1, −e–2, −e–3
+n
+–
+2nd
+∑F ext = d
+dt (
+→
+P).
+–
+(5)
+→
+P
+∑F ext
+–
+↙
+↘
+(surface force)
+(body force)
+unit: [force/area]
+unit: [force/volume]
+8/27/26, 4:38 PM
+2 On Traction Vector, Stress Tensor and Stress Matrix
+https://web.iitd.ac.in/~ajeetk/smb/OnTractionVectorStressTensorandStressMatrix.html
+4/19
+The body force acts on every point of the body, e.g., the gravitational force is applied by the Earth on every
+point of the tetrahedron. Its unit is force/volume as it acts on the entire volume in a distributed manner and is
+given by
+Here  denotes density,  is acceleration due to gravity and  is volume of the tetrahedron. To obtain the total
+surface force, we need to integrate traction forces over the area on which they are acting whereas to get the
+total body force, we need to integrate body force over the volume of the tetrahedron. Let the area of face OBC
+be 
+ and traction on it be 
+, area of face OAC be 
+ and traction on it be 
+, area of face OAB be 
+and traction on it be 
+ and finally the area of face ABC be 
+ and traction on it be 
+. The total external
+force on the tetrahedron can be written as
+Here 
+ denotes the acceleration of center of mass of the tetrahedron. The subscript “avg” on four tractions
+is used to denote that they are the average values of traction on corresponding faces. Suppose  is the
+perpendicular distance of the plane ABC from the tetrahedron’s vertex. The volume of the tetrahedron is then
+given by
+We can also relate the areas 
+, 
+, 
+ in terms of 
+. If we project the area 
+ along the direction 
+, it will
+turn out to be the same as the area of OBC which is 
+. We can thus write
+Upon plugging equations 
+ and 
+ into equation 
+, we then get
+Here we obtained the last equation upon dividing by the tilted area 
+. Note that our original plan was to
+obtain traction on an arbitrary plane  at a point in terms of traction on three other planes at the same point.
+However, for our tetrahedron example, three planes pass through the point O but the plane with normal  (the
+tilted plane) does not pass through the point O. So, we need to shrink the tetrahedron such that in the limiting
+case, all the four planes pass through O. We can achieve this by letting the perpendicular distance  go to zero.
+When we apply this limit (
+) to equation 
+, the terms proportional to  vanish. Furthermore, the
+average tractions become the corresponding traction values at the point 
+ itself. Thus, in the limit of
+tetrahedron shrinking to point  where all the four planes exist now, the terms corresponding to body force
+and acceleration vanish and we get the following desired result:
+Relating tractions on planes having opposite normals
+By definition, 
+ is the traction on 
+ plane whereas 
+ is the traction on 
+ plane. The two tractions
+basically act on the same plane but with normals pointing in opposite direction. Let us understand it in the
+context of an internal section in the body from Figure 2.2. We redraw the two parts so created in Figure 2.7.
+Gravitational body force = (ρg–V )/V = ρg–.
+(6)
+ρ
+g–
+V
+A1
+t–
+−1
+A2
+t–
+−2
+A3
+t–
+−3
+An
+t–
+n
+∑F ext = t–
+−1
+avgA1 + t–
+−2
+avgA2 + t–
+−3
+avgA3 + t–
+n
+avgAn
+contact force
++
+ρg–V
+non-contact force
+=
+ρV
+tetrahedron mass
+×  a–CM.
+–
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+(7)
+a–CM
+h
+V = Anh
+3
+.
+(8)
+A1 A2 A3
+An
+An
+e–1
+A1
+Ai = An(n ⋅e–i) ∀i = 1, 2, 3.
+–
+(9)
+(8)
+(9)
+(7)
+An (t–
+−1
+avg(n ⋅e–1) + t–
+−2
+avg(n ⋅e–2) + t–
+−3
+avg(n ⋅e–3) + t–
+n
+avg) +
+ρg–Anh
+3
+=
+ρAnh a–CM
+3
+–
+–
+–
+⇒t–
+n
+avg +
+3
+∑
+i=1
+t–
+−i
+avg(n ⋅e–i) +
+ρh(g– −a–CM)
+3
+= 0.
+–
+(10)
+An
+n
+–
+n
+–
+h
+limh→0
+(10)
+h
+x
+–
+x
+–
+t–
+n(x) = −
+3
+∑
+i=1
+t–
+−i(x) (n ⋅e–i).
+–
+–
+(11)
+t–
+−i
+−e–i
+t–
+i
+e–i
+8/27/26, 4:38 PM
+2 On Traction Vector, Stress Tensor and Stress Matrix
+https://web.iitd.ac.in/~ajeetk/smb/OnTractionVectorStressTensorandStressMatrix.html
+5/19
+Figure 2.7: The planes of two parts of the body at the internal section shown to have outward normals
+pointing in opposite direction
+The original internal section now forms external surface of the two parts of the body and have outward
+normals pointing opposite to each other.† The tractions on these two planes (the two planes were coincident in
+the original body) will be equal and opposite due to Newton’s third law since they form action-reaction pair.
+We can thus write
+Substituting it in equation 
+, we finally obtain
+We emphasize that the body force and acceleration terms dropped out from the above formula - no
+approximation was made! Thus, the above formula holds even if the body force is present or the body is
+accelerating! Physically, the traction vector 
+ has to be the same irrespective of what three planes are used to
+find it, i.e.,
+In the first case, the three planes used have normals along 
+, 
+, 
+ whereas in the second case, the three
+planes have normals along 
+, 
+, 
+.
+2.3 Stress Tensor: NPTEL link
+Let us now write equation 
+ in a slightly different way:
+The th term in the above summation can be written as follows in matrix form:
+As matrix multiplication is associative, we can also write it alternatively as
+t–
+−i = −t–
+i.
+(12)
+(11)
+t–
+n(x) =
+3
+∑
+i=1
+t–
+i(x) (n ⋅e–i)
+–
+–
+(13)
+t–
+n
+t–
+n(x) =
+3
+∑
+i=1
+t–
+i(x) (n ⋅e–i) =
+3
+∑
+i=1
+t–
+^i(x) (n ⋅^e–i).
+–
+–
+–
+(14)
+e–1 e–2 e–3
+^e–1 ^e–2 ^e–3
+(14)
+t–
+n(x) =
+3
+∑
+i=1
+t–
+i(x) (n ⋅e–i) =
+3
+∑
+i=1
+t–
+i(x) (e–i ⋅n).
+–
+–
+–
+–
+(15)
+i
+[ ]
+3×1
+([
+]1×3[ ]
+3×1
+)
+(16)
+↓
+↓
+↓
+t–
+i
+e–
+T
+i
+n
+–
+([ ]
+3×1
+[
+]1×3)[ ]
+3×1
+(17)
+8/27/26, 4:38 PM
+2 On Traction Vector, Stress Tensor and Stress Matrix
+https://web.iitd.ac.in/~ajeetk/smb/OnTractionVectorStressTensorandStressMatrix.html
+6/19
+However, note that 
+ is the matrix representation for tensor product (
+). Thus, the alternate
+representation given by 
+ can be written as follows in tensor form:
+This is just a different viewpoint but the interesting point here is that the orientation  has been separated. One
+could have also obtained it directly from equation 
+ using the definition of dot product of a second order
+tensor with a vector. The tensor that is multiplied with  in the above expression is called the stress tensor 
+and one can write
+Note that the stress tensor depends on  alone. Essentially, to obtain the stress tensor at a point, choose three
+independent planes at that point, find tractions on those planes, do their tensor product with corresponding
+plane normals and sum! The resulting stress tensor will be independent of what specific set of three planes we
+choose!
+2.4 Stress matrix as a representation of stress tensor: NPTEL link
+Let us try to represent equation 
+ in (
+, 
+, 
+) coordinate system. As we now know that the stress tensor
+is a second order tensor, its representation is going to be a matrix, i.e.,
+Here we have to represent 
+ and 
+ both in 
+ coordinate system, i.e.,
+Here 
+ represents the 
+ component of traction on 
+ plane. Thus, if we want to write the stress
+matrix corresponding to (
+,
+,
+) coordinate system, its first column would be the representation of traction
+on plane whose normal is along the first coordinate axis (which is 
+ here). Similarly, the second column will
+be the representation of traction on plane with normal along second coordinate axis and the third column will
+be the representation of traction on plane with normal along third coordinate axis. It is important to obtain the
+representation/ column form of the three tractions also in the same coordinate system. Usually, the following
+notation is used to write the stress matrix:
+↓
+↓
+↓
+t–
+i
+e–
+T
+i
+tensor product
+n
+
+
+
+
+
+–
+[a–][b–]T
+a– ⊗b–
+(17)
+t–
+n(x) =
+3
+∑
+i=1
+(t–
+i(x) ⊗e–i)
+stress tensor
+⋅ n.
+–
+–
+
+
+
+
+
+–
+(18)
+n
+–
+(15)
+n
+–
+σ
+–
+σ(x) =
+3
+∑
+i=1
+t–
+i(x) ⊗e–i such that t–
+n(x) = σ(x) n.
+–
+–
+–
+–
+(19)
+x
+–
+(19)
+e–1 e–2 e–3
+[ ](e–1,e–2,e–3) =
+3
+∑
+i=1
+[
+][
+]T.
+σ
+–
+t–
+i
+e–i
+t–
+i
+e–i
+(e–1, e–2, e–3)
+[ ](e–1,e–2,e–3) = [
+] [
+] + [
+] [
+] + [
+] [
+]
+=
++
++
+=
+.
+σ
+–
+t–
+1
+1
+0
+0
+t–
+2
+0
+1
+0
+t–
+3
+0
+0
+1
+⎡
+⎢
+⎣
+t1
+1
+0
+0
+t1
+2
+0
+0
+t1
+3
+0
+0
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+0
+t2
+1
+0
+0
+t2
+2
+0
+0
+t2
+3
+0
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+0
+0
+t3
+1
+0
+0
+t3
+2
+0
+0
+t3
+3
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+t1
+1
+t2
+1
+t3
+1
+t1
+2
+t2
+2
+t3
+2
+t1
+3
+t2
+3
+t3
+3
+⎤
+⎥
+⎦
+(20)
+ti
+j = t–
+i ⋅e–j
+jth
+ith
+e–1 e–2 e–3
+e–1
+[ ](e–1,e–2,e–3) =
+.
+σ
+–
+⎡
+⎢
+⎣
+σ11
+τ12
+τ13
+τ21
+σ22
+τ23
+τ31
+τ32
+σ33
+⎤
+⎥
+⎦
+(21)
+8/27/26, 4:38 PM
+2 On Traction Vector, Stress Tensor and Stress Matrix
+https://web.iitd.ac.in/~ajeetk/smb/OnTractionVectorStressTensorandStressMatrix.html
+7/19
+Basically, the off-diagonal elements denote shear components of traction and are denoted by  whereas
+diagonal components denote normal components of traction and are denoted by . On comparing the above
+form with 
+, 
+ denotes the 
+ component of traction on 
+ plane.‡
+Cuboidal representation of stress tensor
+Let us say we want to represent the stress tensor at a given point  in our body.
+Figure 2.8: (a) Visualizing a cuboid centered at the point of interest  in our body (b) Zoomed view of
+the cuboid: components of traction that acts on its 
+ face shown
+Think of a cuboid around point  with its center at  and its six faces chosen along 
+, 
+, 
+, -
+, -
+ and -
+(see Figure 2.8). The traction that acts on its 
+ face is 
+ whose three components are shown in Figure 2.8b.
+From the figure, it can be concluded that 
+ acts normal to the plane whereas 
+ and 
+ are in the plane.
+Thus, 
+ is the normal component of traction and 
+ and 
+ are the shear components of traction since they
+try to shear the body. To visualize shear, think of an internal section in the body. If the traction on this section
+has a non-zero component in the plane of the section, then the parts of the body on the two sides of the section
+will try to shear relative to each other, i.e., relatively displace along the plane of the section itself. Similarly,
+normal component of traction will lead to pushing or pulling between the two parts. If it is positive (negative),
+we call it tensile (compressive) since the two parts will try to pull (push) themselves apart (into each other).
+Going back to our cuboid, the components of traction that acts on all its faces are shown in Figure 2.9.
+Remember that the second index denotes plane normal whereas the first index denotes direction.
+Figure 2.9: Traction components shown on all the six faces of the cuboid
+For faces with negative normals such as the bottom face, the plane normal is along -
+ and hence 
+ acts on
+it. We have already seen in the last lecture that
+τ
+σ
+(20) τij
+ith
+jth
+x
+–
+x
+–
+e–1
+x
+–
+x
+–
+e–1 e–2 e–3
+e–1
+e–2
+e–3
+e–1
+t–
+1
+σ11
+τ21
+τ31
+σ11
+τ21
+τ31
+e–2
+t–
+−2
+8/27/26, 4:38 PM
+2 On Traction Vector, Stress Tensor and Stress Matrix
+https://web.iitd.ac.in/~ajeetk/smb/OnTractionVectorStressTensorandStressMatrix.html
+8/19
+So, the same traction components that act on the top face also act on the bottom face but directed oppositely.
+In fact, as per convention, a positive value for traction component implies that it acts along positive direction
+on positive planes but along negative direction on negative planes. Finally, if the various components drawn
+on the cuboid have to represent the components of stress matrix at a point  in the body, the cuboid must be
+shrunk to this point and made infinitesimally small so that all its faces pass through . In the above figures
+however, we have drawn the cuboid bigger and the point  at the center of the cuboid for better visualization.
+2.5 Transformation of Stress matrix: NPTEL link
+We have learnt that stress matrix is the representation (matrix form) of stress tensor in a coordinate system. It
+changes from one coordinate system to another but the stress tensor itself remains unchanged. The goal here is
+to obtain a relationship between stress matrices in two different coordinate systems. The stress matrix in (
+,
+,
+) coordinate system is
+Similarly, writing down the stress matrix in a new coordinate system (
+), we get
+Using the above definition of 
+, we can write
+Now, we need to define a relationship between (
+, 
+, 
+) and (
+, 
+, 
+). Let us think of the rotation tensor
+ that relates one set of basis vectors to another set of basis vectors, i.e.,
+The matrix form of the above rotation tensor in (
+) coordinate system, i.e., 
+ will have its
+components defined by
+Substituting it in equation 
+, we get
+t–
+−2 = −t–
+2.
+(22)
+x
+–
+x
+–
+x
+–
+e–1
+e–2 e–3
+[ ](e–1,e–2,e–3) = [( )( )( )] such that σij = t–
+j ⋅e–i.
+σ
+–
+↓
+↓
+↓
+[t–
+1]
+[t–
+2]
+[t–
+3]
+^e–1, ^e–2, ^e–3
+[ ](^e–1,^e–2,^e–3) = [( )( )( )] such that ^σij = t–
+^j ⋅^e–i (≠t–
+^j ⋅e–i).
+σ
+–
+↓
+↓
+↓
+[t–
+^1] [t–
+^2] [t–
+^3]
+^σij
+^σij = t–
+^j ⋅^e–i = [
+3
+∑
+k=1
+t–
+k(^e–j ⋅e–k)] ⋅ ^e–i =
+3
+∑
+k=1
+(t–
+k ⋅^e–i) (^e–j ⋅e–k).
+(23)
+^e–1 ^e–2 ^e–3
+e–1 e–2 e–3
+R
+–
+^e–i = R e–i.
+–
+(24)
+e–1,  e–2,  e–3
+[ ](e–1, e–2, e–3)
+R
+–
+Rij = (Re–j) ⋅e–i = ^e–j ⋅e–i.
+–
+(25)
+(23)
+^σij =
+3
+∑
+k=1
+(t–
+k ⋅^e–i)(^e–j ⋅e–k)
+Rkj
+=
+3
+∑
+k=1
+(
+3
+∑
+m=1
+tk
+m e–m)
+t–
+k
+⋅ ^e–i Rkj = ∑
+k
+∑
+m
+tk
+m RmiRkj.
+
+
+
+
+
+
+
+
+
+
+(26)
+8/27/26, 4:38 PM
+2 On Traction Vector, Stress Tensor and Stress Matrix
+https://web.iitd.ac.in/~ajeetk/smb/OnTractionVectorStressTensorandStressMatrix.html
+9/19
+Now, by definition, 
+ because 
+ represents the 
+ component of traction 
+ and will thus represent
+the 
+ row in the 
+ column of stress matrix. Hence
+Finally, writing this equation in a matrix form, we get
+This is the relation that we can use to transform a stress matrix from one coordinate system to another. In fact,
+the above relation holds for the transformation of matrix form of any second order tensor. One can use similar
+procedure to also relate the column form of a vector in two different coordinate systems. For example, one can
+deduce that
+What is to be noticed here is that for transforming the vector components, we need to premultiply by 
+whereas for relating basis vectors, we need to premultiply by  (see equation 
+). This is because the vector
+ has to remain the same, we are just trying to write it in two different coordinate systems, i.e.,
+Therefore, if the basis vector gets transformed with rotation , the components would have to get transformed
+with 
+. Only then, 
+ gets cancelled with each other to become .
+2.6 Solved examples
+Q1. Show that 
+, i.e, the formula is independent of what three planes are
+chosen to determine 
+!
+Solution: Think of 
+ and 
+ system which form the plane normals in the two cases. Let us
+expand the vector 
+ in 
+ basis, i.e., 
+. Here 
+ is the component of 
+along 
+. Generalizing this, we can write
+Now
+tk
+m = σmk
+tk
+m
+mth
+t–
+k
+mth
+kth
+^σij = ∑
+k
+∑
+m
+σmkRmiRkj = ∑
+k
+∑
+m
+RT
+imσmkRkj.
+(27)
+[ ](^e–1, ^e–2, ^e–3) = [ ]
+T [ ] [ ]
+(e–1, e–2, e–3)
+.
+σ
+–
+R
+–
+σ
+–
+R
+–
+
+
+
+
+
+(28)
+= [ ]
+T
+(e–1, e–2, e–3)
+.
+⎡
+⎢
+⎣
+^v1
+^v2
+^v3
+⎤
+⎥
+⎦
+R
+–
+⎡
+⎢
+⎣
+v1
+v2
+v3
+⎤
+⎥
+⎦
+(29)
+[ ]
+T
+R
+–
+R
+–
+(24)
+v–
+v– = ∑vi e–i = ∑^vi ^e–i.
+(30)
+R
+–
+[ ]
+T
+R
+–
+RTR
+–
+I––
+t–
+n = ∑
+i
+t–
+i (n ⋅e–i) = ∑
+i
+t–
+^i (n ⋅^e–i)
+–
+–
+t–
+n
+(e–1, e–2, e–3)
+(^e–1, ^e–2, ^e–3)
+e–1
+(^e–1, ^e–2, ^e–3)
+e–1 =
+3
+∑
+i=1
+(e–1 ⋅^e–i)^e–i
+(e–1 ⋅^e–i)
+e–1
+^e–i
+e–j = ∑
+i
+(e–j ⋅^e–i)^e–i.
+8/27/26, 4:38 PM
+2 On Traction Vector, Stress Tensor and Stress Matrix
+https://web.iitd.ac.in/~ajeetk/smb/OnTractionVectorStressTensorandStressMatrix.html
+10/19
+NOTE: This also proves that stress tensor is independent of what three planes are chosen to form it, i.e.,
+.
+Q2. Suppose 
+ in 
+ coordinate system.
+What will be the traction on a plane with normal 
+ where 
+ is obtained from rotation of
+ about 
+ by 
+ (see the figure below)? What are the normal and shear components of traction on
+this plane?
+Solution: We simply have to use the formula
+.
+Keep in mind that the above is a tensor formula. To use it, we must write every quantity involved in the above
+formula in the same coordinate system! Let us use 
+ coordinate system here:
+.
+Therefore
+CAUTION: If you use 
+, you will get wrong result! Never mix the coordinate system! Either use
+ for all or use 
+ for all. The final result for 
+ will be in the coordinate system that you
+t–
+n = ∑
+i
+t–
+^i (n ⋅^e–i)
+= ∑
+i
+(∑
+j
+t–
+j (^e–i ⋅e–j)) (n ⋅^e–i) (t–
+^i is expressed using tractions on e–1, e–2, and e–3 planes)
+= ∑
+j
+t–
+j ∑
+i
+(n ⋅^e–i) (^e–i ⋅e–j) (upon changing the order of summation)
+= ∑
+j
+t–
+j  (n ⋅∑
+i
+^e–i (^e–i ⋅e–j)) = ∑
+j
+t–
+j (n ⋅e–j)
+(∵e–j = ∑
+i
+^e–i (^e–i ⋅e–j) as derived earlier).
+–
+–
+–
+–
+–
+σ = ∑
+i
+t–
+i ⊗e–i = ∑
+i
+t–
+^i ⊗^e–i
+–
+[t–
+1] =
+, [t–
+2] =
+, [t–
+3] =
+⎡
+⎢
+⎣
+0
+1
+0
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+1
+5
+7
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+0
+7
+9
+⎤
+⎥
+⎦
+(e–1, e–2, e–3)
+n = ^e–1
+–
+(^e–1, ^e–2, ^e–3)
+(e–1, e–2, e–3)
+e–3
+45∘
+t–
+n = ∑
+i
+t–
+i (n ⋅e–i)
+–
+(e–1, e–2, e–3)
+⇒[n](e–1,e–2,e–3) = [^e–1](e–1,e–2,e–3) =
+–
+⎡
+⎢
+⎣
+1/√2
+1/√2
+0
+⎤
+⎥
+⎦
+[t–
+n] = ∑
+i
+[t–
+i] ([n] ⋅[e–i]) = 1/√2
++ 1/√2
++ 0
+= 1/√2
+.
+–
+⎡
+⎢
+⎣
+0
+1
+0
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+1
+5
+7
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+0
+7
+9
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+1
+6
+7
+⎤
+⎥
+⎦
+[n] =
+–
+⎡
+⎢
+⎣
+1
+0
+0
+⎤
+⎥
+⎦
+(e–1, e–2, e–3)
+(^e–1, ^e–2, ^e–3)
+t–
+n
+8/27/26, 4:38 PM
+2 On Traction Vector, Stress Tensor and Stress Matrix
+https://web.iitd.ac.in/~ajeetk/smb/OnTractionVectorStressTensorandStressMatrix.html
+11/19
+choose. In order to get the normal component of traction, we need to find 
+ or 
+ which when
+expressed in 
+ coordinate system yields
+One can likewise obtain the shear components by taking the dot product of traction vector with 
+ and 
+.
+Q3. Show that the component of a traction vector on -plane in the direction 
+ equals the component of the
+traction on 
+-plane in the direction , i.e, 
+.
+Solution: To prove this, we will use the definition of stress tensor as follows:
+Q4. Consider a vertical bar having mass density . Assume its length be to 
+ and is subjected to uniform
+body force due to gravity. Find the traction vector on an infinitesimal internal section of the bar located at the
+center of its cross-section with outward normal
+and at a height of  from the base (see figure). Also find the normal and tangential components of the traction
+vector on this plane.
+Solution:
+Taking a horizontal section at height  and writing force balance of top part of bar yields
+t–
+n ⋅n
+–
+t–
+^1 ⋅^e–1
+(e–1, e–2, e–3)
+1/√2
+⋅
+= 7
+2 .
+⎡
+⎢
+⎣
+1
+6
+7
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+1/√2
+1/√2
+0
+⎤
+⎥
+⎦
+^e–2
+^e–3
+n
+–
+m
+–
+m
+–
+n
+–
+t–
+n ⋅m = t–
+m ⋅n
+–
+–
+t–
+n ⋅m = (σ n) ⋅m
+= n ⋅(σT m)
+= n ⋅(σ m) (due to symmetry of σ which will be proved later)
+= n ⋅t–
+m .
+–
+–
+–
+–
+–
+–
+–
+–
+–
+ρ
+H
+n = −sin θ e–1 + cos θ e–2
+–
+y
+y
+[t–
+2] =
+.
+⎡
+⎢
+⎣
+0
+−ρg(H −y)
+0
+⎤
+⎥
+⎦
+8/27/26, 4:38 PM
+2 On Traction Vector, Stress Tensor and Stress Matrix
+https://web.iitd.ac.in/~ajeetk/smb/OnTractionVectorStressTensorandStressMatrix.html
+12/19
+Similarly taking a vertical section all along the bar and doing force balance either of left or right portion of the
+bar yields
+One can likewise show that 
+ also vanishes although it turns out this information is not required. In order to
+obtain traction on an infinitesimal inclined plane at the center of the horizontal section of the bar, we can use
+the tetrahedron formula, i.e.,
+The normal component of traction vector is given by the projection of 
+ along :
+The shear or tangential component of traction can then be obtained as follows:
+where 
+ is a unit vector perpendicular to  and lies in the plane of inclined section.
+Q5. Suppose the stress matrix in (
+, 
+, 
+) coordinate system is given by
+Think of a new coordinate system which is obtained by rotation of (
+, 
+, 
+) coordinate system by 
+about 
+ as in problem 2 above. Find the stress matrix in the new coordinate system.
+First, we need to find the rotation matrix. As derived earlier, this rotation matrix will be
+Now, we can apply the formula for stress matrix transformation, i.e., equation 
+. We get
+[t–
+1] =
+.
+⎡
+⎢
+⎣
+0
+0
+0
+⎤
+⎥
+⎦
+[t–
+3]
+[t–
+n] = ∑
+i
+[t–
+i] ([n] ⋅[e–i])
+=
+(−sin θ) +
+(cos θ) + [
+] 0 =
+.
+–
+⎡
+⎢
+⎣
+0
+0
+0
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+0
+−ρg(H −y)
+0
+⎤
+⎥
+⎦
+t–
+3
+⎡
+⎢
+⎣
+0
+−ρg(H −y) cos θ
+0
+⎤
+⎥
+⎦
+t–
+n
+n
+–
+tnormal = t–
+n ⋅n
+= −ρg(H −y) cos θ (e–2 ⋅n) = −ρg(H −y) cos2 θ.
+–
+–
+ttangential = t–
+n ⋅n⊥
+= −ρg(H −y) cos θ e–2 ⋅(cos θ e–1 + sin θ e–2) = −ρg(H −y) cos θ sin θ
+–
+n⊥
+–
+n
+–
+e–1 e–2 e–3
+[ ](e–1,e–2,e–3) =
+.
+σ
+–
+⎡
+⎢
+⎣
+1
+√2
+1
+√2
+0
+1
+√2
+1
+√2
+0
+0
+0
+1
+⎤
+⎥
+⎦
+e–1 e–2 e–3
+45°
+e–3
+[ ](e–1,e–2,e–3) =
+=
+.
+R
+–
+⎡
+⎢
+⎣
+cos(45°)
+−sin(45°)
+0
+sin(45°)
+cos(45°)
+0
+0
+0
+1
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+1
+√2
+−1
+√2
+0
+1
+√2
+1
+√2
+0
+0
+0
+1
+⎤
+⎥
+⎦
+(28)
+8/27/26, 4:38 PM
+2 On Traction Vector, Stress Tensor and Stress Matrix
+https://web.iitd.ac.in/~ajeetk/smb/OnTractionVectorStressTensorandStressMatrix.html
+13/19
+From this, we observe that the second column has all zeros which implies that there is no traction on 
+ plane.
+The traction on 
+ plane has just the first component non-zero - only normal component of traction acts here.
+Let us verify the new stress matrix by directly finding the traction on one of the planes say 
+ plane:
+This is a vector equation. Let’s write this down in (
+) coordinate system. To know the traction
+columns, we look at the stress matrix given in (
+) coordinate system. To obtain the column form of 
+,
+we look at the second column of our rotation matrix. Thus
+This zero column represents 
+ in (
+) coordinate system. But being a ‘zero column’ means that its
+representation in any coordinate system will also be a zero column. Therefore, the 
+ column of 
+turned out to be a zero column earlier.
+Q6. A tapered beam is clamped at one end and subjected to a transverse load (along 
+) at the other end.
+Think of a point A on the top slanted surface of the beam. What can you say about the state of stress at point
+A? Suppose we know 
+ at point A. Can we find the components 
+ at point A? Assume that the
+internal traction on any plane and at any point in the body has no component along 
+. [AMS, LSS]
+Solution: Notice that point A lies on the slanted surface where no external load is being applied! Furthermore,
+the slanted surface has normal 
+.
+This implies 
+ at point A (this does not mean 
+)
+[ ](^e–1,^e–2,^e–3) =
+.
+σ
+–
+⎡
+⎢
+⎣
+√2
+0
+0
+0
+0
+0
+0
+0
+1
+⎤
+⎥
+⎦
+^e–2
+^e–1
+^e–2
+t–
+^2 =
+3
+∑
+i=1
+t–
+i (^e–2 ⋅e–i).
+e–1, e–2, e–3
+e–1, e–2, e–3
+^e–2
+[
+]
+(e–1,e–2,e–3) =
+(−1
+√2
+) +
+( 1
+√2
+) +
+(0) =
+.
+t–
+^2
+⎡
+⎢
+⎣
+1
+√2
+1
+√2
+0
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+1
+√2
+1
+√2
+0
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+0
+0
+1
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+0
+0
+0
+⎤
+⎥
+⎦
+t–
+^2
+e–1, e–2, e–3
+2nd
+[ ](^e–1,^e–2,^e–3)
+σ
+–
+e–2
+^σ11
+τ21, σ11, ^τ21
+e–3
+^e–2
+t–
+^2 = 0–
+t–
+2 = 0–.
+8/27/26, 4:38 PM
+2 On Traction Vector, Stress Tensor and Stress Matrix
+https://web.iitd.ac.in/~ajeetk/smb/OnTractionVectorStressTensorandStressMatrix.html
+14/19
+If we write the stress matrix in a coordinate system of (
+), then the 
+ column will be zero (
+).
+Furthermore, the third row will also be zero since tractions have zero components along 
+ (which equals 
+).
+Thus
+We will see in next chapter that the stress matrix is also symmetric. Hence
+.
+Hence, 
+ is the only non-zero quantity! Note that 
+=0 (since 
+. From here, we can then transform
+the stress matrix to 
+ coordinate system.
+If 
+There is another way to obtain these components. Let us first obtain the traction on 
+-plane using 
+.
+As we have 
+ readily available in the ‘hat’ coordinate system, we can write the tensor formula to obtain
+ in the ‘hat’-coordinate system.
+!
+: Don’t make a mistake by writing 
+.
+Q7. The state of stress at a point is given by 
+.
+What should be 
+ such that there is at least one plane at that point on which the traction vanishes? Also, find
+the corresponding plane normal.
+Solution: We basically want 
+ for at least one !
+^e–1, ^e–2, ^e–3
+2nd
+t–
+^2 = 0–
+e–3
+^e–3
+[σ (A)]
+(^e–1,^e–2,^e–3) =
+.
+–
+⎡
+⎢
+⎣
+X
+0
+X
+X
+0
+X
+0
+0
+0
+⎤
+⎥
+⎦
+[σ(A)]
+(^e–1,^e–2,^e–3) =
+–
+⎡
+⎢
+⎣
+X
+0
+0
+0
+0
+0
+0
+0
+0
+⎤
+⎥
+⎦
+^σ11
+^τ21
+^τ12 = 0)
+(e–1, e–2, e–3)
+^e–i = R e–i ⇒[R]
+(e–1,e–2,e–3) =
+–
+–
+⎡
+⎢
+⎣
+cos θ
+sin θ
+0
+−sin θ
+cos θ
+0
+0
+0
+1
+⎤
+⎥
+⎦
+and  ^
+[σ] = [R]
+T
+[σ] [R]
+–
+–
+–
+⇒[σ] = [R] ^
+[σ][R]
+T
+=
+=
+⇒σ11 = ^σ11 cos2 θ,  τ12 = τ21 = −^σ11 sin θ cos θ,  σ22 = ^σ11 sin2 θ.
+–
+–
+–
+⎡
+⎢
+⎣
+cθ
+sθ
+0
+−sθ
+cθ
+0
+0
+0
+1
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+^σ11
+0
+0
+0
+0
+0
+0
+0
+0
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+cθ
+−sθ
+0
+sθ
+cθ
+0
+0
+0
+1
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+^σ11 cos2 θ
+−^σ11sθcθ
+0
+−^σ11sθcθ
+^σ11 sin2 θ
+0
+0
+0
+0
+⎤
+⎥
+⎦
+e–1
+t–
+1 = σ e–1
+–
+[σ]
+–
+[t–
+1]
+⇒[t–
+1](^e–1,^e–2,^e–3) = [σ]
+(^e–1,^e–2,^e–3)[e–1](^e–1,^e–2,^e–3) =
+=
+–
+⎡
+⎢
+⎣
+^σ11
+0
+0
+0
+0
+0
+0
+0
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+cos θ
+sin θ
+0
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+^σ11 cos θ
+0
+0
+⎤
+⎥
+⎦
+⇒σ11 = t–
+1 ⋅e–1 = [t–
+1](^e–1,^e–2,^e–3) ⋅[e–1](^e–1,^e–2,^e–3) =
+⋅
+= ^σ11 cos2 θ
+⎡
+⎢
+⎣
+^σ11 cos θ
+0
+0
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+cos θ
+sin θ
+0
+⎤
+⎥
+⎦
+Caution
+[e–1](^e–1,^e–2,^e–3) =
+⎡
+⎢
+⎣
+1
+0
+0
+⎤
+⎥
+⎦
+[σ] =
+–
+⎡
+⎢
+⎣
+σ11
+2
+1
+2
+0
+3
+1
+3
+0
+⎤
+⎥
+⎦
+σ11
+σ n = 0–
+–
+n
+–
+8/27/26, 4:38 PM
+2 On Traction Vector, Stress Tensor and Stress Matrix
+https://web.iitd.ac.in/~ajeetk/smb/OnTractionVectorStressTensorandStressMatrix.html
+15/19
+or 
+From matrix property, we know that this happens only when the determinant of the matrix vanishes
+The plane normal  would simply be the eigenvector of above matrix corresponding to zero eigenvalue.
+Q8. Suppose a body is under stress and the stress tensor at an arbitrary point  in the body is denoted by .
+Further, suppose the stressed body is then rigidly rotated where the corresponding rotation is denoted by the
+tensor 
+. Let us think of a coordinate system attached with the stressed body which also rotates when the
+stressed body rotates.
+(i) What can you say about the stress matrix in the body before and after rotation in the coordinate system
+attached with the body?
+(ii) What happens to the stress matrix in a fixed coordinate system not attached to the body?
+(iii) What happens to the stress tensor due to rotation of the stressed body?
+Solution: (i) Keep in mind that rigid rotation does not induce extra stain in the body! Further, stress being
+proportional to strain, stress components in a body-fixed coordinate system should not change! Hence, there
+will be no change in the stress matrix in a coordinate system fixed to the body!
+(ii) Suppose the rotation tensor for rigid rotation is 
+. Furthermore, let 
+ before rotation!
+Concentrate on these three planes with their normals along coordinate axis. After rotation
+So,
+(iii) It transforms to 
+. In a fixed coordinate system (say 
+):
+Hence, the stress matrix in (
+) coordinate system changes!
+=
+⎡
+⎢
+⎣
+σ11
+2
+1
+2
+0
+3
+1
+3
+0
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+n1
+n2
+n3
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+0
+0
+0
+⎤
+⎥
+⎦
+⇒det ([σ]) = σ11 × [−9] −2 × [−3] + 1 × 6 = 0
+⇒−9σ11 + 6 + 6 = 0 or σ11 = 4/3.
+–
+n
+–
+x
+–
+σ
+–
+R
+–
+R
+–
+σ = ∑
+i
+t–
+i ⊗e–i
+–
+e–i →R e–i,
+t–
+i →R t–
+i.
+–
+–
+σR(after rotation) = ∑
+i
+t–
+i,R ⊗e–
+R
+i = ∑
+i
+R t–
+i ⊗R e–i = R (∑
+i
+t–
+i ⊗e–i)RT = R σ RT.
+–
+–
+–
+–
+–
+–
+R σ RT
+–
+E1 −E2 −E3
+–
+–
+–
+[σR]
+[E1−E2−E3] = [R σ RT]
+[E1−E2−E3]
+= [R]
+[E1−E2−E3][σ]
+[E1−E2−E3][RT]
+[E1−E2−E3].
+–
+–
+–
+–
+–
+–
+–
+–
+–
+–
+–
+–
+–
+–
+–
+E1 −E2 −E3
+–
+–
+–
+8/27/26, 4:38 PM
+2 On Traction Vector, Stress Tensor and Stress Matrix
+https://web.iitd.ac.in/~ajeetk/smb/OnTractionVectorStressTensorandStressMatrix.html
+16/19
+2.7 Objective questions to recall concepts
+(1)
+Which of the following statement is true about traction?
+(a)
+It varies from point to point in a body.
+(b)
+At a point in the body, traction on two different planes are always the same.
+(c)
+At a point, we need to know the value of traction on just three planes to obtain traction on
+any other plane at that point.
+(d)
+It is a vector quantity and has the unit of pressure.
+(2)
+Traction at a point on planes which have oppositely directed normals
+(a)
+are not related.
+(b)
+are negative of each other due to Newton’s 
+ law.
+(c)
+are negative of each other due to Newton’s 
+ law.
+(d)
+are related by acceleration of the body.
+(3)
+The formula to obtain traction on an arbitrary plane at a point requires the following:
+(a)
+Information of traction on three planes at the same point
+(b)
+Information of traction on planes at an adjacent point
+(c)
+Magnitude of body force at that point
+(d)
+Acceleration of the body at that point
+(4)
+The normal component of traction on 
+ plane equals the shear component of traction on 
+ plane.
+State whether true or false.
+(5)
+Think of a circular bar hanging due its own weight. The magnitude of normal component of traction
+on its cross-sectional plane
+(a)
+remains constant along its length.
+(b)
+increases from bottom to top.
+(c)
+decreases from bottom to top.
+(d)
+none of these
+(6)
+Suppose we know the value of traction on only two perpendicular planes at a point. Which of the
+following is (are) true?
+(a)
+This information is not sufficient to obtain the value of traction on any other plane at that
+point.
+(b)
+We can obtain the value of traction on any plane whose normal lies in the plane formed by
+the normals of the two given planes.
+(c)
+We also need to know the value of traction on planes at a different point in the body.
+(d)
+None of these
+(7)
+Under what condition does the formula 
+ to obtain traction on an arbitrary plane
+holds?
+(a)
+only when the body is in static equilibrium.
+(b)
+only when no body force acts.
+(c)
+only when the body is not rotating.
+(d)
+It holds always.
+(8)
+What can you say about stress tensor?
+(a)
+It does not vary from point to point in a body.
+(b)
+At a point, the stress tensor is unique.
+(c)
+It is a second order tensor.
+(d)
+Its representation is a matrix.
+2nd
+3rd
+e–1
+e–2
+t–
+n = ∑i t–
+i (n ⋅e–i)
+–
+8/27/26, 4:38 PM
+2 On Traction Vector, Stress Tensor and Stress Matrix
+https://web.iitd.ac.in/~ajeetk/smb/OnTractionVectorStressTensorandStressMatrix.html
+17/19
+(9)
+Suppose we obtain stress tensor at a point in the body by choosing two different sets of three planes
+at a point. The stress tensor then obtained using the two different sets will be different. Is it true or
+false?
+(10)
+The off-diagonal components of a stress matrix represent
+(a)
+normal components of traction on corresponding planes.
+(b)
+shear components of traction on corresponding planes.
+(c)
+both normal and shear components of traction.
+(d)
+Nnne of these
+(11)
+What can you say about Stress matrix at a point in the body?
+(a)
+Stress matrix and stress tensors are same.
+(b)
+Stress matrix is unique at a point.
+(c)
+Stress matrix at a point in the body will be different for different coordinate systems.
+(d)
+None of these
+(12)
+The diagonal components of a stress matrix represent
+(a)
+the normal components of traction on corresponding planes.
+(b)
+the shear components of traction on corresponding planes.
+(c)
+both normal and shear components of traction on corresponding planes.
+(d)
+None of these
+(13)
+What does the following stress matrix represent?
+ = 
+(a)
+No traction on 
+ plane.
+(b)
+Traction on 
+ plane is along 
+.
+(c)
+Normal stress components are all zero.
+(d)
+All of these
+(14)
+If we multiply stress matrix in coordinate system ‘A’ with the column of normal vector in coordinate
+system ‘B’,
+(a)
+we obtain traction on the plane having the same normal.
+(b)
+we obtain traction on the plane having the same normal but the traction is represented in
+coordinate system ‘B’.
+(c)
+We obtain traction on the plane having the same normal but the traction is represented in
+coordinate system ‘A’.
+(d)
+None of the above.
+(15)
+Traction on how many planes are needed to completely define the stress tensor at a point?
+(a) 1 (b) 2 (c) 3 (d)none of these
+(16)
+Given below is an equation that transforms stress matrix from (
+-
+-
+) coordinate system to (
+-
+-
+) coordinate system:
+ = 
+Which of the following is true about  in the above equation?
+(a)
+It is an orthogonal tensor.
+(b)
+It is the tensor that rotates the basis vectors 
+ to 
+.
+[σ](e1,e2,e3)
+–
+⎡
+⎢
+⎣
+√2
+0
+0
+1
+0
+0
+0
+1
+0
+⎤
+⎥
+⎦
+e3
+e2
+e3
+e–1 e–2 e–3
+^e–1
+^e–2 ^e–3
+[σ](^e–1,^e–2,^e–3)
+–
+[R][σ][R]T
+(e–1,e–2,e–3)
+–
+–
+
+
+
+
+
+R
+–
+^e–i
+e–i
+8/27/26, 4:38 PM
+2 On Traction Vector, Stress Tensor and Stress Matrix
+https://web.iitd.ac.in/~ajeetk/smb/OnTractionVectorStressTensorandStressMatrix.html
+18/19
+(c)
+It is the tensor that rotates the basis vectors 
+ to 
+.
+(d)
+None of these
+2.8 Questions to practise
+(1)
+Think of a stress tensor whose matrix form has zero off-diagonal components in the third column.
+Now, think of a new coordinate system which is obtained by rotating the original coordinate system
+relative to its third axis. What all can you say about the stress matrix in the new coordinate system?
+(2)
+Suppose we have a general stress matrix in (
+-
+-
+) coordinate system. A new coordinate system
+is obtained by rotating the original coordinate system by 
+ about 
+ axis and the stress matrix in
+the new coordinate system is evaluated. Which of the following is true?
+(Hint: You can use stress transformation equation but you can also think geometrically.)
+(a)
+The second row of the stress matrix remains unchanged after the change of the coordinate
+system.
+(b)
+The second column of the stress matrix remains unchanged after the change of coordinate
+system.
+(c)
+Only the diagonal elements of the stress matrix remain unchanged after the change of
+coordinate system.
+(3)
+The state of stress at a point (in MPa) is as follows:
+ = 
+.
+What will be the value of normal component of traction on a plane whose normal is 
+ (it is in the
+direction of 
+)?
+(4)
+Suppose the traction vector on three perpendicular planes with normals ( , , ) are as follows:
+, 
+, 
+.
+Here 
+, 
+, 
+ and (
+, 
+, 
+) are the standard basis
+vectors of a Cartesian coordinate system.
+(a)
+Write down the corresponding stress tensor.
+(b)
+Write down the stress matrix in the coordinate system of both ( , , ) and (
+, 
+, 
+).
+If you would like to share any feedback/comment: click here
+∗For simplicity, we have assumed here that we have the same traction at every point on this section although that is not the usual case.
+†Note that we always consider outward normals.
+‡In most books, 
+ denotes the 
+ component of traction on 
+ plane but we will follow our convention since it comes out this way
+naturally. Our convention also aligns with the convention for components of other stress measures such as the first Piola-Kirchhoff stress
+tensor in nonlinear elasticity.
+e–i
+^e–i
+e–1 e–2 e–3
+180∘
+e–2
+[σ](e1,e2,e3)
+–
+⎡
+⎢
+⎣
+10
+50
+−50
+50
+0
+0
+−50
+0
+0
+⎤
+⎥
+⎦
+e–
+′
+1
+e–1 + 2e–2 + 3e–3
+a– b– c–
+t–
+a = −1e–1 + √3e–2 t–
+b = √3e–1 + 1e–2 t–
+c = 10e–3
+a = 1
+2 (√3e–1 + e–2) b = 1
+2 (−e–1 + √3e–2) c = e–3
+e–1 e–2 e–3
+a– b– c–
+e–1 e–2 e–3
+τij
+jth
+ith
+8/27/26, 4:38 PM
+2 On Traction Vector, Stress Tensor and Stress Matrix
+https://web.iitd.ac.in/~ajeetk/smb/OnTractionVectorStressTensorandStressMatrix.html
+19/19

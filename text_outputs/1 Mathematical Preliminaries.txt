@@ -1,0 +1,1715 @@
+Chapter 1
+Mathematical Preliminaries
+In this introductory chapter, we will get familiar with vectors, tensors and various mathematical operations
+involving them. The concepts covered here will be used throughout the book. Hence, they are of paramount
+importance.
+(For author information and the accompanying book: click here
+    If you would like to share any feedback/comment: click here)
+Figure 1.1: A vector  drawn in a Cartesian coordinate system
+1.1 A vector and its representation: NPTEL link
+In layman’s term, a vector has both magnitude and direction. It is denoted by an arrow as shown in Figure
+1.1. The length of the arrow signifies the vector’s magnitude while the arrow’s orientation signifies the
+vector’s direction.∗We have also shown a Cartesian coordinate system there whose basis vectors are (
+,
+). The component of a vector  along the basis vector 
+ is given by
+Geometrically, this implies projection of the vector on to the basis vector 
+. The three components of a
+vector can be written together in a column form which we denote by the symbol 
+ and write
+The subscript in 
+ signifies the coordinate system relative to which the vector components have
+been obtained. At this point, one should note that 
+ and  are not the same: the former is the
+representation of the latter in the specified coordinate system. More importantly, a vector is independent of
+the coordinate system but its representation changes from one coordinate system to the other. To elaborate
+→v
+e–1, e–2
+e–3
+→v
+e–i
+vi =→v ⋅e–i.
+(1)
+e–i
+[ ]
+(e–1,e–2,e–3)
+→v
+[ ]
+(e–1,e–2,e–3) =
+.
+→v
+⎡
+⎢
+⎣
+v1
+v2
+v3
+⎤
+⎥
+⎦
+(2)
+[ ]
+(e–1,e–2,e–3)
+→v
+[ ]
+(e–1,e–2,e–3)
+→v
+→v
+8/27/26, 4:38 PM
+1 Mathematical Preliminaries
+https://web.iitd.ac.in/~ajeetk/smb/MathematicalPreliminaries.html#x6-50001
+1/14
+this point, think of a unit vector  lying in space and being viewed from two different coordinate systems
+having basis vectors (
+, 
+) and (
+, 
+) respectively - see Figure 1.2. The dashed coordinate system
+there can be obtained by rotating the black coordinate system by 45 about 
+ axis.
+Figure 1.2: A vector  being observed from two different coordinate systems
+The vector  itself lies in 
+ - 
+ plane and makes an angle of 45 from 
+ axis. This also implies that  is
+directed along 
+, i.e., the first basis vector of the dashed coordinate system. The representation of  in the
+two coordinate systems will thus be
+Thus, the representation (column form) of a vector varies from one coordinate system to the other but the
+vector itself is still directed in the same way in space and hence is independent of the coordinate system. It is
+also useful to note the below form for a vector:
+From now on, we will denote a vector  by , i.e, instead of the overhead arrow, we will use an underbar.
+1.2 Dot-product, Cross-product and Tensor-product of two vectors:
+NPTEL link
+Let us now talk about three ways in which two vectors can be operated together. We begin first with dot
+product. The dot product of two vectors yields a scalar quantity and hence it is also called the scalar product.
+It is defined as follows:
+Basically, the dot product of two vectors is obtained by summing the product of the corresponding
+components of those two vectors. From this definition, it appears that the dot product will be different in
+→v
+e–1, e–2 e–3
+^e–1, ^e–2 ^e–3
+∘
+e–3
+→v
+→v
+e–1
+e–2
+∘
+e–1
+→v
+^e–1
+→v
+[ ]
+(e–1,e–2,e–3) =
+,
+[ ]
+(^e–1,^e–2,^e–3) =
+.
+→v
+⎡
+⎢
+⎣
+1
+√2
+1
+√2
+0
+⎤
+⎥
+⎦
+→v
+⎡
+⎢
+⎣
+1
+0
+0
+⎤
+⎥
+⎦
+(3)
+→v =
+3
+∑
+i=1
+(→v ⋅e–i) e–i =
+3
+∑
+i=1
+vi e–i
+=
+3
+∑
+i=1
+(→v ⋅^e–i) ^e–i =
+3
+∑
+i=1
+^vi ^e–i.
+(4)
+→v
+v–
+a– ⋅b– =
+3
+∑
+i=1
+aibi = [
+]1×3
+3×1
+= [ ]T [ ]
+= ||a–|| ||b–|| cos(θ).
+a1
+a2
+a3
+⎡
+⎢
+⎣
+b1
+b2
+b3
+⎤
+⎥
+⎦
+a–
+b–
+(5)
+8/27/26, 4:38 PM
+1 Mathematical Preliminaries
+https://web.iitd.ac.in/~ajeetk/smb/MathematicalPreliminaries.html#x6-50001
+2/14
+different coordinate systems since it involves the components of two vectors. However, as per the second
+formula above which is geometric in nature, it also equals the product of the magnitude of the two vectors
+multiplied by cosine of the angle between them. The second definition implies that the dot product of two
+vectors is independent of the coordinate system since neither the magnitude of a vector nor does the angle
+between two vectors change upon change of coordinate system.
+Figure 1.3: Graphical illustration of cross-product 
+: the shaded parallelogram is the magnitude of
+cross-product whereas the plane normal  is along the cross-product direction.
+The cross product of two vectors yields a vector due to which it is also called the vector product. Like dot
+product, it is also independent of the coordinate system. Geometrically, it is defined as follows:
+Here  is a unit vector perpendicular to the plane formed by  and . Its direction is given by the right hand
+thumb rule: when we curl our fingers from  towards , the thumb points towards . The cross-product also
+equals the area vector of a parallelogram whose sides are formed by  and  (see Figure 1.3 for a graphical
+illustration). In a coordinate system, say (
+, 
+), the cross product can be written as follows:
+Thus, the cross product of two vectors can also be realized as the product of a skew symmetric matrix (a
+matrix whose diagonal elements are 0 and off-diagonal elements are negative of each other) times the
+column of the second vector. The components of the skew-symmetric matrix are formed by the components
+of the first vector . In order to easily remember how to form the skew-symmetric matrix from the
+components of , one can think of the following trick: to get the component in the 
+ row and 
+ column,
+the component of  that will be used will be the third index (other than i and j). For example, for 
+ row and
+ column of the matrix, 
+ component 
+ will be used. One then just has to remember where to place the
+negative signs. We also say
+Basically, whenever we have a skew symmetric matrix, we can form a column from the three independent
+entries of that matrix and call the resultant column the axial/axial vector of that skew symmetric matrix.
+Let us now talk of tensor product. This is a different kind of product which we may not have heard of yet.
+Through this product, we will also introduce a general notion of tensors. The tensor product of two vectors
+yields what is called a second order tensor which we write as follows:
+Here  (with two underbars) denotes a second order tensor. The tensor product is represented as follows in a
+coordinate system:
+a– × b–
+c–
+a– × b– = ||a–|| ||b–|| sin(θ) c–.
+(6)
+c–
+a–
+b–
+a–
+b–
+c–
+a–
+b–
+e–1, e–2 e–3
+[
+](e–1,e–2,e–3) = [ ](e–1,e–2,e–3) × [ ](e–1,e–2,e–3) =
+=
+.
+a– × b–
+a–
+b–
+⎡
+⎢
+⎣
+(a2b3 −a3b2)
+(a3b1 −a1b3)
+(a1b2 −a2b1)
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+0
+−a3
+a2
+a3
+0
+−a1
+−a2
+a1
+0
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+b1
+b2
+b3
+⎤
+⎥
+⎦
+(7)
+a–
+a–
+ith
+jth
+a–
+1st
+2nd
+3rd
+a3
+[ ] =
+= axial
+.
+a–
+⎡
+⎢
+⎣
+a1
+a2
+a3
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+0
+−a3
+a2
+a3
+0
+−a1
+−a2
+a1
+0
+⎤
+⎥
+⎦
+(8)
+a– ⊗b– = C.
+–
+(9)
+C
+–
+8/27/26, 4:38 PM
+1 Mathematical Preliminaries
+https://web.iitd.ac.in/~ajeetk/smb/MathematicalPreliminaries.html#x6-50001
+3/14
+Notice that the tensor product implies that the second vector is transposed. This is in contrast with the dot
+product where the first vector is transposed. The above definition implies that the representation of this
+second order tensor C is a matrix whose individual components are given by
+1.3 Second order tensors and their representation: NPTEL link
+The tensor product could also be written as follows:
+Notice that we can move scalars anywhere in an expression, e.g., we moved 
+ from right to left of the tensor
+product symbol and further to the left of vector 
+. We cannot do the same with vectors, e.g., we cannot
+change the order of appearance of the two vectors. Upon contrasting the above form with the expansion of a
+vector in equation 
+, we make a note that, just like a general vector is expressed as a linear combination of
+three basis vectors, a second order tensor can be expressed as a linear combination of nine basis tensors.
+Each of the basis tensors (
+) here are themselves tensors. A general second order tensor can be written
+as follows:
+The nine coefficients in 
+ are, in general, independent of each other. The coefficient 
+ can be thought of
+as the component of the tensor  along the basis tensor 
+. Using 
+, we can also write the following
+for one of the basis tensors:
+Thus, just like basis vectors 
+ have column form, each of the basis tensors has a matrix form. Using 
+and 
+, it is easy to see that the coefficient 
+ in 
+ also forms the 
+ row and 
+ column of the matrix
+representation of 
+ in (
+) coordinate system, i.e, 
+. Just like vectors, the matrix form of a
+tensor changes from one coordinate system to the other but the tensor itself does not change, e.g.,
+Thus, we get different matrices in different coordinate system but the tensor itself is still the same. As a final
+remark, tensors can be of any order which are all independent of the coordinate system but their
+representations change from one coordinate system to the other. For example, all scalars are zeroth order
+tensors whereas all vectors are first order tensors. We can also have third and fourth (even higher) order
+tensors. A common question often comes to our mind. There are several examples of vectors in real life
+(velocity, force etc.). Do tensors exist in reality or are they abstract quantities? We will have a clearer answer
+[ ](e–1,e–2,e–3) = [
+](e–1,e–2,e–3) = [ ]3×1 ([ ]3×1)T.
+C
+–
+a– ⊗b–
+a–
+b–
+(10)
+Cij = ai bj.
+(11)
+C = a– ⊗b– = (∑
+i
+ai e–i) ⊗(∑
+j
+bj e–j) = ∑
+i
+∑
+j
+aibj e–i ⊗e–j.
+–
+(12)
+bj
+e–i
+(4)
+e–i ⊗e–j
+C = ∑
+i
+∑
+j
+Cij e–i ⊗e–j.
+–
+(13)
+Cij
+Cij
+C
+e–i ⊗e–j
+(10)
+[
+](e–1,e–2,e–3) =
+[
+] =
+.
+e–1 ⊗e–2
+⎡
+⎢
+⎣
+1
+0
+0
+⎤
+⎥
+⎦
+0
+1
+0
+⎡
+⎢
+⎣
+0
+1
+0
+0
+0
+0
+0
+0
+0
+⎤
+⎥
+⎦
+(14)
+e–i
+(13)
+(14)
+Cij
+(13)
+ith
+jth
+C
+–
+e–1, e–2, e–3
+[ ](e–1,e–2,e–3)
+C
+–
+C = ∑
+i
+∑
+j
+Cij e–i ⊗e–j = ∑
+i
+∑
+j
+^Cij ^e–i ⊗^e–j.
+–
+(15)
+↓(matrix form) ↓
+   [
+]
+[
+]
+Cij
+^Cij
+8/27/26, 4:38 PM
+1 Mathematical Preliminaries
+https://web.iitd.ac.in/~ajeetk/smb/MathematicalPreliminaries.html#x6-50001
+4/14
+to this question as we progress through the book. We also have the concept of transpose of a tensor. For a
+second order tensor 
+, its transpose is defined to be 
+. For a general second order tensor of the form
+we can write its transpose to be
+Basically, the order of two vectors in tensor product operation is flipped. Upon further renaming 
+ and
+, we get
+From definitions 
+ and 
+, one can then realize that the matrix form of transpose of 
+ is equal to the
+transpose of the matrix form of , i.e.,
+1.4 Multiplying a second order tensor with a vector: dot product
+and tensor product: NPTEL link
+Just like there are several ways in which two vectors can be multiplied (scalar product, vector product, tensor
+product), the same can be said about multiplication of a second order tensor with a vector.
+We start with the dot product of a tensor with a vector. It is also called single contraction and is defined as
+follows:
+Often, the dot symbol is suppressed when we mean this single contraction. To proceed further, the second
+vector from the 2nd order tensor is dotted with the first order tensor, i.e.,
+Here 
+ is called the Kronecker delta function and is defined as follows:
+Now consider the summation over  in 
+. Due to the Kronecker delta function present there, only the
+term having 
+ will contribute to the summation and others will be zero. Thus, we can get rid of the
+summation over  and replace  by  at all places, i.e.,
+As any general vector can be written as 
+, the term in the parentheses above turns out to be 
+.
+Thus, when we dot product/single contract a second order tensor with a vector, we get a vector whose
+a– ⊗b–
+b– ⊗a–
+A = ∑
+i
+∑
+j
+Aij e–i ⊗e–j,
+–
+(16)
+AT = ∑
+i
+∑
+j
+Aij e–j ⊗e–i.
+–
+(17)
+i →j
+j →i
+AT = ∑
+j
+∑
+i
+Aji e–i ⊗e–j.
+–
+(18)
+(16)
+(18)
+A
+–
+A
+–
+[AT] = [A]T.
+–
+–
+a– = C ⋅b– = (∑
+i
+∑
+j
+Cij e–i ⊗e–j) ⋅(∑
+k
+bk e–k) = ∑
+i
+∑
+j
+∑
+k
+Cij bk (e–i ⊗e–j)  ⋅e–k.
+–
+(19)
+C ⋅b– = ∑
+i
+∑
+j
+∑
+k
+Cij bk e–i (e–j ⋅e–k) = ∑
+i
+∑
+j
+∑
+k
+Cij bk e–i δjk.
+–
+(20)
+δjk
+δjk = {1
+if j = k
+0
+if j ≠k
+(21)
+k
+(20)
+k = j
+k
+k
+j
+a– = C ⋅b– = ∑
+i
+(∑
+j
+Cijbj) e–i.
+–
+(22)
+a– = ∑i ai e–i
+ai
+8/27/26, 4:38 PM
+1 Mathematical Preliminaries
+https://web.iitd.ac.in/~ajeetk/smb/MathematicalPreliminaries.html#x6-50001
+5/14
+components are given by
+Thus, we simply multiply the matrix form of  with the column form of  in the usual way to get the column
+form of the resulting vector . At this point, let us recall the cross product definition in 
+ where we had
+written it as a skew symmetric matrix times a vector. On further noting the multiplication we just saw in 
+, we immediately conclude that the cross product of two vectors can also be thought of as a second order
+tensor dotted with the second vector where the second order tensor corresponds to the first vector, i.e.,
+We also have tensor product of a second order tensor with a vector: the outcome is a third order tensor. It is
+defined as follows:
+Extracting the coefficients in the matrix representation of a second order tensor
+To get the coefficient, say 
+, of the matrix form of a tensor 
+ in 
+ coordinate system, we’ll
+verify that
+Let us write the above equation in 
+ coordinate system for 
+:
+This verifies equation 
+. Stated differently, by using equation 
+, we are able to extract the component
+of an arbitrary second order tensor  relative to the basis tensor 
+.
+1.5 Multiplying two second order tensors: single-contraction, dou‐
+ble-contraction and tensor product: NPTEL link
+There are again various ways in which two second order tensors can be operated together. We begin with
+single contraction. The single contraction of two second order tensors yields another second order tensor.
+This single contraction is defined as follows:
+ai = ∑
+j
+Cijbj = [
+]
+Ci1
+Ci2
+Ci3
+⎡
+⎢
+⎣
+b1
+b2
+b3
+⎤
+⎥
+⎦
+(23)
+↘
+ith row of [ ]
+C
+–
+⇒
+= [ ] [ ].
+⎡
+⎢
+⎣
+a1
+a2
+a3
+⎤
+⎥
+⎦
+C
+–
+b–
+(24)
+C
+b
+a
+(7)
+(24)
+c– = a– × b– = a–– ⋅b–.
+(25)
+a–––
+= C ⊗b– = (∑
+i
+∑
+j
+Cij e–i ⊗e–j) ⊗(∑
+k
+bk e–k) = ∑
+i
+∑
+j
+∑
+k
+Cij bk e–i ⊗e–j ⊗e–k.
+–
+(26)
+Ckl
+C
+–
+(e–1, e–2, e–3)
+Ckl = (C ⋅e–l) ⋅e–k.
+–
+(27)
+(e–1, e–2, e–3)
+k = 1, l = 2
+(C ⋅e–2) ⋅e–1 =
+⋅
+=
+⋅
+= C12.
+–
+⎛
+⎜
+⎝
+⎡
+⎢
+⎣
+C11
+C12
+C13
+C21
+C22
+C23
+C31
+C32
+C33
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+0
+1
+0
+⎤
+⎥
+⎦
+⎞
+⎟
+⎠
+⎡
+⎢
+⎣
+1
+0
+0
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+C12
+C22
+C32
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+1
+0
+0
+⎤
+⎥
+⎦
+(27)
+(27)
+C
+–
+e–k ⊗e–l
+8/27/26, 4:38 PM
+1 Mathematical Preliminaries
+https://web.iitd.ac.in/~ajeetk/smb/MathematicalPreliminaries.html#x6-50001
+6/14
+Using Kronecker delta property, we then remove the summation over  and replace  with , i.e.,†
+This is the expression for C and a general second order tensor C can be written as 
+ (using
+equation 
+). Noting this in the above expression, we see that the expression within the bracket is 
+, i.e.,
+Writing this for all components together, we get
+Thus, we see that when two second order tensors are single-contracted, their matrix forms multiply in the
+usual way: the matrix form of the resultant tensor is simply the multiplication of the matrix forms of
+individual tensors.
+The double contraction of two second order tensors yields a scalar and is defined as follows:
+By definition, the corresponding vectors on two sides of “double contraction” are dotted, i.e., 
+ with 
+ and
+ with 
+. We thus obtain
+Basically, the corresponding components of two tensors are multiplied and summed - this is very much like
+we do in dot product of two vectors.
+We then talk of tensor product of two second order tensors. It yields a fourth order tensor as follows:
+C = a–– ⋅b–– = (∑
+i
+∑
+j
+aij e–i ⊗e–j) ⋅(∑
+k
+∑
+l
+bkl e–k ⊗e–l)
+= ∑
+i
+∑
+j
+∑
+k
+∑
+l
+aijbkl (e–i ⊗e–j) ⋅(e–k ⊗e–l)
+(the inner ones e–j and e–k are dotted by definition)
+⇒C = ∑
+i
+∑
+j
+∑
+k
+∑
+l
+aijbkl (e–i ⊗e–l) δjk.
+–
+–
+(28)
+j
+j
+k
+C = ∑
+i
+∑
+k
+∑
+l
+aikbkl e–i ⊗e–l = ∑
+i
+∑
+l
+(∑
+k
+aikbkl)e–i ⊗e–l.
+–
+(29)
+∑i ∑l Cil e–i ⊗e–l
+(13)
+Cil
+Cil = ∑
+k
+aikbkl = [
+]
+.
+ai1
+ai2
+ai3
+⎡
+⎢
+⎣
+b1l
+b2l
+b3l
+⎤
+⎥
+⎦
+↘
+↘
+ith row of [ ], lth column of [ ]
+a––
+b––
+[ ] = [ ] [ ].
+C
+–
+a––
+b––
+(30)
+c = a–– : b–– = (∑
+i
+∑
+j
+aij e–i ⊗e–j) : (∑
+k
+∑
+l
+bkl e–k ⊗e–l) = ∑
+i
+∑
+j
+∑
+k
+∑
+l
+aijbkl (e–i ⊗e–j) : (e–k ⊗e–l).
+e–i
+e–k
+e–j
+e–l
+c = ∑
+i
+∑
+j
+∑
+k
+∑
+l
+aijbklδikδjl = ∑
+i
+∑
+j
+aijbij.
+(31)
+c––––
+= a–– ⊗b–– = (∑
+i
+∑
+j
+aij e–i ⊗e–j) ⊗(∑
+k
+∑
+l
+bkl e–k ⊗e–l)
+= ∑
+i
+∑
+j
+∑
+k
+∑
+l
+aijbkl e–i ⊗e–j ⊗e–k ⊗e–l.
+(32)
+8/27/26, 4:38 PM
+1 Mathematical Preliminaries
+https://web.iitd.ac.in/~ajeetk/smb/MathematicalPreliminaries.html#x6-50001
+7/14
+1.6 Calculus of tensors: divergence and gradient
+The divergence of a tensor is defined as follows:
+For example, for a first order tensor:
+The gradient of a tensor is defined as follows:
+Notice its difference with the formula for the divergence of a tensor. The gradient of a vector , e.g., is
+It is a second order tensor whose matrix form is simply formed by the coefficient 
+. Similarly, the
+gradient of a scalar quantity is defined as follows:
+If we represent this vector in the coordinate system (
+, 
+, 
+), we get
+This is the column from of gradient that we have seen in first year math course. Notice that divergence
+reduces the order of a tensor by 1 whereas gradient increases the order of a tensor by 1.
+1.7 Rotation tensor: NPTEL link
+Figure 1.4: Two sets of orthonormal triads related through a rotation tensor
+As the name suggests, rotation tensors are related to physical rotation of objects. They can be used to rotate
+vectors as well as tensors. It should have the property such that after rotation, vectors and tensors do not
+change their magnitude but only direction. Let us consider two sets of orthonormal triads (see Figure 1.4:
+each set contains three vectors which are perpendicular to each other and also of unit magnitude). One can
+∇⋅(∘) = ∑
+i
+∂
+∂xi
+(∘) ⋅e–i.
+–
+∇⋅v– = ∑
+i
+∂
+∂xi
+(v–) ⋅e–i = ∑
+i
+∂
+∂xi
+(∑
+j
+vje–j) ⋅e–i = ∑
+i
+∑
+j
+∂vj
+∂xi
+δij = ∑
+i
+∂vi
+∂xi
+.
+–
+∇(∘) = ∑
+i
+∂
+∂xi
+(∘) ⊗e–i.
+–
+f–
+∇f– = ∑
+j
+∂f–
+∂Xj
+⊗e–j = ∑
+i
+∑
+j
+∂fi
+∂Xj
+e–i ⊗e–j.
+–
+(33)
+∂fi
+∂Xj
+∇f = ∑
+i
+∂f
+∂Xi
+e–i.
+–
+(34)
+e–1 e–2 e–3
+[
+](e–1,e–2,e–3) = [
+]
+T
+.
+∇f
+–
+∂f
+∂X1
+∂f
+∂X2
+∂f
+∂X3
+(35)
+8/27/26, 4:38 PM
+1 Mathematical Preliminaries
+https://web.iitd.ac.in/~ajeetk/smb/MathematicalPreliminaries.html#x6-50001
+8/14
+always transform a set of triad into another through a unique rotation or what we call a rotation tensor.
+Mathematically, we write
+The matrix form of this rotation tensor turns out to be an orthonormal (‘ortho’ means perpendicular and
+‘normal’ means normalized) matrix. The tensor itself is called an orthonormal tensor. Orthonormal tensors
+and their matrix forms have the following properties:
+This means that rows of 
+ are perpendicular to each other and are themselves normalized to be of unit
+magnitude, i.e., the rows are orthonormal with respect to each other. One can similarly prove that its
+columns are also orthonormal with respect to each other.
+Let us consider an specific example and see what does a rotation matrix look like.
+Figure 1.5: A basis triad rotated by an angle  about 
+In Figure 1.5, we have (
+) coordinate system and it is rotated by  to get the new coordinate system
+(
+). The rotation is such that 
+ is same as 
+ and the other two basis vectors are rotated by . Let us
+determine the matrix form 
+ in (
+) coordinate system. We know from equation 
+ that
+So, the 
+ column of the rotation matrix is the column form of vector 
+ expressed in (
+) coordinate
+system. For example, consider =2:
+We can thus find these coefficients in terms of  using dot product definition, e.g.,
+Working out all the components in this way, we get
+^e–i = R e–i ∀ i = 1, 2, 3.
+–
+(36)
+(a) R RT = RTR = I–– (an identity tensor),
+(b) det(R) = 1.
+–
+–
+–
+(37)
+⇒[ ][ ]
+T =
+(matrix form of (37a))
+⇒∑
+k
+RikRjk = δij ∀i, j = 1, 2, 3
+(using indical notation)
+R
+–
+R
+–
+⎡
+⎢
+⎣
+1
+0
+0
+0
+1
+0
+0
+0
+1
+⎤
+⎥
+⎦
+(38)
+[ ]
+R
+–
+θ
+e–3
+e–1, e–2, e–3
+R
+–
+^e–1, ^e–2, ^e–3
+^e–3
+e–3
+θ
+[ ]
+R
+–
+e–1, e–2, e–3
+(27)
+Rij = (R e–j) ⋅e–i = ^e–j ⋅e–i
+(using (36))
+–
+(39)
+jth
+^e–j
+e–1, e–2, e–3
+j
+Ri2 = ^e–2 ⋅e–i.
+(40)
+θ
+^e–2 ⋅e–1 = −sinθ,
+^e–2 ⋅e–2 = cosθ,
+^e–2 ⋅e–3 = 0.
+(41)
+[ ](e–1,e–2,e–3) =
+.
+R
+–
+⎡
+⎢
+⎣
+cosθ
+−sinθ
+0
+sinθ
+cosθ
+0
+0
+0
+1
+⎤
+⎥
+⎦
+(42)
+8/27/26, 4:38 PM
+1 Mathematical Preliminaries
+https://web.iitd.ac.in/~ajeetk/smb/MathematicalPreliminaries.html#x6-50001
+9/14
+Note that the third column is 
+ as 
+ is same as 
+. We emphasize that the above matrix form is the
+representation of rotation tensor  in 
+ coordinate system. This matrix form will be different if we
+choose another coordinate system to represent the tensor.
+As a side note, any rotation can be uniquely characterized by its axis of rotation (unit vector ) and the angle
+of rotation . One can then use the following Rodrigue’s formula to obtain the rotation tensor in terms of
+these two information:
+Here  is a skew symmetric tensor whose axial vector is .
+1.8 Solved examples
+Q1. Show that 
+Method 1 (using indical notation):
+Method 2 (using their matrix forms):
+Q2. There is a tensor  such that 
+. What will be the matrix form of  in
+ coordinate system?
+[0 0 1]T
+^e–3
+e–3
+R
+–
+(e–1, e–2, e–3)
+a–
+θ
+R(a–, θ) = I–– + sin(θ) a–– + (1 −cos(θ)) a––
+2.
+–
+(43)
+a––
+a–
+a– ⋅(A b–) = (ATa–) ⋅b–
+–
+–
+a– ⋅(A b–) = ∑
+i
+aie–i ⋅[(∑
+j
+∑
+k
+Ajk e–j ⊗e–k) ⋅∑
+l
+ble–l]
+= ∑
+i
+aie–i ⋅∑
+j
+∑
+k
+∑
+l
+Ajkblδkl e–j
+= ∑
+i
+∑
+j
+∑
+k
+∑
+l
+aiAjkblδklδij
+= ∑
+j
+∑
+l
+ajAjlbl
+(ATa–) ⋅b– = [(∑
+j
+∑
+k
+Akj e–j ⊗e–k) ⋅∑
+i
+aie–i] ⋅∑
+l
+ble–l
+= ∑
+i
+∑
+j
+∑
+k
+aiAkjδki e–j ⋅∑
+l
+ble–l
+= ∑
+i
+∑
+j
+∑
+k
+∑
+l
+aiAkjblδkiδlj
+= ∑
+i
+∑
+j
+aiAijbj = ∑
+j
+∑
+l
+ajAjlbj (due to renaming of dummy summation indices)
+–
+–
+a– ⋅(A b–) = [a–]T [A] [b–]
+= ([a–]T [A] [b–])
+T
+(∵transpose of a scalar remains the same)
+= [b–]T[A]
+T
+[a–]
+= [b–]T ([A]
+T
+[a–])
+= [b–] ⋅[ATa–] = b– ⋅(ATa–).
+–
+–
+–
+–
+–
+–
+–
+A
+–
+A ⋅e–1 = a–, A ⋅e–2 = b–, A ⋅e–3 = c–
+–
+–
+–
+A
+–
+(e–1, e–2, e–3)
+8/27/26, 4:38 PM
+1 Mathematical Preliminaries
+https://web.iitd.ac.in/~ajeetk/smb/MathematicalPreliminaries.html#x6-50001
+10/14
+Solution: As per information provided: 
+One can similarly show that
+To see how the tensor form of  looks like, one can derive as follows:
+Q3. Show that
+(a)
+(b)
+(a) Let’s start with the matrix form of tensor expression 
+(b) Starting with the matrix form of tensor expression 
+Q4. Given an anti-symmetric tensor , prove that 
+Solution:
+A ⋅e–1 = a–
+–
+or 
+=
+(expressed in the sought coordinate system)
+∴
+=
+ (1st column of [A] = [a–])
+⎡
+⎢
+⎣
+A11
+A12
+A13
+A21
+A22
+A23
+A31
+A32
+A33
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+1
+0
+0
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+a1
+a2
+a3
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+A11
+A21
+A31
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+a1
+a2
+a3
+⎤
+⎥
+⎦
+–
+=
+ (2nd column of [A] = [b–]) and 
+=
+ (3rd column of [A] = [c–]).
+⎡
+⎢
+⎣
+A12
+A22
+A32
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+b1
+b2
+b3
+⎤
+⎥
+⎦
+–
+⎡
+⎢
+⎣
+A13
+A23
+A33
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+c1
+c2
+c3
+⎤
+⎥
+⎦
+–
+A
+–
+[A] =
++
++
+or  [A] = [a–][e–1]T + [b–][e–2]T + [c–][e–3]T
+or A = a– ⊗e–1 + b– ⊗e–2 + c– ⊗e–3.
+–
+⎡
+⎢
+⎣
+A11
+0
+0
+A21
+0
+0
+A31
+0
+0
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+0
+A12
+0
+0
+A22
+0
+0
+A32
+0
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+0
+0
+A13
+0
+0
+A23
+0
+0
+A33
+⎤
+⎥
+⎦
+–
+(a– ⊗b–)C = a– ⊗(CT b–)
+–
+–
+C (a– ⊗b–) = (C a–) ⊗b–
+–
+–
+(a– ⊗b–)C
+–
+([a–] [b–]T) [C] = [a–] ([b–]T [C])
+(using associative rule of matrix multiplication)
+= [a–]([C]
+T
+[b–])
+T
+= a– ⊗(CT b–)
+–
+–
+–
+–
+C (a– ⊗b–)
+–
+[C (a– ⊗b–)] = [C] ([a–][b–]T) = ([C] [a–])[b–]T = (C a–) ⊗b–.
+–
+–
+–
+–
+A
+–
+(A x) ⋅x = 0 ∀x
+–
+–
+–
+(A x) ⋅x = x ⋅(ATx)
+= −x ⋅(A x)
+= −(A x) ⋅x (from commutative rule of dot-product of two vectors)
+= 0 (since only zero can be negative of itself!)
+–
+–
+–
+–
+–
+–
+–
+8/27/26, 4:38 PM
+1 Mathematical Preliminaries
+https://web.iitd.ac.in/~ajeetk/smb/MathematicalPreliminaries.html#x6-50001
+11/14
+Disclaimer: The commutative rule (
+) applies only for 1st-order tensors and does not extend to
+higher order tensors. For example, 
+ or 
+.
+Q5. We have learnt that a unique rotation tensor  can be associated with transforming a set of orthonormal
+triad into another say 
+. Find the matrix form of this rotation tensor 
+ in
+ coordinate system.
+Solution: Recall that a tensor 
+ remains invariant in different coordinate systems. However, its
+representation or its matrix form is different in different coordinate systems. Also, rotation tensors are
+orthonormal and satisfy the following property: 
+. Since 
+ in the question maps
+, we can write
+One can also write
+where the components 
+ can be obtained as follows:
+We had derived the same expression for 
+ earlier while discussing rotation tensors. This result is non-
+intuitive as we do not expect the representation of a tensor in two different coordinate systems to be the same
+in general. However, this case happens to be a special one since the given tensor also transforms the first
+coordinate system into other.
+1.9 Objective questions to recall concepts
+(1)
+We can say the following about a tensor:
+(a)
+It is independent of the coordinate system
+(b)
+It changes from one coordinate system to other
+(c)
+Its representation changes from one coordinate system to another
+(d)
+None of the above
+(2)
+Which of the following statements is/are correct?
+(a)
+Scalars are zeroth order tensors
+(b)
+Tensors are independent of the coordinate system
+(c)
+Vectors are more general than tensors
+(d)
+One can add tensors of different orders
+(3)
+What is the product of a scalar with another vector?
+a– ⋅b– = b– ⋅a–
+A ⋅b– ≠b– ⋅A
+–
+–
+A ⋅C ≠C ⋅A
+–
+–
+R
+–
+(e–1, e–2, e–3) →(^e–1, ^e–2, ^e–3)
+R
+–
+(^e–1, ^e–2, ^e–3)
+R
+–
+R−1 = RT
+–
+–
+R
+–
+(e–1, e–2, e–3) →(^e–1, ^e–2, ^e–3)
+^e–i = R e–i ⇒R−1^e–i = e–i or RT^e–i = e–i.
+–
+–
+–
+(44)
+R = ∑
+i
+∑
+j
+^Rij ^e–i ⊗^e–j
+–
+^Rij
+^Rij = (R ^e–j) ⋅^e–i = ^e–j ⋅RT^e–i = ^e–j ⋅e–i
+(using (44))
+–
+–
+Rij
+8/27/26, 4:38 PM
+1 Mathematical Preliminaries
+https://web.iitd.ac.in/~ajeetk/smb/MathematicalPreliminaries.html#x6-50001
+12/14
+(a)
+It’s a vector
+(b)
+It’s a second order tensor
+(c)
+It’s a scalar
+(d)
+None of these
+(4)
+What is the product of a vector with another vector?
+(a)
+It’s a vector
+(b)
+It depends on whether we are doing dot product, cross-product or tensor product
+(c)
+Dot product gives a scalar quantity
+(d)
+None of these
+(5)
+Which of the following statements is/are correct concerning the cross product of two vectors?
+(a)
+Cross product of two vectors gives us a second order tensor.
+(b)
+Cross product of two vectors is the same as the product of a skew-symmetric tensor
+formed by the first vector times the second vector.
+(c)
+Cross product of two vectors is dependent on the coordinate system.
+(d)
+None of these
+(6)
+A second order tensor, in general, has
+(a)
+three independent coefficients
+(b)
+six independent coefficients
+(c)
+nine independent coefficients
+(d)
+none of these
+(7)
+What is the order of the tensor obtained from the dyadic product of two vectors?
+(a)
+Zeroth order
+(b)
+First order
+(c)
+Second order
+(d)
+None of these
+(8)
+Which of the following is/are incorrect concerning vectors?
+(a)
+The representation of a vector is different in different coordinate systems.
+(b)
+A vector is a second order tensor.
+(c)
+A vector is a first order tensor.
+(d)
+A vector remains the same irrespective of change in the coordinate system.
+(9)
+We can say the following about a rotation tensor.
+(a)
+It uniquely relates a set of three orthonormal vectors with another set of three
+orthonormal vectors
+(b)
+Any two columns of its matrix form are orthogonal to each other
+(c)
+The determinant of its matrix form equals -1
+(d)
+Its inverse equals its transpose
+(10)
+Which of the following is/are the property of a rotation tensor ?
+(a)
+(b)
+(c)
+(d)
+R
+–
+RRT = I––
+–
+det(R) = 1
+–
+det(R) = −1
+–
+RTR = I––
+–
+8/27/26, 4:38 PM
+1 Mathematical Preliminaries
+https://web.iitd.ac.in/~ajeetk/smb/MathematicalPreliminaries.html#x6-50001
+13/14
+(11)
+Which of the following is true for the tensor equation:  = ?
+(a)
+It can be expressed/expanded only in 
+-
+-
+ coordinate system
+(b)
+It can be expressed/expanded in any coordinate system
+(c)
+It can be expressed/expanded only in that coordinate system in which we are working
+(d)
+None of these
+1.10 Questions to practise
+(1)
+If  and  are two vectors, show that their dot product 
+ remain the same in different coordinate
+systems (say 
+ and 
+).
+(2)
+Prove that 
+.
+(3)
+If  is a symmetric tensor and  is an anti-symmetric tensor, then show that
+If you would like to share any feedback/comment: click here
+∗Generally speaking, vectors can be moved parallelly in space without changing them. One exception is the position vector whose one
+end is tied to a point, usually the origin of the coordinate system.
+†Since we have summation over both j and k in 
+, we could have alternately removed the summation over k instead of j and
+replaced k with j everywhere also.
+a–
+R
+–
+b–
+e–1 e–2 e–3
+a–
+b–
+a– ⋅b–
+(e–1, e–2, e–3)
+(^e–1, ^e–2, ^e–3)
+[(u ⋅a–) (AT b–)] ⋅n = a– ⋅[(u ⊗An)]b–
+–
+–
+–
+–
+–
+A
+–
+B
+–
+A : B = 0.
+–
+(28)
+8/27/26, 4:38 PM
+1 Mathematical Preliminaries
+https://web.iitd.ac.in/~ajeetk/smb/MathematicalPreliminaries.html#x6-50001
+14/14

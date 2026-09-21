@@ -1,0 +1,1901 @@
+Chapter 8
+Bending of Beams
+In this chapter, we will learn about another important deformation in solid mechanics, i.e., bending of beams.
+It arises when a beam is subjected to end moments or transverse load. We will analyze beams having both
+symmetrical and unsymmetrical cross-sections. We will also learn about the shear center of a beam’s cross-
+section.
+(For author information and the accompanying book: click here
+    If you would like to share any feedback/comment: click here)
+8.1 Pure bending of beams: NPTEL link
+You may have come across problems on beams subjected to terminal transverse load, bending moment or
+distributed load in your first year mechanics course. Figure 8.1 shows a beam subjected to such loadings: there
+is a distributed load (force per unit length), a terminal moment at the right end and also a couple at an internal
+point in the beam.
+Figure 8.1: A beam subjected to distributed load, terminal moment and a couple.
+You may have learnt how to draw shear force and bending moment diagrams for such cases but assumed the
+beam to not deform. In this course, we will take another step and learn how beams deform or get curved when
+they are subjected to such loads. The simplest case to begin with is what is called pure bending of beams (see
+Figure 8.2). Here we have a rectangular beam
+Figure 8.2: A rectangular beam subjected to terminal moments in a direction transverse to its
+axis
+whose axis lies along 
+ axis. Equal and opposite moments of magnitude 
+ are applied to its end cross-
+sections in  direction, i.e., transverse to the beam. As the total moment on the system is zero, the beam will
+be in static equilibrium but it also deforms such that it gets curved/bent - see Figure 8.3. Such a deformation is
+called bending of beams and the applied moment is called bending moment.∗ Let us cut an arbitrary section in
+the beam as shown in red in Figure 8.2. Using moment balance, we can easily conclude that the internal
+moment on this section is also 
+. Thus, we have the same internal moment acting on every section of the
+beam. When the same moment acts on all the beam’s cross-sections without the presence of any internal force,
+it is called the case of pure bending.
+X
+Mz
+Z
+Mz
+8/27/26, 4:40 PM
+8 Bending of Beams
+https://web.iitd.ac.in/~ajeetk/smb/BendingofBeams.html
+1/18
+Figure 8.3: (a) A typical beam under pure bending (b) A planar view of the deformed beam
+for the case of pure bending: the center of the circular arcs that the longitudinal fibers
+deform into is also shown
+It turns out that in this case, the beam deforms in such a way that all lines of the beam along its length deform
+into circular arcs as shown in Figure 8.3a. Furthermore, planar cross-sections remain planar after bending. If
+we imagine this bending deformation, we will note that all the lines parallel to the axis of the beam on its top
+surface get compressed while those on the bottom surface get stretched. In fact, as we go from the bottom to
+top surface, the deformation of such lines changes from being stretched to compressed. So, there must be a
+surface in between whose all such line elements do not undergo any elongation/compression. This surface is
+called the neutral plane (see the shaded blue plane in Figure 8.3a) as all the axial lines on this plane remain
+neutral to bending. These line elements on the neutral plane are also called neutral lines.
+Longitudinal/ bending strain and the corresponding stress: NPTEL link
+Let us now find the amount of elongation/compression of these line elements which are parallel to the beam’s
+axis. We consider a planar view of the beam as shown in Figure 8.3b to simplify the analysis - we assume that
+the deformation is independent of the coordinate along the width of the beam or  axis. Just to clarify, the
+coordinate system is chosen such that -axis is along the horizontal line or tangent to the fibers, -axis is
+along the vertical line pointing towards the center of the circle and -axis is coming out of the plane. The
+neutral line is shown as the solid blue line there. It should be noted that we do not know yet the location of this
+neutral line. Let us consider a longitudinal fiber (shown as a green line) at a distance  from the neutral line.
+First of all, we can notice that all these lines, i.e, the green line, the blue line, the topmost and bottom-most
+longitudinal lines form arcs of concentric circles. If the radius of the circle corresponding to the neutral line is
+denoted by  (also called radius of curvature from now on), the radius of the circle corresponding to the green
+line will be 
+. Let us denote the angle subtended by these arcs at the center as . The length of the the
+neutral line 
+ will be 
+ which also equals the beam’s undeformed length  when it was straight, i.e,
+Similarly, the length of the green line will be
+As the undeformed length of all longitudinal lines is , the longitudinal strain of the green line will be
+We have thus obtained longitudinal strain for a general longitudinal line which is at a distance  from the
+neutral line. Let us draw the cross-section of the beam as shown in Figure 8.4a.
+z
+x
+y
+z
+y
+R
+R −y
+θ
+ln
+Rθ
+L
+ln = Rθ = L.
+(1)
+lg = (R −y)θ = (R −y) L
+R
+(using (1))
+= (1 −y
+R )L
+(2)
+L
+ϵxx = ϵg = ΔL
+L
+= lg −L
+L
+= −y
+R
+(using (2)).
+(3)
+y
+8/27/26, 4:40 PM
+8 Bending of Beams
+https://web.iitd.ac.in/~ajeetk/smb/BendingofBeams.html
+2/18
+Figure 8.4: (a) A typical cross-section of a rectangular beam with the neutral axis and in-
+plane coordinate axes shown (b) variation in 
+ along the beam’s height
+The neutral axis is shown here which is the intersection of the neutral plane with the cross-sectional plane. The
+green line is shown at a distance  from the neutral axis. We then consider a general point 
+ in the cross-
+section. We found 
+ to be 
+, i.e., dependent on  but independent of . So, any line with a constant  (like
+the green line) will have the same 
+. To obtain 
+, we then use the following stress-strain relationship for
+isotropic materials:
+Let us look at Figure 8.2 again. For the case of pure bending, we are only applying moments at the end cross-
+sections. We are not applying any load on the front, back, top and bottom surfaces. On these surfaces, all
+components of traction will therefore be zero. Thus, 
+ is zero on top and bottom surfaces while 
+ is zero
+on front and back surfaces. However, we make an approximation that 
+ and 
+ are zero at all points within
+the beam too. This is a good approximation because as the beam bends, it is allowed to relax freely in  and 
+directions. Using this approximation in equation 
+, we get
+which has been plotted in the cross-sectional plane in Figure 8.4b. Notice that 
+ is compressive above the
+neutral axis and tensile below it.
+Location of neutral axis: NPTEL link
+In the pure bending scenario, every cross-section only has bending moment acting on it. No net force acts in
+the cross section. Hence, the integration of 
+ in the cross-sectional plane must vanish, i.e.,
+Here 
+ can be taken out of the integral since it denotes radius of curvature of the deformed neutral line and
+hence is a constant for the entire cross-section. This reduces the above integral to
+The above equation implies that the Y-coordinate of the centroid of the cross-section relative to neutral axis
+must be zero. Hence, the neutral axis must pass through the centroid of the cross-section. The radius of
+curvature  of the deformed neutral line is still an unknown which we find next.
+Radius of curvature of neutral line
+σxx
+y
+(y, z)
+ϵxx
+−y
+R
+y
+z
+y
+ϵxx
+σxx
+ϵxx = 1
+E (σxx −ν(σyy + σzz)).
+(4)
+σyy
+σzz
+σyy
+σzz
+y
+z
+(4)
+σxx = Eϵxx = −E y
+R
+(5)
+σxx
+σxx
+∫
+Ω0
+σxx dA = 0   ⇒−∫
+Ω0
+Ey
+R = 0.
+(6)
+R
+−E
+R ∫
+Ω0
+ydA = 0 ⇒¯Y A = 0 or  ¯Y = 0.
+R
+8/27/26, 4:40 PM
+8 Bending of Beams
+https://web.iitd.ac.in/~ajeetk/smb/BendingofBeams.html
+3/18
+To find 
+, we first obtain an expression for the moment (about the center of the cross-section) due to internal
+traction in the cross-sectional plane:
+We have already obtained expression of 
+ but we don’t know the variation of 
+ and 
+ in the cross-
+sectional plane yet.† Let us just obtain the component of above moment along z axis which we can equate to
+the externally applied bending moment, i.e.,
+Notice that shear traction components do not contribute to 
+. The integral expression in the above equation
+is also called the second moment of area about -axis and is denoted by 
+. Thus, we finally have
+The quantity 
+ is also called bending curvature and is denoted by . We can also define a bending modulus
+as follows:
+Notice that it is the product of the Young’s modulus 
+ and geometric property 
+. The curvature that gets
+induced in the beam on application of bending moment is inversely proportional to this bending modulus. If
+the bending modulus is high, the curvature induced would be smaller which means a large bending moment is
+required to curve/bend the beam. Note that a larger curvature implies a more curved beam because the radius
+of curvature is smaller then whereas a smaller curvature represents an almost straight beam because the radius
+of curvature is large then.‡ This is also demonstrated in Figure 8.5.
+Figure 8.5: Curved beams with large and small curvatures are shown on the left and right,
+respectively.
+We can now rewrite the expression of 
+ in 
+ after substituting in it the expression of curvature  from
+, i.e.,
+ for a rectangular cross section: NPTEL link
+R
+M /O = ∬
+Ω0
+(y^j + z^k) × t–
+xdA
+= ∬
+Ω0
+(y^j + z^k) × (σxx^i + τyx^j + τzx^k)dA.
+−
+→
+(7)
+σxx
+τyx
+τzx
+Mz = M /O ⋅^k = ∬
+Ω0
+[(y^j + z^k) × (σxx^i + τyx^j + τzx^k)] ⋅^k  dA
+= −∬
+Ω0
+yσxxdA = E
+R ∬
+Ω0
+y2dA
+(using (5))
+−
+→
+(8)
+Mz
+z
+Izz
+Mz = E
+R Izz or R = EIzz
+Mz
+.
+(9)
+1
+R
+κ
+Mz =
+EIzz
+Bending Modulus
+κ.
+
+
+
+
+
+(10)
+E
+Izz
+σxx
+(5)
+κ
+(10)
+σxx = −E y
+R = −Ey Mz
+EIzz
+= −Mz y
+Izz
+.
+(11)
+Izz
+8/27/26, 4:40 PM
+8 Bending of Beams
+https://web.iitd.ac.in/~ajeetk/smb/BendingofBeams.html
+4/18
+Figure 8.6 shows a rectangular cross section of height  and width . The neutral axis is also shown about
+which the second area moment is to be calculated.
+Figure 8.6: A rectangular cross section with a rectangular strip shown at a distance of  from
+the neutral axis.
+A small rectangular strip of thickness 
+ at a distance of  from the neutral axis is considered. The second area
+moment about the neutral axis will be
+So, 
+ increases with both  and  but is more sensitive to . A small increase in  brings about a large
+increase in 
+. We can imagine two rectangular beams made up of the same material and same cross-sectional
+area (
+) with the first one having smaller height  than the second one. Because of larger , the second beam
+will have larger 
+ and thus a large bending modulus when compared to the first beam. So, it will be more
+difficult to bend the second beam although both the beams have the same cross-sectional area.
+Shape of the deformed cross section: NPTEL link
+To find the shape of the deformed cross section, we need to find in-plane normal strains 
+ and 
+. Using
+stress-strain relation, we can write
+Here we substituted 
+ and 
+ to be zero as mentioned earlier. Similarly, 
+ will be
+Let us now consider a line parallel to -axis in the undeformed cross-section as shown by the green line in
+Figure 8.7.
+PIC
+Figure 8.7: A typical undeformed cross-section of a rectangular beam with lines parallel to 
+-axis and -axis shown
+As 
+ is 
+, any point above the neutral axis has positive strain while the corresponding point below the
+neutral axis will have negative strain of equal magnitude. Thus, upper half of the line drawn parallel to -axis
+will undergo positive longitudinal strain while the lower half will undergo equal but negative longitudinal
+strain. So, the total length of this line will not change. Now, we consider a horizontal line parallel to -axis as
+shown by the blue line in Figure 8.7. As 
+ is 
+, every point in the blue line will have same 
+. If these
+lines are above the neutral axis, they will undergo elongation whereas if they are below the neutral axis, they
+will undergo compression. Furthermore, this strain being proportional to , the change in length of such lines
+h
+b
+y
+dy
+y
+Izz = ∬y2dA = ∬y2dydz = ∫
+h
+2
+−h
+2
+y2dy ∫
+b
+2
+−b
+2
+dz = ∫
+h
+2
+−h
+2
+y2(bdy) = 1
+12 bh3.
+(12)
+Izz
+b
+h
+h
+h
+Izz
+bh
+h
+h
+Izz
+ϵyy
+ϵzz
+ϵyy = 1
+E (σyy −ν(σxx + σzz)) = 1
+E (0 −ν(σxx + 0))
+= −ν
+E σxx = ν y
+R
+(using (5))
+(13)
+σyy
+σzz
+ϵzz
+ϵzz = ν y
+R .
+(14)
+y
+y
+z
+ϵyy
+ν y
+R
+y
+z
+ϵzz
+ν y
+R
+ϵzz
+y
+8/27/26, 4:40 PM
+8 Bending of Beams
+https://web.iitd.ac.in/~ajeetk/smb/BendingofBeams.html
+5/18
+will vary linearly. If we draw the deformed cross-section incorporating this effects of 
+, it will look like the
+one shown on the right of Figure 8.8, i.e, it becomes a trapezoid.
+Figure 8.8: Undeformed and deformed cross-sections considering the effect of 
+ only
+Let us observe the undeformed and deformed configurations in Figure 8.8 more closely: we see that the lines
+parallel to -axis and -axis which were perpendicular initially now form an angle greater than 
+. This
+change in angle can happen only if shearing is also taking place. As the angle has increased, we can infer that
+ is negative. From stress-strain relation for isotropic materials, we know that if 
+, then 
+. Let
+us consider the two lateral surfaces of the beam with their normals parallel to  axis. As these surfaces are
+traction free, all the traction components on the  surface must be zero including 
+. However, if the beam’s
+cross-section deforms as shown in Figure 8.8, 
+ on 
+surface turns out to be non-zero which is a
+contradiction. Thus, the lines parallel to -axis in the beam’s cross-section must also curve along with
+undergoing change in length. These lines must curve in such a manner that the angle between two
+infinitesimal lines parallel to -axis and -axis near the 
+ surface remain perpendicular. This will ensure that
+shear strain and hence shear stress at points on the 
+surface are zero. The curvature of these lines should be
+such that the lines are convex upward as shown in Figure 8.9.
+PIC
+Figure 8.9: Final deformed configuration of the cross-section in pure bending
+We know that the radius of curvature for the deformed neutral line of the beam is . If we compare equations
+ and 
+, we can say that the radius of curvature of the centroidal line in the cross-section (coinciding with
+ axis) would be 
+. With this, we can close the topic of pure bending.
+8.2 Non-uniform bending of beams: NPTEL link
+In case of pure bending, we had the same moment acting in every cross-section. For this reason, pure bending
+is also called uniform bending. We will now move on to non-uniform bending of a beam wherein the bending
+moment is not uniform along the length of the beam. Let us consider a case of loading where we have
+distributed load 
+ acting on the beam as shown in Figure 8.10a.
+PIC
+Figure 8.10: (a) A beam acted upon by a distributed load 
+ with its small part shown in
+red (b) Free body diagram of the small part of the beam
+The load 
+ is assumed to act in 
+ direction. Let us cut a small part of the beam of length 
+ at a distance
+ from the clamped end (see the red region in Figure 8.10a) and further draw its free body diagram as shown
+in Figure 8.10b. On this small part, apart from distributed load, there will be bending moment as well as shear
+force acting at the two ends. By convention, for the cross section having normal in 
+ direction, shear force
+acting in 
+ direction is considered positive while for the cross section having normal in 
+ direction, shear
+force acting in 
+ direction is considered positive. We denote this shear force by 
+. The center of the left
+cross-section is marked as  and the position of a general point in this part of the beam is denoted by  which
+varies from  to 
+. Due to static equilibrium, the net moment on this part of the beam must be zero
+about any point. In particular, let us do moment balance about :
+ϵzz
+ϵzz
+y
+z
+90∘
+γyz
+γyz < 0
+τyz < 0
+z
+z
+τyz
+τyz
+z−
+z
+y
+z
+z−
+z−
+R
+(3)
+(14)
+z
+R
+ν
+b(x)
+b(x)
+b(x)
++y
+Δx
+x
++x
++y
+−x
+−y
+V
+O
+ξ
+x
+x + Δx
+O
+8/27/26, 4:40 PM
+8 Bending of Beams
+https://web.iitd.ac.in/~ajeetk/smb/BendingofBeams.html
+6/18
+As everything is pointing in 
+ direction, we obtain the following scalar equation:
+Since this equation holds for an arbitrary part of the beam having length 
+, we can divide both the sides by
+ and take the limit 
+ in order to make the beam’s small part reduce to a line, i.e.,
+We have derived an important relation between the variation of bending moment and shear force. It says that
+whenever moment varies along the beam, there has to be a non-zero shear force acting in the beam’s cross-
+section. The formula for 
+ can still be taken to be the same as earlier. We just have to use the local value of
+bending moment in the formula, i.e.,
+8.2.1 Variation of 
+ in the cross-sectional plane: NPTEL link
+The shear components of traction in the cross-section are 
+ and 
+. As there is an overall shear force 
+acting on the cross section in  direction, 
+ must be non-zero. Let us now try to obtain its distribution in the
+cross-section. We first make a simplifying assumption that 
+ is only a function of  and not of . This means
+that 
+ would be the same at all points on lines parallel to  axis as shown in Figure 8.11 - different horizontal
+lines will have different 
+ though.
+PIC
+Figure 8.11: A typical cross-section of the beam with variation of 
+ shown such that it is a
+function of  alone
+To obtain its distribution, we cut a small cuboid element from the beam as shown in green in Figure 8.12a.
+The bottom surface (
+ plane) of this element is at a distance  from the neutral plane whereas its left face (
+ plane) is at a distance  from the beam’s clamped end. A zoomed view of this green cuboid with all
+external loads acting on it is shown in Figure 8.12b.
+PIC
+Figure 8.12: (a) A green cuboid element cut from the beam (b) Free body diagram of the
+cuboidal element cut from the beam
+On the top face (
+ plane), distributed load 
+ acts. The bottom face is the 
+ plane and traction
+components 
+, 
+ and 
+ act on it in 
+, 
+ and 
+ directions, respectively. The 
+ and 
+ faces (side
+faces) are part of the lateral surfaces of the original beam. As external forces are assumed to be applied only
+on 
+-plane of the beam, the 
+ and 
+ faces of the element are traction free. On the 
+ face, we have
+bending stress 
+ that we have derived already. We also have 
+ and 
+ acting there. Similarly, 
+, 
+ and
+ act on 
+ plane but in negative directions. In order to find 
+ (or 
+), we just need to balance the forces
+on this small cuboidal element in  direction. The force due to 
+ on 
+ and 
+ faces is
+∑M /O = 0–
+⇒M(x + Δx) e–3 −M(x) e–3 + Δx V (x + Δx) e–3 + ∫
+x+Δx
+x
+(ξ −x)b(ξ)dξ e–3 = 0–.
+−
+→
+e–3
+M(x + Δx) −M(x) + Δx V (x + Δx) + ∫
+x+Δx
+x
+(ξ −x)b(ξ)dξ = 0.
+(15)
+Δx
+Δx
+Δx →0
+lim
+Δx→0
+M(x + Δx) −M(x) + Δx V (x + Δx) + ∫x+Δx
+x
+(ξ −x)b(ξ)dξ
+Δx
+= 0
+⇒dM
+dx + V (x) + lim
+ξ→x(ξ −x)b(ξ) = 0
+(∵as Δx →0, ξ →x)
+or dM
+dx + V (x) = 0.
+(16)
+σxx
+σxx(x, y, z) = −M(x)y
+Izz
+.
+(17)
+τyx
+τyx
+τzx
+V (x)
+y
+τyx
+τyx
+y
+z
+τyx
+z
+τyx
+τyx
+y
+−y
+y
+−x
+x
++y
+b(x)
+−y
+τxy σyy
+τzy
+−x −y
+−z
++z
+−z
++y
++z
+−z
++x
+σxx
+τyx
+τzx
+σxx τyx
+τzx
+−x
+τyx
+τxy
+x
+σxx
++x
+−x
+8/27/26, 4:40 PM
+8 Bending of Beams
+https://web.iitd.ac.in/~ajeetk/smb/BendingofBeams.html
+7/18
+The force on 
+ face has no component in  direction since the external distributed load acting there is
+assumed to act in  direction. However, 
+ face has 
+ acting on it which contributes the following force in 
+direction:
+Summing all the forces in  direction to zero, we get
+Upon further substituting 
+ from 
+ in it, we get
+As the first integral is over  plane, 
+ and 
+ act as constants. We had also assumed initially that 
+ does
+not vary with  or  coordinate. All these simplifications lead to
+Since the above equation holds for cuboid elements of any length 
+, we first divide it by 
+ and then take
+the limit 
+, i.e.,
+The integral in the first term above is the y-moment of the -face of the cuboid element which is also shown
+as the shaded area in Figure 8.13a.
+PIC
+Figure 8.13: (a) The cross section of the beam with the shaded region representing the area
+of the  face of the small cuboidal element (b) Calculating the first moment of shaded
+area (c) Plot of 
+ vs  for a rectangular cross section
+We denote this moment by 
+: a function of  alone. Thus, the final expression for 
+ becomes
+which is same as 
+: the shear component in the cross-sectional plane. Here, we have allowed , the width of
+the cross section, to vary with . If we compare equations 
+ and 
+, we see that while bending stress 
+ is
+proportional to moment, shear stress 
+ is proportional to shear force.
+Variation of 
+ in a rectangular cross-section: NPTEL link
+∫
+b
+2
+−b
+2
+∫
+h
+2
+y
+σxx(x + Δx, η, γ) dηdγ   −∫
+b
+2
+−b
+2
+∫
+h
+2
+y
+σxx(x, η, γ) dηdγ.
+(18)
++y
+x
+y
+−y
+τxy
+x
+∫
+b
+2
+−b
+2
+∫
+x+Δx
+x
+−τxy(ξ, y, γ)dξdγ.
+(19)
+x
+∫
+b
+2
+−b
+2
+∫
+h
+2
+y
+[σxx(x + Δx, η, γ) −σxx(x, η, γ)]dηdγ   −∫
+b
+2
+−b
+2
+∫
+x+Δx
+x
+τxy(ξ, y, γ)dξdγ = 0.
+(20)
+σxx
+(17)
+∬
+x plane
+[ −Mz(x + Δx) η
+Izz
+−−Mz(x) η
+Izz
+]dA   −∫
+b
+2
+−b
+2
+∫
+x+Δx
+x
+τxy(ξ, y, γ)dξdγ = 0.
+(21)
+x
+Mz
+Izz
+τxy
+z
+γ
+−[ Mz(x + Δx) −Mz(x)
+Izz
+] ∬
+x plane
+ ηdA   −∫
+x+Δx
+x
+τxy(ξ, y)dξ  ∫
+b
+2
+−b
+2
+dγ = 0.
+(22)
+Δx
+Δx
+Δx →0
+−[ lim
+Δx→0
+Mz(x + Δx) −Mz(x)
+Δx
+] 1
+Izz
+∬
+x plane
+ηdA   −b lim
+Δx→0
+∫x+Δx
+x
+τxy(ξ, y)dξ
+Δx
+= 0
+⇒−dMz
+dx
+1
+Izz
+∬
+x plane
+ηdA   −b τxy(x, y) = 0
+⇒V (x)
+Izz
+∬
+x plane
+ηdA   −b τxy(x, y) = 0
+(using (16))
+(23)
+x
+x
+τyx
+y
+Q(y)
+y
+τxy
+τxy(x, y) = V (x)Q(y)
+Izz b(y)
+(24)
+τyx
+b
+y
+(5)
+(24)
+σxx
+τyx
+τyx
+8/27/26, 4:40 PM
+8 Bending of Beams
+https://web.iitd.ac.in/~ajeetk/smb/BendingofBeams.html
+8/18
+A typical rectangular cross section is shown in Figure 8.13b and we want to find the value of 
+ at a distance
+ from the neutral axis. For applying equation 
+, we need to find 
+, 
+ and 
+. As this is a
+rectangular cross section, width 
+ is a constant and equal to . We have already derived 
+ for a rectangular
+cross section (see equation 
+). We thus only need to obtain the expression of the first moment 
+ of the
+area above  line where 
+ is to be calculated (shown as the shaded region in Figure 8.13b). The first moment
+will simply be  coordinate of the centroid of the shaded area multiplied by the shaded area. As the height of
+the shaded area is 
+, its centroid will be at half of this distance from the  line and hence at
+from the neutral axis. Thus 
+ becomes
+which leads to
+As 
+ is the total shear force on the cross section and 
+ is the area of the cross section, 
+ equals average
+shear stress 
+ while 
+ at the neutral axis is
+Likewise, at the periphery of the cross section 
+, we have
+This variation of 
+ vs  is shown in Figure 8.13c. We observe that shear stress is maximum on centroidal
+line and vanishes at the two ends. There is another way to realise the vanishing of shear stress at the ends. The
+points 
+ also lie on top and bottom surfaces of the beam, respectively. There is no external traction on
+the bottom surface whereas on the top surface, the distributed load 
+ acts in  direction. Thus, 
+ is zero at
+both top and bottom surfaces. However, due to 
+ and 
+ being equal, shear stress 
+ vanishes at 
+in the cross-sectional plane.
+Circular cross-section: NPTEL link
+In the derivation for rectangular beams, we had assumed that 
+ is independent of -coordinate. For a circular
+beam however, this assumption does not hold which we now show. If 
+ is constant along lines parallel to 
+axis, the shear stress will be as shown in Figure 8.14. Basically, it is non-zero even at the ends.
+PIC
+Figure 8.14: Shear stress 
+ on a cross-section of a circular beam with the assumption that
+it is independent of 
+Let us assume a vertical distributed load is acting on the beam’s lateral surface which is also a radial plane for
+circular beams. Hence, the shear component of traction on the lateral surface along the cylindrical axis will be
+τyx
+y
+(24)
+Q(y) b(y)
+Izz
+b(y)
+b
+Izz
+(12)
+Q(y)
+y
+τyx
+y
+h
+2 −y
+y
+¯Y = y + 1
+2 ( h
+2 −y) = 1
+2 (y + h
+2 )
+(25)
+Q(y)
+Q(y) = ¯Y A = 1
+2 (y + h
+2 )b( h
+2 −y) = 1
+2 b( h2
+4 −y2)
+(26)
+τyx =
+V (x)  1
+2 b( h2
+4 −y2)
+1
+12 bh3 b
+= V
+bh × 6( 1
+4 −( y
+h )
+2
+).
+(27)
+V
+bh
+V
+bh
+τavg
+τyx
+τyx(y = 0) = τavg × 6( 1
+4 −0) = 3
+2 τavg.
+(y = ± h
+2 )
+τyx(y = ± h
+2 ) = τavg × 6( 1
+4 −1
+4 ) = 0.
+(28)
+τyx
+y
+y = ± h
+2
+b(x)
+y
+τxy
+τxy
+τyx
+τyx
+y = ± h
+2
+τyx
+z
+τyx
+z
+τyx
+z
+8/27/26, 4:40 PM
+8 Bending of Beams
+https://web.iitd.ac.in/~ajeetk/smb/BendingofBeams.html
+9/18
+zero. So, due to symmetry of stress matrix, the radial component of shear traction on peripheral points of
+cross-sectional plane must also vanish. However, if we look at Figure 8.14, the assumption of 
+ being
+independent of -coordinate leads to a non-zero radial component at the periphery which is a contradiction.
+Thus, we conclude that for circular cross-sections, considering 
+ to be independent of  is not a good
+assumption. Nevertheless, this assumption is often used even for circular cross-sections since it gives an
+approximate distribution of shear stress.
+8.3 Bending of unsymmetrical beams: NPTEL link
+For a moment, recollect bending of symmetrical beams, e.g., a beam having rectangular cross-section with its
+axis along x-axis and the cross-section’s sides along  and  axes. When we applied moment on the beam
+along z-direction, the neutral axis of the cross-section was simply assumed to be parallel to the direction of
+applied moment (also see Figure 8.15a).
+PIC
+Figure 8.15: (a) A typical rectangular cross-section with the neutral axis aligned with
+applied moment direction (b) A typical unsymmetrical cross-section wherein the
+direction of applied moment and neutral axis are not aligned
+This assumption is not true in general though. For example, Figure 8.15b shows a typical cross-section of an
+unsymmetrical beam. The neutral axis for this case turns out to be inclined relative to the direction of bending
+moment. This is non-intuitive since it means the axis of bending (neutral axis) can be in a direction other than
+the direction of applied moment. Let us investigate this now.
+8.3.1 Pure bending: NPTEL link
+Think of an unsymmetrical beam with its axis along x-axis as shown in Figure 8.16a.
+PIC
+Figure 8.16: (a) Pure bending of an unsymmetrical beam (b) The beam’s cross-section along
+with its neutral axis shown
+To start with, let us consider the case of pure bending, i.e., equal and opposite terminal bending moments are
+applied transverse to the beam’s axis. Thus, the bending moment will be constant all along the beam and no
+shear/axial force will be present in the beam’s cross-section. Figure 8.16b shows a typical cross-section of this
+beam. As this is the case of an unsymmetrical cross-section, the direction of neutral axis is an unknown too.
+Let us assume some arbitrary direction (in the plane of the cross-section) for neutral axis which need not pass
+through the centroid of the cross-section (see Figure 8.16b). The beam bends into a circle of radius 
+ about
+the neutral axis. We then think of a line parallel to the neutral axis but at a distance 
+ from it (shown by the
+green line in Figure 8.16b). The longitudinal strain 
+ for all points lying on this line will be given by
+following similar logic as earlier for symmetrical cross-sections. Further assuming 
+ and 
+ to be zero as
+earlier, 
+ at such points will be given by
+The axial force in the cross-section will thus be
+However, as no axial force acts on the cross-section in case of pure bending, this implies
+τyx
+z
+τyx
+z
+y
+z
+R
+y′
+ϵxx
+ϵxx = −y′
+R
+(29)
+σyy
+σzz
+σxx
+σxx = Eϵxx = −E y′
+R .
+(30)
+∬
+Ω0
+σxx dA = −E
+R ∬
+Ω0
+y′dA.
+(31)
+8/27/26, 4:40 PM
+8 Bending of Beams
+https://web.iitd.ac.in/~ajeetk/smb/BendingofBeams.html
+10/18
+Thus, the first moment of the cross-section relative to the neutral axis must be zero which simply means that
+the neutral axis has to pass through the centroid of the cross-section. So, just like the case of symmetrical
+cross-sections, neutral axis passes through the centroid even for unsymmetrical cross-sections.
+We now redraw the cross-section keeping in mind that the neutral axis passes through the centroid as shown in
+Figure 8.17a and again consider a point  at a distance  from the neutral axis.
+PIC
+Figure 8.17: (a) A typical cross-section of the beam with the neutral axis passing through the
+centroid (b) Zoomed view of various lengths associated with an arbitrary point in the
+cross-section
+Let the coordinates of this point be 
+ and express 
+ in terms of  and . Suppose the neutral axis makes
+an angle  with the y-axis as shown in Figure 8.17b. Let us construct two lines: one parallel to the neutral axis
+and passing through the point 
+ while the other one perpendicular to neutral axis and passing through
+the point 
+ as shown in Figure 8.17b. The point at which these two lines intersect is denoted by 
+. As
+the neutral axis makes an angle  with the vertical line, the line 
+, constructed parallel to the neutral axis,
+will also be at an angle  from the vertical line. The other angle (
+) in the right triangle 
+ thus
+becomes 
+. Also, the angle that the neutral axis makes with z-axis will be 
+. Think of another
+point 
+ at which the neutral axis and the line 
+ intersect. The length  will be equal to the difference of the
+lengths 
+ and 
+ in Figure 8.17b. We now draw a line perpendicular to the neutral axis starting from point
+ and intersecting the neutral axis at . As 
+ becomes a rectangle, 
+. Thus, we get
+Substituting this in equations 
+ and 
+, we get
+Let us now obtain moment about the cross-section’s centroid due to the above normal stress distribution which
+should equal the externally applied moment, i.e.,
+Here  and  could be taken out of the integration. Let us define second area moments of the cross-section as
+follows:
+Using them in 
+, we get
+So, if the beam has to bend such that the neutral axis makes an angle  from y-axis, the bending moment
+generated in the cross-section must satisfy
+−E
+R ∬
+Ω0
+y′dA = 0   ⇒∬
+Ω0
+y′dA = 0.
+(32)
+A
+y′
+(y, z)
+y′
+y
+z
+β
+B(0, z)
+A(y, z)
+C
+β
+BC
+β
+∠BAC
+ABC
+90∘−β
+90∘−β
+D
+AC
+y′
+AC
+CD
+B
+E
+BCDE
+CD = BE
+y′ = AC −CD = AC −BE = y sin β −z cos β.
+(33)
+(29)
+(30)
+ϵxx = −(y sin β −z cos β)
+R
+,
+σxx = −E(y sin β −z cos β)
+R
+.
+(34)
+M /O = ∬
+Ω0
+(y^j + z^k) × σxx^i dA
+= ∬
+Ω0
+(y^j + z^k) × E
+R (z cos β −y sin β)^i dA
+= E
+R ∬
+Ω0
+[(y2 sin β −yz cos β)^k + (z2 cos β −yz sin β)^j]dA.
+−
+→
+(35)
+E
+R
+∬y2dA = Izz,
+∬yzdA = Iyz,
+∬z2dA = Iyy.
+(36)
+(35)
+M /O = E
+R [(Izz sin β −Iyz cos β)
+Mz
+^k + (Iyy cos β −Iyz sin β)
+My
+^j].
+−
+→
+
+
+
+
+
+
+
+
+
+
+(37)
+β
+My = (Iyy cos β −Iyz sin β)Eκ,
+Mz = (Izz sin β −Iyz cos β)Eκ.
+(38)
+8/27/26, 4:40 PM
+8 Bending of Beams
+https://web.iitd.ac.in/~ajeetk/smb/BendingofBeams.html
+11/18
+Here  denotes the bending curvature as earlier. To obtain , we take the ratio of above two equations which
+yields
+In the special case when we apply moment about z-axis, i.e., 
+, the numerator of the above equation can
+be set to zero to yield
+Furthermore, for cross-sections which are symmetric about -axis, the mixed moment of area 
+ vanishes
+which when substituted in the above equation yields
+This means that the neutral axis makes an angle of 
+ with the y-axis. In other words, it coincides with z-axis
+or the direction of applied bending moment something that we had simply assumed earlier. Coming back to
+the general case for unsymmetrical beams, we can use either of the two equations in 
+ to obtain bending
+curvature . For example, using the former, we get
+Finally, substituting  from the above equation in equation 
+, we get
+Special case: when y and z axes are aligned with the principal axes: NPTEL link
+Let us consider a special case when y and z axes are aligned with the principal axes of the cross-section but
+the bending moment acts in an arbitrary direction (see Figure 8.18).
+PIC
+Figure 8.18: The cross-section of an unsymmetrical beam where y and z axes are aligned
+with the cross-section’s principal axes.
+We can resolve this moment along y and z axes as 
+ and 
+, respectively. As y and z axes are principal
+axes, 
+. Substituting this in equation 
+ simplifies it greatly, i.e.,
+Furthermore, if we apply moment about z axis only, i.e., 
+, we get
+which is the same result that we had obtained earlier for symmetrical cross sections with only 
+ present. We
+can conclude that if we apply bending moment along the principal axis, the bending happens as if it were a
+symmetrical cross-section: the neutral axis gets aligned with the direction of applied moment! If we look at
+equation 
+, we observe that the first term comes with a negative sign whereas the second term comes with
+a positive sign. To understand this, consider the cross section shown in Figure 8.19.
+PIC
+κ
+β
+My
+Mz
+= Iyy cos β −Iyz sin β
+Izz sin β −Iyz cos β = Iyy −Iyz tan β
+Izz tan β −Iyz
+.
+(39)
+My = 0
+tan β = Iyy
+Iyz
+.
+(40)
+y
+Iyz
+tan β = ∞   ⇒β = 90∘.
+(41)
+90∘
+(38)
+κ
+κ =
+My
+E(Iyy cos β −Iyz sin β) .
+(42)
+κ
+(34)
+σxx = −My(y sin β −z cos β)
+(Iyy cos β −Iyz sin β)
+= Mz(yIyy −zIyz) + My(yIyz −zIzz)
+I 2yz −IyyIzz
+(on substituting β from (39)).
+(43)
+My
+Mz
+Iyz = 0
+(43)
+σxx = −Mzy
+Izz
++ Myz
+Iyy
+.
+(44)
+My = 0
+σxx = −Mzy
+Izz
+(45)
+Mz
+(44)
+8/27/26, 4:40 PM
+8 Bending of Beams
+https://web.iitd.ac.in/~ajeetk/smb/BendingofBeams.html
+12/18
+Figure 8.19: Thin cross-sections of beams with shear stress distribution shown for open ones
+When we apply moment about z axis, the bending is such that the top side (+y side) is under compression
+whereas the bottom side (-y side) is under tension. Thus, we have a negative sign in front of the first term in
+equation 
+. However, if we apply moment about y-axis, the beam bends in such a way that the part of the
+beam on the left side (+z side) is in tension while the other part is in compression. Since the positive side is in
+tension, there is accordingly a positive sign in front of the second term in equation 
+.
+8.3.2 Non-uniform bending of thin and open cross-sections: NPTEL link
+In non-uniform bending, a shear force is also present in the cross section due to which the bending moment
+varies along the length of the beam. The direction of neutral axis is again governed by equation 
+. To
+obtain shear stress distribution in the cross-section, let us again look at a line which is at a distance  from the
+neutral axis. For symmetrical beams, for simplicity, we had assumed uniform shear stress distribution on lines
+parallel to neutral axis. If we extend this assumption to unsymmetrical beams, we will have a situation as
+shown in Figure 8.20a.
+PIC
+Figure 8.20: (a) Shear stress along a line parallel to the neutral axis if we make the
+assumption of uniform shear distribution (b) True shear stress distribution along the
+periphery of the cross-section of a beam when the lateral surface of the beam is loaded
+such that there is no axial shear load
+Will such an assumption be valid here? It turns out to be not correct. Whenever we have a beam having
+symmetrical or unsymmetrical cross-section and its lateral surface is externally loaded in such a way that the
+external traction has no axial component, then at points along the periphery of the cross-section and on the
+cross-sectional plane, shear traction has to be directed along the periphery as shown in Figure 8.20b. This is an
+outcome of the equality of complementary shear stress components. We cannot comment about the direction
+of shear stress at points away from the periphery though. Accordingly, the derivation of analytical formula for
+shear stress distribution becomes difficult. However, we can obtain analytical results for special types of
+cross-sections, i..e, thin and open ones which we discuss now. Figure 8.21 shows three different cross-sections
+all of which are thin, i.e., their thickness is very small. Figure 8.21b is a closed cross-section while Figures
+8.21a and 8.21c are open cross-sections.
+PIC
+Figure 8.21: Thin cross-sections of beams with shear stress distribution shown for open ones
+We already know that shear stress at points which are close to the periphery of the cross-section has to be
+directed along the periphery itself. At points away from the periphery, the direction of shear stress is an
+unknown. For thin cross-sections however, the thickness is so small that all points can be safely assumed to lie
+near the periphery. Furthermore, there is not enough space for the direction of shear stress to vary through the
+thickness. We can thus assume that the shear stress distribution is along the periphery at all points through the
+thickness too. In fact, one can also assume the magnitude of shear stress to be uniform through the thickness
+owing to the same reason. Later on, we will see why we further want the cross-section to be open.
+Let us consider a general thin and open cross-section beam as shown in Figure 8.22a.
+PIC
+Figure 8.22: (a) A small element is considered in a beam having thin and open cross-section
+(b) A typical cross-section of the beam together with its arc-length coordinate  shown
+As the shear stress is uniform through the thickness, one can parametrize its distribution using an arc-length
+coordinate  running along the cross-section’s periphery as shown in Figure 8.22b. We can further safely
+assume the shear to flow in the direction of increasing . If the distribution comes out to be negative in the
+end, it would simply mean that the shear actually flows in the other direction. We can also denote the shear
+stress as 
+:  denotes the plane of the cross-section in which shear stress is acting while  denotes the
+direction of shear stress. Furthermore, 
+ will be a function of  and  only. To find 
+, we consider a small
+(44)
+(44)
+(39)
+y′
+s
+s
+s
+τsx x
+s
+τsx
+s
+x
+τsx
+8/27/26, 4:40 PM
+8 Bending of Beams
+https://web.iitd.ac.in/~ajeetk/smb/BendingofBeams.html
+13/18
+part of the beam as shown in Figure 8.22a. All the forces acting on this element in x-direction are further
+shown in Figure 8.23a.
+PIC
+Figure 8.23: (a) A typical small part of the beam from Figure 8.22a with all external forces
+in x-direction shown (b) A zoomed view of the x-plane of the small element denoted as
+the shaded area
+Its end faces (whose normals are in  direction) will be called -faces. On 
+ and 
+ planes, 
+ acts. The
+ plane at 
+ is traction-free while 
+ acts on 
+ plane in 
+-direction.§ The total force on this element
+in x-direction must be zero for equilibrium, i.e.,
+Here  denotes the local coordinate in x-direction which varies from  to 
+ for points on 
+ face. As
+the above equation is valid for all beam parts regardless of the size 
+, let us first divide the above equation
+by 
+ and then take the limit 
+, i.e.,
+In the second integral above, as the integrand 
+ does not vary through the thickness, the integration through
+the thickness yields 
+ where 
+ denotes the thickness of the cross-section at . The second area integral
+thus gets converted into just a line integral along  leading to
+We can now plug in the expression of 
+ from equation 
+ which yields
+We can then replace the derivatives of moments with shear forces using the following relations the first of
+which which we had derived earlier in 
+:
+Upon plugging them into 
+, we get
+As shear forces and second area moments are constants for a cross-section, the denominator of the integrand
+can be taken out of the integration. We just need to work out the integrals 
+ and 
+ in the
+numerator. These integrals are over the x-plane of the small element only and not over the entire cross section:
+see Figure 8.23b which shows the domain of this integration as the shaded region running from arc-length
+coordinate 0 to . The integrals 
+ and 
+ over this shaded part of x-plane will give us the first
+moment of shaded area in  and  directions, i.e.,
+s
+s
++x
+−x
+σxx
+−s
+s = 0
+τxs
++s
++x
+∬
+x-plane
+[σxx(x + Δx, y, z) −σxx(x, y, z)]dA + ∬
+s-plane
+τxs(ξ, s)dA = 0.
+(46)
+ξ
+x
+x + Δx
++s
+Δx
+Δx
+Δx →0
+lim
+Δx→0 ∬
+x-plane
+[σxx(x + Δx, y, z) −σxx(x, y, z)]dA
+Δx
++ lim
+Δx→0 ∬
+s-plane
+τxs(ξ, s)dA
+Δx
+= 0.
+τxs
+τxs ts
+ts
+s
+x
+∬
+x-plane
+σ′
+xx(x, y, z)dA + ts lim
+Δx→0
+∫x+Δx
+x
+τxs(ξ, s)dξ
+Δx
+= 0
+⇒∬
+x-plane
+σ′
+xx(x, y, z)dA + ts τxs(x, s) = 0
+or τxs(x, s) = −1
+ts
+∬
+x-plane
+σ′
+xx(x, y, z)dA.
+(47)
+σxx
+(43)
+τxs = −1
+ts
+∬
+x-plane
+M ′
+z(yIyy −zIyz) + M ′
+y(yIyz −zIzz)
+I 2yz −IyyIzz
+dA.
+(48)
+(16)
+dMz
+dx
+= −Vy,
+dMy
+dx
+= Vz.
+(49)
+(48)
+τxs = −1
+ts
+∬
+x-plane
+−Vy(yIyy −zIyz) + Vz(yIyz −zIzz)
+I 2yz −IyyIzz
+dA.
+(50)
+∬ydA
+∬zdA
+s
+∬ydA
+∬zdA
+y
+z
+Qs
+y = ∬ydA = ¯Y sAs,
+Qs
+z = ∬zdA = ¯Z sAs.
+(51)
+8/27/26, 4:40 PM
+8 Bending of Beams
+https://web.iitd.ac.in/~ajeetk/smb/BendingofBeams.html
+14/18
+Here 
+ and 
+ are the centroidal coordinates of just the shaded region. Similarly, 
+ is the area of the
+shaded region. Upon plugging them into equation 
+ and further noting that 
+, we finally get
+This is the general formula for shear stress distribution in thin and open cross-sections. We can again consider
+the special case where y and z axes are aligned with the principal axes in which case 
+ vanishes. The above
+formula then simplifies to
+If we further assume 
+, our formula reduces to
+This is the same expression that we had derived earlier for symmetrical cross-sections except that there is a
+negative sign here. This difference arises because the direction of increasing  that we have chosen here
+coincides with 
+ direction.
+8.4 Concept of shear center: NPTEL link
+PIC
+Figure 8.24: A typical thin and open cross-section.
+In this section, we will learn about a new concept, i.e., shear center of a cross-section. It is defined as the point
+in the cross-section relative to which the net torque due to shear stress distribution (originating because of
+transverse load) vanishes. Obtaining an analytical formula for the location of shear center for a general cross-
+section isn’t feasible. However, the same can be derived for thin and open cross-sections. We show this
+derivation now. We had derived the following formula for shear stress 
+ at arc-length :
+which is assumed to be uniformly distributed through the cross-section’s thickness. Let us denote by
+ the location of the shear center as shown in Figure 8.24. The centroid of the cross-section is
+located at O. As the net torque  about 
+ vanishes as per definition, we can first find the total moment about
+ and then equate its x-component to zero. Let us denote the cross-sectional area by  and an arbitrary point
+in the cross-section by 
+. The position vector of 
+ with respect to shear center (
+) can be written as
+follows:
+The total torque  due to shear stress distribution will thus be
+In the second integral term, the shear center position 
+ can be taken out of the integral while the
+integral of shear stress over the cross-section gives the total shear force 
+ in the cross-section. For the first
+¯Y s
+¯Z s
+As
+(50)
+τxs = τsx
+τsx = −
+1
+ts(I 2yz −IyyIzz) [−Vy(Qs
+yIyy −Qs
+zIyz) + Vz(Qs
+yIyz −Qs
+zIzz)].
+(52)
+Iyz
+τsx = −
+VyQsy
+Izzts
+−VzQs
+z
+Iyyts
+.
+(53)
+Vz = 0
+τsx = −
+VyQs
+y
+Izzts
+.
+(54)
+s
+−y
+τsx
+s
+τsx = −
+1
+ts(I 2yz −IyyIzz) [−Vy(Qs
+yIyy −Qs
+zIyz) + Vz(Qs
+yIyz −Qs
+zIzz)].
+(55)
+sc = (Δy, Δz)
+T
+sc
+sc
+Ω
+P
+P
+rP /sc
+−
+→
+rP /sc = rP /O +
+rO/sc
+−(Δy^j+Δz^k)
+.
+−
+→
+−
+→
+−
+→
+
+
+
+
+
+(56)
+T
+T/sc = M /sc ⋅^i = ∬
+Ω
+(rP /sc × τxs^s) ⋅^i  dA
+= ∬
+Ω
+(rP /O × τxs^s) ⋅^i  dA −∬
+Ω
+[(Δy^j + Δz^k) × τxs^s] ⋅^i  dA.
+–
+−
+→
+−
+→
+(57)
+(Δy^j + Δz^k)
+→
+V
+8/27/26, 4:40 PM
+8 Bending of Beams
+https://web.iitd.ac.in/~ajeetk/smb/BendingofBeams.html
+15/18
+integral, let us write area 
+ as 
+ and change the area integral into two line integrals: one along the arc-
+length  and the other along the thickness . Thus, the above equation can be rewritten as
+The expression 
+ gives us the first moment which we can replace by the position vector of point
+ times the thickness of the cross-section at arc-length , i.e., . Here 
+ denotes the centroidal point at arc-
+length . These centroidal points form the centerline of the cross-section shown as the dashed green line in
+Figure 8.24. Thus, we get
+where 
+ denotes the arc-length along the cross-section boundary and should not be confused with the length
+of the beam. Upon working out the above integral, we get
+where 
+ and 
+ are the constants obtained through the integration over the cross-section’s arc-length. As the
+torque about the shear center must be zero, we get the following upon rearranging:
+Furthermore, as this holds for arbitrary 
+ and 
+, we finally obtain
+Let us consider the case when only 
+ acts on the cross-section and (y, z) axes are also the principal axes. So,
+ becomes zero and formula 
+ for 
+ simplifies to
+Plugging this expression in equation 
+, we get
+Thus, we get -coordinate of the shear center to be
+Proceeding along similar lines, -coordinate of the shear center turns out to be
+Keep in mind that the above two formulas hold only if  and  axes are the principal axes of the cross-section.
+dA
+dsdt
+s
+t
+T/sc = ∫
+s
+∫
+t
+(rP /O × τxs^s) ⋅^i dsdt −[(Δy^j + Δz^k) × ∬
+Ω
+τxs^s dA] ⋅^i
+= [ ∫
+s
+[ ∫
+t
+rP /O(s, t)dt] × τxs(x, s)^s ds] ⋅^i  −[(Δy^j + Δz^k) × (Vy^j + Vz^k)] ⋅^i
+= [ ∫
+s
+[ ∫
+t
+rP /O(s, t)dt] × τxs(x, s)^s ds] ⋅^i  −[ΔyVz −ΔzVy].
+−
+→
+−
+→
+−
+→
+(58)
+∫t rP /O(s, t)dt
+−
+→
+P 0
+s
+ts
+P 0
+s
+T/sc = ∫
+Lc
+s=0
+ts(rP 0 /O(s) × τxs^s) ⋅^i ds −[ΔyVz −ΔzVy]
+−
+→
+(59)
+Lc
+T/sc = CyVy + CzVz −[ΔyVz −ΔzVy]
+(60)
+Cy
+Cz
+(Cy + Δz)Vy + (Cz −Δy)Vz = 0.
+(61)
+Vy
+Vz
+Δy = Cz,
+Δz = −Cy.
+(62)
+Vy
+Iyz
+(55)
+τsx
+τsx =
+−VyQs
+y
+Izzts
+.
+(63)
+(59)
+∫
+Lc
+s=0
+ts(rP 0 /O(s) × τxs^s) ⋅^i ds = ∫
+Lc
+s=0
+ts(rP 0 /O(s) ×
+−VyQs
+y
+Izzts
+^s) ⋅^i ds
+= Vy[ −1
+Izz
+∫
+s
+rP 0 /O × Qs
+y^s  ds] ⋅^i
+Cy
+.
+−
+→
+−
+→
+−
+→
+
+
+
+
+
+(64)
+z
+Δz = −Cy =
+1
+Izz
+∫
+s
+(rP 0 /O × Qs
+y^s) ⋅^i  ds.
+−
+→
+(65)
+y
+Δy = Cz = −1
+Iyy
+∫
+s
+(rP 0 /O × Qs
+z^s) ⋅^i  ds.
+−
+→
+(66)
+y
+z
+8/27/26, 4:40 PM
+8 Bending of Beams
+https://web.iitd.ac.in/~ajeetk/smb/BendingofBeams.html
+16/18
+Bending-twisting coupling in unsymmetrical cross-sections: NPTEL link
+We now illustrate that a beam can also twist when subjected to transverse load if the line of action of
+transverse load does not pass through shear center. We show such a beam in Figure 8.25 which is clamped at
+one end and a point load is applied in the transverse direction at the other end at point .
+PIC
+Figure 8.25: A beam having unsymmetrical cross-section is subjected to a transverse point
+load
+The line joining the shear center of different cross-sections is also shown there. Let us isolate the beam from
+the clamped end support and draw its free body diagram wherein we also include the reactive shear stress
+distribution from the clamped support. The net moment on the beam would have to be zero about any general
+axis in static equilibrium. Consider this axis to be the line of shear centers for which the moment about it
+would be torque since this axis is perpendicular to the beam’s cross-section. The torque due to shear stress
+distribution in the left end cross-section about the shear center of the left end cross-section will be zero by the
+definition of shear center. However, the torque due to the applied transverse load about the axis of shear center
+will be non-zero since the load is acting eccentrically to the shear center axis. Thus, a net torque acts on the
+beam which will also induce twist in the beam in addition to the usual bending due to transverse load. This
+twist will lead to additional reaction of shear stress distribution from the support on the left end cross-section
+so that the overall torque on the entire beam finally vanishes. Needless to say if we apply the transverse load
+such that its line of action passes through the shear center at the right end cross-section, there will be no
+tendency in the beam to twist and the beam will undergo just bending.
+Shear center for symmetrical cross-sections: NPTEL link
+PIC
+Figure 8.26: (a) annular cross-section having infinite lines of symmetry (b) heart-shaped
+cross-section having one line of symmetry (c) Flower shaped cross-section having four
+lines of symmetry
+It can be shown using formulas 
+ and 
+ for the shear center that it always lies on the line of symmetry
+of the cross-section (if any present). For example, consider several symmetrical cross-sections in Figure 8.26.
+In Figure (8.26a), we have an annular cross-section for which all diametrical lines are lines of symmetry.
+Accordingly, shear center and its centroid coincide. In Figure (8.26b), we have a heart-shaped cross-section
+which has just one line of symmetry as shown in the figure. Accordingly, the shear center lies on this line. To
+fix the other coordinate of shear center, one would have to use the formula derived above. Finally, in Figure
+(8.26c), we have a flower-shaped cross-section having four-fold symmetry. As the shear center must lie on all
+lines of symmetry, it gets uniquely specified here too just by inspection.
+8.5 Solved examples
+Q1.
+Think of a composite beam having rectangular cross-section such that one half of the cross-section
+(having square shape) is aluminium while the other half is steel. When such a beam is bent, where
+will the neutral axis lie in the cross-section?
+Solution: Composite beams are constructed using more than one material to enhance their strength. In
+general, the neutral axis of a composite beam will not lie at the geometric centre of the cross-section. Let us
+suppose that the neutral axis (NA) lies at a distance ‘ ’ from the midline of the cross-section. The bending
+strain profile will be linear, continuous and pass through zero at the NA as shown below.
+PIC
+It obeys 
+ where  is the distance from neutral axis. However, the bending stress profile will be
+discontinuous at the location where the material changes. It follows the following formula:
+A
+(65)
+(66)
+a
+ϵxx = −y
+R
+y
+8/27/26, 4:40 PM
+8 Bending of Beams
+https://web.iitd.ac.in/~ajeetk/smb/BendingofBeams.html
+17/18
+To obtain ‘ ’, we use the fact that the total axial force must vanish in the cross-section (due to pure bending),
+i.e.,
+Note that when we set 
+ assuming both the materials to be the same, we indeed get 
+ or the
+neutral axis then passes through the geometric center.
+For an exhaustive set of solved examples and
+unsolved objective and subjective type questions,
+please refer to the printed book: click here
+If you would like to share any feedback/comment: click here
+∗A moment applied along the beam’s axis is called torque whereas a moment applied transverse to the beam’s axis is called bending
+moment.
+†The two shear stress components turn out to be zero in case of pure bending.
+‡For a straight beam, the radius of curvature is 
+.
+§If the cross-section were closed and say we choose 
+ at some point, then we won’t be able to say for sure if 
+ is vanishing on 
+=0 plane - it would become an unknown in the derivation.
+σxx = Eϵxx = {σS
+xx = −ES
+y
+R
+(−(h −a) < y < a)
+σA
+xx = −EA
+y
+R ,
+(a < y < h + a)
+a
+∫∫
+AS
+σS
+xxdA + ∫∫
+AA
+σA
+xxdA = 0 ⇒−ES
+R ∫
+a
+−(h−a)
+ydy −EA
+R ∫
+h+a
+a
+ydy = 0
+⇒[(a)2 −(h −a)2] + EA
+ES
+[(h + a)2 −(a)2] = 0
+⇒−h2 (1 −EA
+ES
+) + 2ha (1 + EA
+ES
+) = 0 or a = h
+2 ( ES −EA
+ES + EA
+ES = EA
+a = 0
+∞
+s = 0
+τsx
+s
+8/27/26, 4:40 PM
+8 Bending of Beams
+https://web.iitd.ac.in/~ajeetk/smb/BendingofBeams.html
+18/18

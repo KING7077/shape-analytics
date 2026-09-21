@@ -1,0 +1,1616 @@
+Chapter 6
+Stress - Strain relation
+Having discussed the concepts of stress and strain, we will now talk about how they are related! We will
+derive the most general form of linearly elastic stress-strain relationship and further discuss the special case
+of isotropic materials. The chapter will conclude with a discussion on thermoelasticity.
+(For author information and the accompanying book: click here
+    If you would like to share any feedback/comment: click here)
+Let us first understand why do we need to relate stress with strain. Consider a body clamped at one part of the
+boundary and acted upon by an external load on another part of its boundary as shown in Figure 6.1.
+Figure 6.1: A body undergoing deformation
+Any general point in the reference configuration (denoted by position vector 
+) is displaced by 
+ as
+shown in the figure. Usually, we are interested in knowing the final deformed shape of the body and the
+stress generated in it. The information of stress distribution within the body is important since it helps us to
+check if it is within the prescribed limits so that the body does not fail or fracture. In order to find stress in the
+body, we need to solve the following equations:
+subject to problem specific boundary condition. We have nine unknown components of stress matrix in the
+three equation here. Using symmetry of stress matrix, the number of unknowns reduces to six. The body
+force components (
+) are not unknowns as they are usually prescribed. For example, if gravitational
+body force is present, the body force will be 
+ pointing vertically downward. On the right hand side, we
+X
+–
+u(X, t)
+–
+∂σ11
+∂X1
++ ∂τ12
+∂X2
++ ∂τ13
+∂X3
++ b1 = ρa1,
+∂τ21
+∂X1
++ ∂σ22
+∂X2
++ ∂τ23
+∂X3
++ b2 = ρa2,
+∂τ31
+∂X1
++ ∂τ32
+∂X2
++ ∂σ33
+∂X3
++ b3 = ρa3.
+(1)
+b1, b2, b3
+ρg
+8/27/26, 4:39 PM
+6 Stress - Strain relation
+https://web.iitd.ac.in/~ajeetk/smb/StressStrainrelation.html
+1/17
+then have the components of acceleration which can be express in terms of displacement as we show now.
+The velocity of a particle located at 
+ in the reference configuration will be
+By keeping 
+ fixed here, We are ensuring that the particle does not change while taking the time derivative
+of displacement function. This is important otherwise the derivative obtained would not correspond to a
+specific particle. Let us denote the time derivatives with dots above the letter (
+ derivative has n dots), e.g.,
+Thus, we can write velocity and acceleration of a particle at 
+ as follows:
+This description of velocity and acceleration is also called Lagrangian description: whenever we describe
+velocity, acceleration or any other quantity of a particle in terms of the position of the particle in the reference
+configuration (X), we call it Lagrangian description.∗ We can now substitute the acceleration components in
+terms of time derivative of displacement in the equilibrium equation 
+, i.e.,
+We can observe that it has six unknown stress components and three unknown displacement components. So,
+we have nine unknowns in total but there are only three equations. Thus, this system cannot be solved
+without the help of additional equations. We also know that we can express strain in terms of displacement as
+given below:
+If we can somehow express stress in terms of strain, then indirectly, we have actually expressed stress in
+terms of displacement. † So, in equilibrium equations, everything will finally be in terms of the three
+unknown displacement components. This system of three equations in three variables can then be solved.
+6.1 Linear stress-strain relation: NPTEL link
+Our goal is to express stress in terms of strain, i.e., 
+. As stress and strain tensors are both symmetric,
+they have six independent components each. In general, each of the stress components depends on each of
+the strain components, i.e.,
+X
+–
+v–(X, t) =
+∂u
+∂t
+X
+.
+–
+–
+∣
+–
+(2)
+X
+–
+nth
+∂u
+∂t ≡˙u,
+∂2u
+∂t2 ≡¨u
+–
+–
+–
+(3)
+X
+–
+v–(X, t) = ˙u(X, t),
+a–(X, t) =
+∂v–
+∂t
+X
+= ¨u(X, t).
+–
+–
+–
+∣
+–
+–
+(4)
+(1)
+∂σ11
+∂X1
++ ∂τ12
+∂X2
++ ∂τ13
+∂X3
++ b1 = ρa1 = ρ¨u1,
+∂τ21
+∂X1
++ ∂σ22
+∂X2
++ ∂τ23
+∂X3
++ b2 = ρa2 = ρ¨u2,
+∂τ31
+∂X1
++ ∂τ32
+∂X2
++ ∂σ33
+∂X3
++ b3 = ρa3 = ρ¨u3.
+(5)
+ϵ–– = 1
+2 (∇u + ∇uT)  or  ϵij = 1
+2 ( ∂ui
+∂Xj
++
+∂uj
+∂Xi
+).
+–
+–
+(6)
+σ = ^σ(ϵ––)
+–
+σ11 = ^σ11(ϵ11, ϵ22, ϵ33, ϵ12, ϵ13, ϵ23),
+σ22 = ^σ22(ϵ11, ϵ22, ϵ33, ϵ12, ϵ13, ϵ23),
+σ33 = ^σ33(ϵ11, ϵ22, ϵ33, ϵ12, ϵ13, ϵ23),
+σ12 = ^σ12(ϵ11, ϵ22, ϵ33, ϵ12, ϵ13, ϵ23),
+σ13 = ^σ13(ϵ11, ϵ22, ϵ33, ϵ12, ϵ13, ϵ23),
+σ23 = ^σ23(ϵ11, ϵ22, ϵ33, ϵ12, ϵ13, ϵ23).
+(7)
+8/27/26, 4:39 PM
+6 Stress - Strain relation
+https://web.iitd.ac.in/~ajeetk/smb/StressStrainrelation.html
+2/17
+The functional form of this dependence can be anything (e.g., linear, exponential, logarithmic etc.) and will
+vary from material to material. There is no physical law to derive this functional form and therefore
+mechanicians resort to experiments on real material specimen and data fitting technique to obtain these
+relations. As we can express any arbitrary function as a polynomial series using its Taylor’s series expansion,
+we can do the same for the above stress components about the zero strain state.‡ Let us explore it now. The
+Taylor’s expansion of 
+ with respect to strain components will be as follows:
+All the derivatives here have been evaluated at zero strain state, i.e., 
+. Also, all the indices run from 1
+to 3. The first term (denoted as 
+) in the above expansion is the residual stress which is the stress in zero
+strain state or the reference configuration. As the reference configuration is typically chosen such that the
+stress in the body is zero in this state, we accordingly take 
+ to be zero. The second term is linear in strain
+while the third term is quadratic in strain. We had earlier said that for this course, we will work with small
+strain components. Thus, we can neglect the terms which are quadratic or higher order in strain components
+as they will be much smaller than the linear term. Thus, we are left with
+This is called linear stress-strain relation. We again remark that the derivatives in equation 
+ are to be
+evaluated in the reference configuration. These derivatives have a special significance in solid mechanics:
+they denote the components of the stiffness tensor. It is a fourth order tensor because it has got four indices
+all running from 1 to 3 and is denoted by 
+:
+Thus, we can write
+6.2 Independent components in stiffness tensor: NPTEL link
+We can observe that 
+ has 
+ terms since all the four indices go from 1 to 3. These 81 constants are
+material constants which vary from material to material. However, it turns out that these 81 constants are not
+all independent. Let us explore it now.
+Minor Symmetry
+As 
+ is symmetric, it implies that
+For example, 
+, 
+. If this is not satisfied then if we work out the multiplication of
+the RHS in equation 
+, 
+ will not come out to be equal to 
+. Likewise, as 
+ is symmetric, one can
+choose
+This is because the multiplication in 
+ only depends on 
+ part of 
+ due to symmetry of
+strain components as we show below:
+σij
+σij(ϵkl) = σij(ϵkl = 0)
+σ0
+ij
++ ∑
+k
+∑
+l
+∂σij
+∂ϵkl
+ϵkl + ∑
+k
+∑
+l
+∑
+m
+∑
+n
+1
+2!
+∂2σij
+∂ϵkl∂ϵmn
+ϵklϵmn+. . .
+
+
+
+
+
+(8)
+ϵkl = 0
+σ0
+ij
+σ0
+ij
+σij =
+3
+∑
+k=1
+3
+∑
+l=1
+∂σij
+∂ϵkl
+ϵkl.
+(9)
+(9)
+Cijkl
+Cijkl = ∂σij
+∂ϵkl
+ϵkl=0
+.
+∣
+(10)
+σij = ∑
+k
+∑
+l
+Cijkl ϵkl
+(11)
+Cijkl
+34 = 81
+σij
+Cijkl = Cjikl.
+(12)
+C1222 = C2122 C1323 = C3123
+(11) σij
+σji
+ϵkl
+Cijkl = Cijlk.
+(13)
+(11)
+(Cijkl + Cijlk)/2
+Cijkl
+(
+)
+(
+)
+8/27/26, 4:39 PM
+6 Stress - Strain relation
+https://web.iitd.ac.in/~ajeetk/smb/StressStrainrelation.html
+3/17
+In the last equality here, we have simply replaced 
+ in the last term with 
+ due to symmetry in strain
+components. However, this implies that the last two summations become exactly the same and hence cancel
+each other: just interchange the summation subscripts (
+) in the last summation. Equations 
+and 
+ are together called minor symmetries of the stiffness tensor. By using equation 
+, out of the 9
+combinations of 
+, only 6 are independent. Similarly, by using equation 
+, out of the 9 combinations
+of 
+, only 6 are independent. Thus, we have 
+ independent components from the total 81
+components. The number of independent constants reduces further upon using another kind of symmetry
+which is called Major symmetry.
+Major symmetry
+This is another symmetry present in the stiffness tensor which comes from energy considerations. It implies
+Let us prove it. First, let us look at the analogue of a spring.
+Figure 6.2: A spring mass system
+If the elongation of the spring is  and the spring constant is , the force  that gets generated in the spring is
+given by
+while the energy stored in the spring is given by
+We also have
+This is the case of a simple spring. We can think of a three-dimensional body as being made up of multiple
+springs. The strain components can be thought of as the elongation in an individual spring and the stress
+components can be thought of as the force that generates in that particular spring. The only difference here is
+that the force in a spring (
+) not only depends on the strain in that spring but also on strains in other springs.
+For example, 
+ depends on 
+ and 
+ too in addition to 
+. Thus, a three-dimensional elastic
+body is just a more complicated/coupled set of springs. Using this analogy, we can also say that the energy is
+stored when a body deforms. This stored energy is called strain energy density (per unit volume). To get the
+total energy stored in a body, we can integrate the strain energy density over the entire volume of the body.
+Analogous to spring energy in 
+, we can write strain energy density 
+ in a three-dimensional body as
+follows:
+σij = ∑
+k
+∑
+l
+Cijkl ϵkl = ∑
+k
+∑
+l
+[ (Cijkl + Cijlk)
+2
++ (Cijkl −Cijlk)
+2
+] ϵkl
+= ∑
+k
+∑
+l
+[ (Cijkl + Cijlk)
+2
+] ϵkl + ∑
+k
+∑
+l
+Cijkl
+2
+ ϵkl −∑
+k
+∑
+l
+Cijlk
+2
+ ϵkl
+= ∑
+k
+∑
+l
+[ (Cijkl + Cijlk)
+2
+] ϵkl + ∑
+k
+∑
+l
+Cijkl
+2
+ ϵkl −∑
+k
+∑
+l
+Cijlk
+2
+ ϵlk.
+(14)
+ϵkl
+ϵlk
+k →l,  l →k
+(12)
+(13)
+(12)
+(i, j)
+(13)
+(k, l)
+6 × 6 = 36
+Cijkl = Cklij.
+(15)
+x
+k
+F
+F = kx
+(16)
+E = 1
+2 kx2 = 1
+2 (kx)x = 1
+2 Fx.
+(17)
+∂E
+∂x = kx = F.
+(18)
+σij
+σ11
+ϵ12, ϵ13, ϵ22, ϵ23
+ϵ33
+ϵ11
+(17)
+E
+8/27/26, 4:39 PM
+6 Stress - Strain relation
+https://web.iitd.ac.in/~ajeetk/smb/StressStrainrelation.html
+4/17
+As  and  go from 1 to 3, there are a total of 9 springs. Let us now substitute for 
+ using linear stress-strain
+relation given in equation 
+:
+This is the energy stored per unit volume in the body. Now, we can also obtain stress component 
+analogous to equation 
+, i.e.,
+We have used the fact that 
+ is a constant and does not change with strain. Assuming that the strain
+components are independent of each other, the partial derivative of one component with respect to another
+will give 1 if they are the same and 0 otherwise. To express this mathematically, we need to use
+multiplication of two Kronecker Delta functions, e.g.,§
+We thus have
+As  and  are just used for summation and are dummy variables, we can change them to  and  respectively
+which yields
+where
+This 
+ has got major symmetry as shown below:
+From this analysis, we can conclude that although equation 
+ has a general  tensor, we can always work
+with an equivalent 
+ which has both major and minor symmetries. Due to major symmetry, the number of
+independent constants in 
+ reduces further. We can think of a 
+ matrix with the rows representing the
+values of 
+ corresponding to independent combinations of 
+ and the columns representing the values
+of 
+ corresponding to independent combinations of 
+, i.e.,
+E(strain energy/volume) = 1
+2 ∑
+i
+∑
+j
+σijϵij.
+(19)
+i
+j
+σij
+(11)
+E = 1
+2 ∑
+i
+∑
+j
+( ∑
+k
+∑
+l
+Cijklϵkl)ϵij = 1
+2 ∑
+i,j,k,l
+Cijkl ϵklϵij.
+(20)
+σmn
+(18)
+σmn =
+∂E
+∂ϵmn
+= 1
+2 ∑
+i,j,k,l
+(Cijkl
+∂ϵkl
+∂ϵmn
+ϵij + Cijklϵkl
+∂ϵij
+∂ϵmn
+).
+(21)
+Cijkl
+∂ϵkl
+∂ϵmn
+= δkmδln,
+∂ϵij
+∂ϵmn
+= δimδjn.
+(22)
+σmn = 1
+2 ∑
+i,j,k,l
+(Cijklδkmδlnϵij + Cijklϵklδimδjn∂ϵmn) = 1
+2 ( ∑
+i,j
+Cijmnϵij + ∑
+k,l
+Cmnklϵkl).
+i
+j
+k
+l
+σmn = 1
+2 ∑
+k,l
+(Cklmn + Cmnkl)ϵkl = ∑
+k,l
+~Cmnkl ϵkl
+(23)
+~Cmnkl = 1
+2 (Cklmn + Cmnkl).
+(24)
+~Cmnkl
+~Cmnkl = 1
+2 (Cklmn + Cmnkl) = 1
+2 (Cmnkl + Cklmn) = ~Cklmn.
+(25)
+(11)
+C
+~C
+Cijkl
+6 × 6
+Cijkl
+(i, j)
+Cijkl
+(k, l)
+8/27/26, 4:39 PM
+6 Stress - Strain relation
+https://web.iitd.ac.in/~ajeetk/smb/StressStrainrelation.html
+5/17
+From major symmetry, we know that we can flip 
+ and 
+ which implies that the above matrix is
+symmetric. Thus, out of the 36 components here, only 21 are independent. We can summarize the reduction
+in number of independent components as follows:
+6.3 Voigt Notation: NPTEL link
+Although the stress tensor is written in a matrix form, one can also think of writing it as a 
+ column
+formed by its six independent components. The sequence in which they are written is shown in Figure 6.3.
+Figure 6.3: The arrow directions shows the sequence in which the six independent
+components of stress matrix are written in a column using Voigt notation
+We first go along the diagonal starting from (1,1) component. Then we go up along the third column and then
+left along the first row. Thus, we obtain the following column form:
+This is also called the stress vector. We can follow the same steps to get the strain vector, i.e.,
+For linear stress-strain relation, there exists a matrix which relates the stress vector with the strain vector, i.e.,
+[
+] =
+.
+Cijkl
+⎡
+⎢
+⎣
+C1111
+C1122
+C1133
+C1123
+C1113
+C1112
+C2211
+C2222
+C2233
+C2223
+C2213
+C2212
+C3311
+C3322
+C3333
+C3323
+C3313
+C3312
+C2311
+C2322
+C2333
+C2323
+C2313
+C2312
+C1311
+C1322
+C1333
+C1323
+C1313
+C1312
+C1211
+C1222
+C1233
+C1223
+C1213
+C1212
+⎤
+⎥
+⎦
+(26)
+(i, j)
+(k, l)
+81(34)
+36(62)
+21.
+Minor Symmetry
+−
+→
+Major Symmetry
+−
+→
+6 × 1
+[σ] =
+.
+–
+⎡
+⎢
+⎣
+σ11
+σ22
+σ33
+σ23
+σ13
+σ12
+⎤
+⎥
+⎦
+(27)
+[ϵ–] =
+=
+.
+⎡
+⎢
+⎣
+ϵ11
+ϵ22
+ϵ33
+2ϵ23
+2ϵ13
+2ϵ12
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+ϵ11
+ϵ22
+ϵ33
+γ23
+γ13
+γ12
+⎤
+⎥
+⎦
+(28)
+8/27/26, 4:39 PM
+6 Stress - Strain relation
+https://web.iitd.ac.in/~ajeetk/smb/StressStrainrelation.html
+6/17
+This 
+ matrix is called the stiffness matrix. It is the same matrix as in 
+ which is symmetric and
+contains 21 independent constants. We can also write the strain vector ( ) in terms of stress vector ( ) using
+another 
+ matrix:
+This 
+ matrix is called the compliance matrix which turns out to be the inverse of the stiffness matrix.
+Although, the most general material has 21 independent material constants, there are materials with
+additional symmetries. For example, isotropic materials have only two independent constants. We will
+discuss such materials next.
+6.4 Isotropic materials: NPTEL link
+As the name suggests, isotropic materials have the same property in all directions. To understand what we
+mean, consider a body made up of isotropic material and stretch it at an arbitrary point along 
+ direction as
+shown in Figure 6.4.
+Figure 6.4: A body made up of an isotropic material being stretched at an arbitrary point
+along 
+ direction
+We have restricted the body in such a way that the deformation is not allowed in any direction other than 
+.
+Thus, the strain matrix at the point of interest has only 
+ as the non-zero component, i.e.,
+Using equation 
+, we can then write
+=
+.
+⎡
+⎢
+⎣
+σ1
+σ2
+σ3
+σ4
+σ5
+σ6
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+6 × 6 matrix
+(formed by
+Cijkl)
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+ϵ1
+ϵ2
+ϵ3
+ϵ4
+ϵ5
+ϵ6
+⎤
+⎥
+⎦
+(29)
+6 × 6
+(26)
+ϵ–
+σ
+–
+6 × 6
+=
+.
+⎡
+⎢
+⎣
+ϵ1
+ϵ2
+ϵ3
+ϵ4
+ϵ5
+ϵ6
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+6 × 6 matrix
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+σ1
+σ2
+σ3
+σ4
+σ5
+σ6
+⎤
+⎥
+⎦
+(30)
+6 × 6
+e–1
+e–1
+e–1
+ϵ11
+ϵ–– =
+.
+⎡
+⎢
+⎣
+ϵ11
+0
+0
+0
+0
+0
+0
+0
+0
+⎤
+⎥
+⎦
+(31)
+(11)
+σ11 = ∑
+k,l
+C11kl ϵkl = C1111 ϵ11.
+(32)
+8/27/26, 4:39 PM
+6 Stress - Strain relation
+https://web.iitd.ac.in/~ajeetk/smb/StressStrainrelation.html
+7/17
+We now do another experiment with the same body. However, this time instead of stretching along 
+, we
+stretch along 
+ as shown in Figure 6.5. We again constrain the body to not allow deformation in any
+direction except 
+.
+Figure 6.5: The same point in the same body as in Figure 6.4 is now stretched along 
+direction.
+So, the new strain matrix at the point of interest will be
+We can thus write
+As the material is isotropic, the response of the material, e.g., the stress generated in the two cases above
+should be the same if the strain applied is also the same. Thus, if 
+ in the first case equals 
+ in the second
+case, then 
+ in the first case should be the same as 
+ in the second case. On comparing equations 
+and 
+, we find that it is possible if and only if 
+. Similarly, if we do the analysis for
+stretching along 
+, we can conclude that
+These are additional constraints on the coefficients of the stiffness tensor for isotropic materials. They are not
+covered by either minor or major symmetries. In fact, a rigorous analysis proves that there are several other
+constraints in this case all of which finally lead to only two independent constants for the stiffness tensor of
+isotropic materials. This also means that for isotropic materials, we just have to do two independent
+experiments to fully characterize its material response (for a general material, we will need to do 21
+experiments!). When we work out the stress-strain relation for isotropic materials using a rigorous
+mathematical derivation, we get
+Here (
+) are called the Lame’s constants. Let us consider the case when 
+, i.e.,
+Comparing with equation 
+, we can see that 
+ (the constant relating 
+ and 
+) will be given by the
+coefficient of 
+, i.e.,
+Likewise, we can also deduce
+e–1
+e–2
+e–2
+e–2
+ϵ–– =
+.
+⎡
+⎢
+⎣
+0
+0
+0
+0
+ϵ22
+0
+0
+0
+0
+⎤
+⎥
+⎦
+(33)
+σ22 = ∑
+k,l
+C22kl ϵkl = C2222 ϵ22.
+(34)
+ϵ11
+ϵ22
+σ11
+σ22
+(32)
+(34)
+C1111 = C2222
+e–3
+C1111 = C2222 = C3333.
+(35)
+σij = λ tr(ϵ––)δij + 2μϵij = λ(ϵ11 + ϵ22 + ϵ33)δij + 2μϵij.
+(36)
+λ, μ
+i = j = 1
+σ11 = λ(ϵ11 + ϵ22 + ϵ33) + 2μϵ11.
+(37)
+(11)
+C1111
+σ11
+ϵ11
+ϵ11
+C1111 = λ + 2μ.
+(38)
+C1122 = C1133 = λ.
+(39)
+8/27/26, 4:39 PM
+6 Stress - Strain relation
+https://web.iitd.ac.in/~ajeetk/smb/StressStrainrelation.html
+8/17
+Similarly, using equation 
+, we can write
+Comparing this with equation 
+, we can verify that 
+. When 
+, the first term in equation
+ becomes zero due to the Kronecker delta function present there. For example,
+Equation 
+ gives stress in terms of strain. Alternatively, we can use another form where strain is expressed
+in terms of stress. It is also called the isotropic three-dimensional Hooke’s law of elasticity¶ as shown below:
+In this representation, we have three constants: 
+ denoting Young’s modulus of elasticity,  denoting
+Poisson’s Ratio and 
+ denoting shear modulus of elasticity. As we know that isotropic materials have only
+two independent constants, there is a relation between ,  and  given by
+Finally, comparing equation 
+ with equation 
+, we can also note that
+6.5 On Young’s modulus, shear modulus and Poisson’s ratio:
+NPTEL link
+Let us consider equations 
+, 
+ and 
+. We can see that the normal strain in one direction not only
+depends on the normal stress component in that direction but also on normal stress components in other two
+directions. To understand its physical relevance, we can think of a simple experiment. Suppose that we have a
+rectangular beam of length , breadth  and height 
+ as shown in Figure 6.6.
+Figure 6.6: A rectangular beam is stretched by applying force through its left and right
+faces.
+(36)
+σ22 = λ(ϵ11 + ϵ22 + ϵ33) + 2μϵ22 ⇒C2222 = λ + 2μ.
+(40)
+(38)
+C1111 = C2222
+i ≠j
+(36)
+σ12 = 2μϵ12 = μ(ϵ12 + ϵ21) ⇒C1212 = C1221 = μ.
+(41)
+(36)
+ϵ11 = 1
+E (σ11 −ν(σ22 + σ33)),
+ϵ22 = 1
+E (σ22 −ν(σ11 + σ33)),
+ϵ33 = 1
+E (σ33 −ν(σ11 + σ22)),
+γ12 = 2ϵ12 = σ12
+G = τ12
+G ,
+γ13 = τ13
+G ,
+γ23 = τ23
+G .
+(42)
+(43)
+(44)
+(45)
+(46)
+(47)
+E
+ν
+G
+E G
+ν
+G =
+E
+2(1 + ν) .
+(48)
+(45)
+(41)
+μ = G.
+(49)
+(42) (43)
+(44)
+L
+B
+H
+8/27/26, 4:39 PM
+6 Stress - Strain relation
+https://web.iitd.ac.in/~ajeetk/smb/StressStrainrelation.html
+9/17
+The beam is oriented such that its length is along 
+, its height along 
+ and its breadth along 
+. We apply
+force on the left and right faces to stretch the beam. So, 
+ will be non-zero while the shear components 
+and 
+ will be zero (force applied is in just 
+ direction). Also, as we are not applying any force on the
+lateral surfaces (
+ and 
+ planes), there is no stress on them. In fact, any internal section with normal along
+ and 
+ will not have any traction component. The state of stress in this case will then be
+This stress will lead to some strain in the body. We know that 
+ is generated because the length of the beam
+changes. However, 
+ and 
+ also generate: due to stretching in one direction, there will be contraction in
+the other two directions. We can physically realize this when we stretch a rubber bar or a soft bar along its
+axis - their cross-section dimension reduces. But, there will be no shear strain generated if we are careful in
+stretching uniformly. Thus, the state of strain in the rectangular beam of Figure 6.6 will be
+Young’s modulus ( )
+We know that longitudinal strain 
+ is given by 
+. Assuming uniform strain field in the bar, the local
+strain will be equal to the global strain. Thus, we have
+If we now draw the graph of 
+ vs 
+ for the above experiment by measuring the change in length, we will
+get a curve as shown in Figure 6.7.
+Figure 6.7: A typical plot of 
+ vs 
+ for the rectangular bar experiment of Figure 6.6
+The initial slope of this graph (shown as the red dotted line) gives us the Young’s Modulus , i.e.,
+While computing this derivative, we should not have 
+ or 
+ present. Essentially, the bar should be
+stretched in such a way that it can freely shrink in lateral directions. We can also prove the above formula
+using equation 
+. Upon putting the condition of the experiment into it, i.e., 
+, we will get
+e–1
+e–2
+e–3
+σ11
+σ12
+σ13
+e–1
+e–2
+e–3
+e–2
+e–3
+.
+⎡
+⎢
+⎣
+σ11
+0
+0
+0
+0
+0
+0
+0
+0
+⎤
+⎥
+⎦
+(50)
+ϵ11
+ϵ22
+ϵ33
+.
+⎡
+⎢
+⎣
+ϵ11
+0
+0
+0
+ϵ22
+0
+0
+0
+ϵ33
+⎤
+⎥
+⎦
+(51)
+E
+ϵjj
+∂uj
+∂Xj
+ϵ11 = ΔL
+L ,  ϵ22 = ΔH
+H ,  ϵ33 = ΔB
+B .
+(52)
+σ11
+ϵ11
+σ11
+ϵ11
+E
+E = ∂σ11
+∂ϵ11
+ϵ11=0
+.
+∣
+(53)
+σ22
+σ33
+(42)
+σ22 = σ33 = 0
+σ11 = Eϵ11.
+(54)
+8/27/26, 4:39 PM
+6 Stress - Strain relation
+https://web.iitd.ac.in/~ajeetk/smb/StressStrainrelation.html
+10/17
+From this equation, we can see that the slope of the graph of 
+ vs 
+ will give us . A point to note here is
+that equation 
+ gives us the slope of 
+ vs 
+ plot to be a constant. But in reality, the slope is not a
+constant as evident from Figure 6.7. This is because the linear stress strain relation 
+ works only for small
+strains. On the other hand, Figure 6.7 shows the curve even for large strains and this is the reason that we had
+to take the slope of this graph at 
+.
+Poisson’s ratio ( )
+The Poisson’s ratio of a material is also obtained from uniaxial tension test and is defined as
+In the rectangular bar experiment shown in Figure 6.6, we are directly imposing longitudinal strain in 
+direction and this, in turn, induces strains along 
+ and 
+ directions. For an isotropic body, the lateral strains
+in these two directions will be equal. Thus, the Poisson’s ratio for this experiment will be
+We can also derive this from stress-strain relation. Consider equations 
+ and 
+. Let us substitute the
+condition of experiment, i.e., 
+. From equation 
+, we get
+while from equation 
+, we get
+We thus get the same formula for the Poisson’s ratio as in 
+.
+Shear modulus ( )
+From equation 
+, we can see that shear modulus is given by
+So, if we can induce shear in a body and measure the corresponding shear stress, the ratio of stress to strain
+will give us the shear modulus. Motivated by this, let us conduct another experiment with the rectangular bar.
+The bar is fixed at the bottom face and we apply shear force along 
+ on the top face (face with normal along
+) as shown in Figure 6.8.
+Figure 6.8: A rectangular bar fixed at the bottom face and subjected to shear force at the
+top face
+σ11
+ϵ11
+E
+(42)
+σ11
+ϵ11
+(42)
+ϵ11 = 0
+ν
+ν = −induced lateral normal strain
+imposed longitudinal strain .
+(55)
+e–1
+e–2
+e–3
+ν = −ϵ22
+ϵ11
+= −ϵ33
+ϵ11
+.
+(56)
+(42)
+(43)
+σ22 = σ33 = 0
+(42)
+ϵ11 = 1
+E σ11
+(57)
+(43)
+ϵ22 = 1
+E (0 −ν(σ11 + 0)) = −ν σ11
+E
+= −ν ϵ11
+(using (57))
+(58)
+(56)
+G
+(45)
+G = τ12
+γ12
+.
+(59)
+e–1
+e–2
+8/27/26, 4:39 PM
+6 Stress - Strain relation
+https://web.iitd.ac.in/~ajeetk/smb/StressStrainrelation.html
+11/17
+This effectively induces shear stress 
+ in the body. Due to this, the bar shears: the initially perpendicular
+edges of the front face get inclined generating shear strain 
+ (as shown in Figure 6.8). If we draw the plot
+for 
+ vs 
+, we get a representative curve as shown in Figure 6.9.
+Figure 6.9: Plot of 
+ vs 
+ for the experiment shown in Figure 6.8
+The initial slope of this curve gives us shear modulus, i.e.,
+Again, the initial slope is measured because linear relations are valid only for small shear strains.
+Bulk modulus (
+)
+We have discussed Young’s modulus of elasticity and shear modulus of elasticity. The Young’s modulus
+relates normal strain with normal stress while shear modulus relates shear strain with shear stress. We will
+now discuss about bulk modulus of elasticity which relates volumetric strain with volumetric stress/
+equivalent pressure. When we apply pressure to a fluid (liquid/gas), its volume decreases. This decrease can
+be quantified by volumetric strain given by
+If a pressure change of 
+ generates volumetric strain 
+ in a fluid, the bulk modulus is then given by
+For solids, 
+ is nothing but the volumetric strain discussed earlier, i.e.,
+The equivalent of pressure in solids, as discussed in a preceding chapter, is obtained from the hydrostatic part
+of stress tensor and is given by
+So, along the lines of 
+, we can finally write
+τ12
+γ12
+τ12
+γ12
+τ12
+γ12
+G = τ12
+γ12
+γ12→0
+.
+∣
+(60)
+K
+Volumetric Strain = ΔV
+V
+.
+(61)
+ΔP
+ΔV
+V
+Kfluid = −
+ΔP
+ΔV /V .
+(62)
+ΔV
+V
+ΔV
+V
+= tr(ϵ––) = ϵ11 + ϵ22 + ϵ33.
+(63)
+peq = −I1
+3 .
+(64)
+(62)
+8/27/26, 4:39 PM
+6 Stress - Strain relation
+https://web.iitd.ac.in/~ajeetk/smb/StressStrainrelation.html
+12/17
+Let us use the three-dimensional Hooke’s law to obtain a formula for the above quantity. Adding equations
+, 
+ and 
+, we get
+This is a very important relation. Firstly, it tells us that the bulk modulus is not an independent constant. If we
+know Young’s modulus and Poisson’s ratio, we can also obtain bulk modulus using above relation. Secondly,
+this relation also gives an upper limit for the Poisson’s ratio as discussed below.
+Theoretical limits for the Poisson’s Ratio
+The Poisson’s ratio is usually positive. There is a recent surge in interest though in developing materials
+having negative Poisson’s ratio which are called auxetic materials. We can deduce from equation 
+ that
+when  is very close to 
+, the bulk modulus becomes very large. For such materials, if we apply a large
+amount of equivalent pressure, the volumetric strain induced in the body would still be very small (also see
+). This signifies incompressibility. Thus, 
+ corresponds to the incompressible limit. If this limit is
+crossed, 
+ will become negative which is not physically meaningful.
+To obtain the lower limit for the Poisson’s ratio, we can use equation 
+, i.e.,
+From the rectangular beam experiment in Figure 6.6 and Figure 6.8, we can observe that when we apply a
+positive 
+, 
+ should be positive and when we apply a positive 
+, 
+ should be positive. So, Young’s
+modulus and shear modulus are both positive quantities. As both the LHS and the numerator of the RHS in
+equation 
+ are positive, the denominator of the RHS must also be positive, i.e.,
+We thus have the following theoretical limit for the Poisson’s ratio:
+6.6 Isotropic thermoelasticity: NPTEL link
+Let us think of modeling stress-strain relationship when the temperature of a material is also changing. When
+we heat a body, it simply expands with no stress developing in it. This expansion leads to an extra strain
+called thermal strain (
+) which does not induce any stress in the body. It turns out that
+Here 
+ denotes the temperature change and the proportionality constant  is called the thermal expansion
+coefficient. As this strain does not generate any stress in the body, it is subtracted from total strain to get the
+part of strain (also called elastic strain) which generates stress. This implies
+Ksolids = −−I1/3
+tr(ϵ––)
+= 1
+3
+tr(σ)
+tr(ϵ––)
+.
+–
+(65)
+(42) (43)
+(44)
+ϵ11 + ϵ22 + ϵ33 = 1
+E (σ11 + σ22 + σ33) −2ν
+E (σ11 + σ22 + σ33)
+⇒tr(ϵ––) = 1 −2ν
+E
+tr(σ)
+or Ksolids =
+E
+3(1 −2ν)
+(using (65))
+–
+(66)
+(66)
+ν
+1
+2
+(62)
+ν →1
+2
+K
+(48)
+G =
+E
+2(1 + ν) .
+(67)
+σ11 ϵ11
+τ12 γ12
+(67)
+2(1 + ν) > 0 ⇒ν > −1.
+(68)
+−1 < ν ≤1
+2
+(69)
+ϵT
+ϵT ∝ΔT
+⇒ϵT = αΔT.
+(70)
+ΔT
+α
+8/27/26, 4:39 PM
+6 Stress - Strain relation
+https://web.iitd.ac.in/~ajeetk/smb/StressStrainrelation.html
+13/17
+The temperature change only affects normal strains and has no effect on shear strains. This is because only
+the length of line elements change with temperature and not the angle between line elements. Thus, the shear
+stress-shear strain relations remain unaffected, i.e.,
+The equations 
+ and 
+ together constitute the isotropic three-dimensional thermoelastic stress-strain
+relation.
+6.7 Anisotropic materials: NPTEL link
+There are materials which are not isotropic but commonly seen in nature. For example, consider the material
+shown in Figure 6.10a: a family of parallel fibers are included in otherwise isotropic materials to make them
+fiber reinforced. As a result of this, the Young’s modulus of the final material in the direction of the fiber
+becomes different to the Young’s modulus in the direction perpendicular to fibers. Actually, in all directions
+transverse to fibers, it has the same young’s modulus but different from the one along the fiber. Due to this
+directional dependence, the material no longer remains isotropic. Such materials are called transversely
+isotropic materials and they require 5 independent material constants to fully characterize their material
+response. Let us now put another family of fibers in the material but perpendicular to the initial family as
+shown in Figure 6.10b.
+Figure 6.10: An initially isotropic material is engraved with (a) one family of parallel fibers
+(b) two families of fibers perpendicular to each other
+Assume the two fibers have different properties. So, the Young’s modulus along the two fibers will be
+different. In fact, the Young’s modulus in the direction perpendicular to both the fibers will also be different.
+Such materials are called orthotropic materials and they have 9 independent constants. Wood is an example
+of orthotropic materials.
+6.8 Inelastic behavior: NPTEL link
+The discussion as of now were confined to elastic materials in which stress depends only on strain.
+Furthermore, if we somehow remove stress from the body, the body gets back to the original stress-free
+configuration. There are other materials however in which stress not only depends on strain but also on strain
+rate. Such materials are called viscoelastic. Then, there are viscous fluids in which stress depends only on
+strain rate and not on strain. There are also materials in which strain does not vanish upon removing the
+applied load. Essentially, such materials do not come back to their original shape upon removal of the applied
+ϵxx −αΔT = 1
+E (σxx −ν(σyy + σzz)),
+ϵyy −αΔT = 1
+E (σyy −ν(σxx + σzz)),
+ϵzz −αΔT = 1
+E (σzz −ν(σxx + σyy)).
+(71)
+γxy =
+τxy
+G ,
+γxz = τxz
+G ,
+γyz =
+τyz
+G .
+(72)
+(71)
+(72)
+8/27/26, 4:39 PM
+6 Stress - Strain relation
+https://web.iitd.ac.in/~ajeetk/smb/StressStrainrelation.html
+14/17
+load. For example, consider a steel bar on which a uniformly distributed load  is applied at both its ends as
+shown in Figure 6.11.
+Figure 6.11: A distributed load  is applied at both the ends of a circular beam made up of
+steel
+We have shown the applied stress  vs. the longitudinal strain  curve in Figure 6.12a.
+Figure 6.12: (a) Stress-strain curve for the steel beam shown in Figure 6.11 (b) Stress-strain
+curves for ductile and brittle materials
+Initially, this curve is a straight line. This is the regime where linear stress-strain relationship holds. However,
+the curve does not remain linear throughout. The curved part up to the inflexion point, is the regime of non-
+linear stress-strain relation because the slope of the curve is changing in this regime. The body is still elastic
+in this regime which implies if the applied load is removed, the same curve is traced in the backward
+direction. As we keep increasing the load, there comes a point where the body yields, i.e., the beam elongates
+a lot even with very small increment in the applied load. The beam eventually breaks. The regime between
+the yield point and the breaking point is called the plastic regime. If we decrease the applied load in this
+regime, the original curve is not traced back as shown in the figure. Hence, when the stress becomes zero, the
+body retains some strain. This strain is called plastic strain (
+). The yielding behavior is common in metals
+which give them ductile property. On the other hand, we also have brittle materials like glass which does not
+exhibit any yielding. They have a different stress-strain relationship (see Figure 6.12b).
+6.9 Solved examples
+Q1.
+Think of a rubber cube which is inserted within a cavity in steel block - the cavity has the same
+form and size as that of rubber cube (as shown below). The top surface of rubber cube is further
+pressed by another steel block with a pressure of ‘p’ pascals. Assume steel to be rigid and that there
+is no friction between steel and rubber. [AMS, LSS]
+(a)
+Find the normal stresses in x and y directions in this problem.
+(b)
+Find the volumetric strain.
+σ
+σ
+σ
+ϵ
+ϵp
+8/27/26, 4:39 PM
+6 Stress - Strain relation
+https://web.iitd.ac.in/~ajeetk/smb/StressStrainrelation.html
+15/17
+Solution: Let us neglect the weight of the rubber block in comparison to the steel block. Observe that the
+rubber block is constrained against expanding in  and -directions and can only displace vertically along 
+direction. This implies that
+Furthermore since the applied pressure is uniform, the vertical displacement 
+ can be assumed to be
+independent of  and  coordinates, i.e.,
+Accordingly, the strain matrix becomes
+Next we want to obtain the stress components. Treating rubber as an isotropic linear elastic material, one
+obtains:
+As of now, the remaining unknowns are 
+ and 
+. From the symmetry of the problem, we can
+say that 
+ as the same reaction is generated from steel walls in both directions. Note that even
+though 
+ and 
+, it does not translate to 
+ and 
+ being zero. Physically, as the steel cavity
+constrains the rubber cube from expanding, in the process, the wall of the steel cavity applies a constraining
+traction on the 
+ and 
+ faces of the rubber cube leading to non-zero 
+ and 
+. Using stress-strain
+relations, one can further write:
+Let’s now use traction boundary condition for finding 
+. Denoting the mass density of steel block as  and
+its height as , the total traction applied on the top face of the rubber block can be equated to internal traction
+in the rubber block there, i.e.,
+x
+y
+z−
+ux = 0, uy = 0, uz(x, y, z).
+uz
+x
+y
+uz(x, y, z) = uz(z).
+[ϵ––] =
+.
+⎡
+⎢
+⎣
+0
+0
+0
+0
+0
+0
+0
+0
+ϵzz
+⎤
+⎥
+⎦
+τxy = γxy
+G
+= 0, τxz = γxz
+G
+= 0, τyz = γyz
+G
+= 0.
+σxx, σyy, σzz,
+ϵzz
+σxx = σyy
+ϵxx = 0
+ϵyy = 0
+σxx
+σyy
+x−
+y−
+σxx
+σyy
+=
+1
+E [σxx −ν (
++ σzz)] ⇒ σxx (= σyy) =
+νσzz
+(1 −ν) .
+ϵxx
+0
+σyy
+σxx
+σzz
+ρ
+h
+σ e–3 = (ρgh + p) (−e–3) or 
+=
+⇒σzz = −(p + ρgh).
+–
+⎡
+⎢
+⎣
+τxz
+τyz
+σzz
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+0
+0
+−(ρgh + p)
+⎤
+⎥
+⎦
+8/27/26, 4:39 PM
+6 Stress - Strain relation
+https://web.iitd.ac.in/~ajeetk/smb/StressStrainrelation.html
+16/17
+Note that 
+ calculated above is valid just at the top boundary surface of rubber cube. However, for this
+case, 
+ is the same throughout the body (if we ignore the weight of the rubber block). This can be proved
+using equilibrium equations as shown below:
+Hence 
+ is valid throughout the rubber cube. Therefore 
+Moreover
+(b) Volumetric strain:
+For an exhaustive set of solved examples and
+unsolved objective and subjective type questions,
+please refer to the printed book: click here
+If you would like to share any feedback/comment: click here
+∗When quantities are expressed in terms of current position of a particle, it is called Eulerian description which is commonly used in
+Fluid mechanics. In Eulerian description, expression for acceleration becomes a bit complicated.
+†Often, this stress-strain relation is also called constitutive relation.
+‡The reference configuration of the body is also its zero strain state.
+§A rigorous approach is to also account for symmetry of strain components in the derivative calculation 
+ which we have ignored
+for simplicity.
+¶This is a generalized Hooke’s law for three-dimensional deformation of a body as compared to one-dimensional Hooke’s law (
+) which relates stress and strain for the axial deformation of a bar.
+σzz
+σzz
+∂σzz
+∂z
++
+∂
+∂x
++
+∂
+∂y
++
+=
+⇒∂σzz
+∂z
+= 0 or σzz = constant.
+τzx 0
+σzy 0
+bz
+0
+ρaz
+0
+σzz = −(p + ρgh)
+σxx = σyy = −ν (p + ρgh)
+(1 −ν)
+.
+ϵzz =
+1
+E [σzz −ν (σxx + σyy)] =
+1
+E [σzz −2νσxx]
+=
+1
+E [σzz −
+2ν 2
+(1 −ν) σzz] =
+1
+E ( 1 −ν −2ν 2
+1 −ν
+)σzz.
+ϵv = ϵxx + ϵyy + ϵzz = 0 + 0 + ϵzz = −1
+E ( 1 −ν −2ν 2
+1 −ν
+) (p + ρgh).
+(22)
+σ = Eϵ
+8/27/26, 4:39 PM
+6 Stress - Strain relation
+https://web.iitd.ac.in/~ajeetk/smb/StressStrainrelation.html
+17/17

@@ -1,0 +1,3223 @@
+Chapter 7
+Solving Axisymmetric Problems: Extension, Torsion and
+Inflation
+As of now, we have worked with Cartesian coordinate system - be it about representing stress and strain
+tensors or deriving stress equilibrium equations or solving deformation problems. However, there are many
+deformation problems where working with cylindrical coordinate system turns out to be handy such as in
+studying axisymmetric deformation of cylindrical bodies.∗ It is therefore of importance to obtain stress and
+strain matrices as well as stress equilibrium equations in cylindrical coordinate system. We achieve this task in
+this chapter. We begin with first discussing the cylindrical coordinate itself and then derive stress equilibrium
+equations in this coordinate system. We further obtain expressions of components of strain matrix in
+cylindrical coordinate system. Finally, we solve axisymmetric problems such as extension, torsion and
+inflation of cylinders, rotating shaft problem, shrunk-fit problem etc. using cylindrical coordinate system.
+(For author information and the accompanying book: click here
+    If you would like to share any feedback/comment: click here)
+7.1 Cylindrical coordinate system: NPTEL link
+Figure 7.1a shows a generalized cylinder whose radius may change along the axis of the cylinder.
+Figure 7.1: (a) A generalized cylinder with its axis coinciding with  axis (b) 
+ plane
+The axis of the cylinder coincides with  axis. Any general point of the cylinder will have coordinates 
+.
+The position vector of this point is 
+ where the -dependence is hidden in the basis vector 
+. If we
+project this point on 
+ plane, we get to 
+ as shown in Figure 7.1a. We have drawn the 
+ plane
+in Figure 7.1b. There is a baseline or a reference line relative to which angle  is measured. The length of the
+line joining the center and the projected point is  while the angle that it makes from the baseline is . Two of
+the basis vectors lie in this plane: 
+ points radially outward from the center while 
+ points in the direction of
+increasing  and is perpendicular to 
+. The third basis vector 
+ lies along the axis of the cylinder. Thus, the
+basis vectors for a cylindrical coordinate system are 
+ whereas in Cartesian coordinate system, the
+basis vectors are 
+. Although both the sets of basis vectors are orthonormal, there is a big difference
+in their properties: the basis vectors of Cartesian coordinate system are fixed in direction and do not change
+from one point to the other but in cylindrical coordinate system, two of the basis vectors 
+ change when
+-coordinate of a point changes. This has been illustrated in Figure 7.2a where the basis vectors at the two
+points are differently oriented although only the -coordinate of the two points is different.
+z
+z = 0
+z
+(r, θ, z)
+re–r + ze–z
+θ
+e–r
+z = 0
+(r, θ, 0)
+z = 0
+θ
+r
+θ
+e–r
+e–θ
+θ
+e–r
+e–z
+(e–r, e–θ, e–z)
+(e–1, e–2, e–3)
+(e–r, e–θ)
+θ
+θ
+8/27/26, 4:40 PM
+7 Solving Axisymmetric Problems: Extension, Torsion and Inflation
+https://web.iitd.ac.in/~ajeetk/smb/SolvingAxisymmetricProblemsExtensionTorsionandInflation.html
+1/30
+Figure 7.2: (a) Two points are shown on 
+ plane along with basis vectors at those points
+(b) Two points A and B are shown on 
+ plane along the same radial line and the
+basis vectors at the two points are shown to be the same
+The third basis vector 
+ remains fixed at every point though. It may be emphasized here that 
+ and 
+change only when the -coordinate changes. If only the radial coordinate or/and z-coordinate of a point is
+changed, the basis vectors do not change (see Figure 7.2b).
+We now show how to obtain 
+ and 
+. We again draw 
+ plane as shown in Figure 7.3a.
+Figure 7.3: (a) Two points A and B are shown on 
+ plane along with 
+ at the two
+points: their  coordinates differ by 
+ (b) the two radial vectors at points A and B are
+translated so that they start from a common point
+The -coordinates of the two points A and B differ by 
+. Using the definition of differentiation, we can write
+To obtain it geometrically, we parallelly transport the two radial vectors such that they start from a common
+point as shown in Figure 7.3b. The angle between the two radial vectors is still 
+. The numerator in equation
+ will thus equal the third side of the triangle in Figure 7.3b which is also denoted by 
+ there. The
+magnitude of the two sides representing the basis vectors has magnitude 1 as they are unit vectors. We then
+draw an angle bisector to the angle 
+. As the original triangle is an isosceles triangle, the angle bisector is
+also the perpendicular bisector to the base. Let us then consider any one of the two right triangles: the
+magnitude of its base equals 
+. So, the total magnitude of 
+ will be 
+. Let us denote the
+direction of this vector by . Substituting these results in equation 
+, we get
+The direction  makes an angle of 
+ with 
+ as shown in Figure 7.3b. In the limit of 
+, this
+angle becomes 
+. Thus, in this limit, 
+ points along 
+. Also, the magnitude term in equation 
+becomes 1 (
+). Thus, we finally have
+z = 0
+z = 0
+e–z
+e–r
+e–θ
+θ
+∂e–r
+∂θ
+∂e–θ
+∂θ
+z = 0
+z = 0
+e–r
+θ
+Δθ
+θ
+Δθ
+∂e–r
+∂θ = lim
+Δθ→0
+e–r(θ + Δθ) −e–r(θ)
+Δθ
+.
+(1)
+Δθ
+(1)
+Δe–r
+Δθ
+sin( Δθ
+2 )
+Δe–r
+2 sin( Δθ
+2 )
+e–
+(1)
+∂e–r
+∂θ = lim
+Δθ→0
+2 sin( Δθ
+2 )
+Δθ
+e–
+(2)
+e–
+90∘−Δθ
+2
+e–r
+Δθ →0
+90∘
+Δe–r
+e–θ
+(2)
+∵limx→0 sin x
+x
+= 1
+8/27/26, 4:40 PM
+7 Solving Axisymmetric Problems: Extension, Torsion and Inflation
+https://web.iitd.ac.in/~ajeetk/smb/SolvingAxisymmetricProblemsExtensionTorsionandInflation.html
+2/30
+A similar derivation shows that
+Cylindrical element
+In Cartesian coordinate system, we worked with cuboid elements with their face normals directed along the
+three coordinate axes. In cylindrical coordinate system similarly, we will work with cylindrical elements with
+their face normals parallel to 
+, 
+ and 
+. A small cylindrical element within a generalized cylinder and its
+zoomed view is shown in Figure 7.4.
+Figure 7.4: (a) A small cylindrical element in a generalized cylinder (b) a zoomed view of
+the cylindrical element with its various faces shown
+The top face has its normal along  axis. Thus, the top face is 
+ plane and the bottom face is 
+ plane. The
+front face shown has its normal along 
+ direction. Thus, this is 
+ plane and the plane opposite to it is 
+plane. Finally, the concave curved face has its plane normal along 
+ direction and can be imagined to
+become flat in the limit of the cylindrical element becoming infinitesimally small. Likewise, the convex
+curved face is 
+ plane.
+Figure 7.5: (a) Decomposition of traction vector along the three basis directions for various
+faces of the cylindrical element (b) the 
+ face of the cylindrical element and various
+lengths associated with it: an infinitesimal area element on this face is is also shown
+∂e–r
+∂θ = e–θ.
+(3)
+∂e–θ
+∂θ = −e–r.
+(4)
+e–r e–θ
+e–z
+z
++z
+−z
+−e–θ
+−θ
++θ
+−e–r
++r
++z
+8/27/26, 4:40 PM
+7 Solving Axisymmetric Problems: Extension, Torsion and Inflation
+https://web.iitd.ac.in/~ajeetk/smb/SolvingAxisymmetricProblemsExtensionTorsionandInflation.html
+3/30
+7.2 LMB Formulation:NPTEL link
+For linear momentum balance, we need to sum the forces acting on the cylindrical element due to tractions
+and body force and equate it to the cylindrical element’s rate of change of linear momentum. Let us begin with
+considering each of the faces separately, obtain total force on them and eventually add all of them. In Figure
+7.5a, we have shown the traction components (resolved along the three basis vectors) acting on each of these
+faces from the remaining part of the body.
+7.2.1 Force on 
+ and 
+ planes: NPTEL link
+On 
+ plane, the traction vector 
+ is given by
+The total force due to this traction can be obtained by integrating it over 
+ plane which we have drawn
+separately in Figure 7.5b. The difference between the outer and inner radii of this face is 
+ and the total
+angle subtended by the face at the center is 
+. The center of the cylindrical element shown in Figure 7.4 and
+likewise Figure 7.5a has coordinates 
+. Thus, the coordinates of a general point on its top surface is
+denoted by 
+ ( and  coordinates vary while  coordinate remains fixed). We then
+consider an infinitesimal area element on this face. The length of this area element in the radial direction is 
+and its width in -direction is -coordinate multiplied with 
+. Thus, the area of the infinitesimal element is
+Hence, the total force on 
+ plane is
+For 
+ plane, all the traction components act along negative basis directions but an arbitrary point on 
+plane will have coordinates 
+. Thus, the total force on 
+ plane will be
+As the stress components are varying in the domain of integration, we can use Taylor’s expansion about the
+center of the cylindrical element, i.e., at 
+. In equation 
+, e..g, we need to Taylor expand both stress
+components as well as basis vectors. Ignoring higher order terms, we get
+As 
+ and 
+ change only with , their partial derivatives with respect to  and  are not present in the above
+expression. Upon further plugging the derivatives of basis vectors into above equation, we get
+Let us now consider the first set of terms, i.e.,
++z
+−z
++z
+t–
++z
+t–
++z = σzze–z + τrze–r + τθze–θ.
+(5)
++z
+Δr
+Δθ
+(r, θ, z)
+(r + ξ, θ + η, z + Δz
+2 ) r
+θ
+z
+dξ
+θ
+r
+dη
+dA = l × b = dξ × (r + ξ)dη = (r + ξ)dξdη.
+(6)
++z
+F +z = ∬
+A
+t–
++zdA = ∫
+Δr
+2
+ξ= −Δr
+2
+∫
+Δθ
+2
+η= −Δθ
+2
+(σzze–z + τrze–r + τθze–θ)
+at (r+ξ, θ+η, z+ Δz
+2 )
+(r + ξ)dξdη.
+–
+
+
+
+
+
+(7)
+−z
+−z
+(r + ξ, θ + η, z −Δz
+2 )
+−z
+F −z = ∬
+A
+t–
+−zdA = −∫
+Δr
+2
+ξ= −Δr
+2
+∫
+Δθ
+2
+η= −Δθ
+2
+(σzze–z + τrze–r + τθze–θ)
+at (r+ξ,θ+η,z−Δz
+2 )
+(r + ξ)dξdη.
+–
+
+
+
+
+
+(8)
+(r, θ, z)
+(7)
+F +z = ∬[σzz + ∂σzz
+∂r ξ + ∂σzz
+∂θ η + ∂σzz
+∂z
+Δz
+2 ]e–zdA
++ [τrz + ∂τrz
+∂r ξ + ∂τrz
+∂θ η + ∂τrz
+∂z
+Δz
+2 ](e–r +
+∂e–r
+∂θ η)dA
++ [τθz + ∂τθz
+∂r ξ + ∂τθz
+∂θ η + ∂τθz
+∂z
+Δz
+2 ](e–θ +
+∂e–θ
+∂θ η)dA.
+–
+(9)
+e–r
+e–θ
+θ
+r
+z
+F +z = ∬[σzz + ∂σzz
+∂r ξ + ∂σzz
+∂θ η + ∂σzz
+∂z
+Δz
+2 ]e–zdA
++ [τrz + ∂τrz
+∂r ξ + ∂τrz
+∂θ η + ∂τrz
+∂z
+Δz
+2 ](e–r + ηe–θ)dA
++ [τθz + ∂τθz
+∂r ξ + ∂τθz
+∂θ η + ∂τθz
+∂z
+Δz
+2 ](e–θ −ηe–r)dA.
+–
+(10)
+8/27/26, 4:40 PM
+7 Solving Axisymmetric Problems: Extension, Torsion and Inflation
+https://web.iitd.ac.in/~ajeetk/smb/SolvingAxisymmetricProblemsExtensionTorsionandInflation.html
+4/30
+In the first term here, 
+ is is evaluated at the center of the cylindrical element and hence can be taken out of
+the integral. The integral of 
+ then gives us 
+: the area of 
+ face.† Similar logic applies to the last term
+here. Considering the second term, the integration of 
+ will give us 
+ times 
+ of 
+ face. As we are
+measuring  from the centroid itself, 
+ becomes zero. Likewise, the integration of 
+ in the third term
+will be zero. Thus, equation 
+ becomes
+Here 
+ denotes half the volume of the cylindrical element. Now, consider the second set of terms in
+equation 
+:
+The integration of the big bracket multiplied with 
+ will give us 
+ by a similar
+analysis as used for the first set of terms. Let us now look at multiplication of the big bracket with the second
+term. The terms 
+, its partial derivatives and 
+ are constant in the domain of integration as they are
+evaluated at the center of the cylindrical element. Thus, the first term will be 
+ which will be zero
+again. For the second term, we will get
+The third term is 
+. When we work this out, we will get something that is of the order higher
+than the volume of the cylindrical element, i.e., o(
+). This is because both 
+ and 
+ terms have dimension
+squared of the length. Thus the integration will be fourth power in length. The last term 
+will also become zero. Thus, the second set of terms in 
+ finally gives us
+The last set of terms in 
+ can be similarly integrated to yield
+The total force on 
+ plane will thus be
+We can also find the force on 
+ plane in the same way. If we compare equations 
+ and 
+, we find that we
+have an overall negative sign for the 
+ plane and also the stress components are to be evaluated at 
+instead of 
+. So, whenever we will have a term of the form 
+, it will be multiplied with 
+. The
+overall negative sign will then make such terms positive while the other terms will become negative. Thus, we
+will get
+Upon adding equations 
+ and 
+, we finally get
+∬[σzz + ∂σzz
+∂r ξ + ∂σzz
+∂θ η + ∂σzz
+∂z
+Δz
+2 ]e–zdA.
+(11)
+σzz
+dA
+Az
++z
+ξdA
+Az
+rcentroid
++z
+ξ
+rcentroid
+ηdA
+(11)
+[σzzAz + ∂σzz
+∂z
+Δz
+2 Az]e–z = [σzzAz + ∂σzz
+∂z
+ΔV
+2 ]e–z.
+(12)
+ΔV
+2
+(10)
+∬[τrz + ∂τrz
+∂r ξ + ∂τrz
+∂θ η + ∂τrz
+∂z
+Δz
+2 ](e–r + ηe–θ)dA.
+(13)
+e–r
+[τrzAz + ∂τrz
+∂z
+ΔV
+2 ]e–r
+τrz
+e–θ
+τrze–θ ∬ηdA
+∂τrz
+∂r e–θ ∬
+A
+ξηdA = ∂τrz
+∂r e–θ ∬ξη(r + ξ)dξdη = ∂τrz
+∂r e–θ ∫
+Δr
+2
+−Δr
+2
+ξ(r + ξ)dξ ∫
+Δθ
+2
+−Δθ
+2
+ηdη
+= ∂τrz
+∂r e–θ ∫
+Δr
+2
+−Δr
+2
+ξ(r + ξ)dξ [ η2
+2 ]
+Δθ
+2
+−Δθ
+2
+= 0.
+∣
+(14)
+∂τrz
+∂θ e–θ ∬η2dA
+ΔV
+η2
+dA
+∂τrz
+∂z e–θ
+Δz
+2 ∬ηdA
+(10)
+∬[τrz + ∂τrz
+∂r ξ + ∂τrz
+∂θ η + ∂τrz
+∂z
+Δz
+2 ](e–r + ηe–θ)dA = [τrzAz + ∂τrz
+∂z
+ΔV
+2 ]e–r + o(ΔV )
+(15)
+(10)
+∬[τθz + ∂τθz
+∂r ξ + ∂τθz
+∂θ η + ∂τθz
+∂z
+Δz
+2 ](e–θ −ηe–r)dA = [τθzAz + ∂τθz
+∂z
+ΔV
+2 ]e–θ + o(ΔV ).
+(16)
++z
+F +z = (σzzAz + ∂σzz
+∂z
+ΔV
+2 )e–z + (τrzAz + ∂τrz
+∂z
+ΔV
+2 )e–r + (τθzAz + ∂τθz
+∂z
+ΔV
+2 )e–θ + o(ΔV ).
+–
+(17)
+−z
+(7)
+(8)
+−z
+z −Δz
+2
+z + Δz
+2
+∂
+∂z
+−Δz
+2
+F −z = ( −σzzAz + ∂σzz
+∂z
+ΔV
+2 )e–z + ( −τrzAz + ∂τrz
+∂z
+ΔV
+2 )e–r + ( −τθzAz + ∂τθz
+∂z
+ΔV
+2 )e–θ + o(ΔV ).
+–
+(17)
+(18)
+8/27/26, 4:40 PM
+7 Solving Axisymmetric Problems: Extension, Torsion and Inflation
+https://web.iitd.ac.in/~ajeetk/smb/SolvingAxisymmetricProblemsExtensionTorsionandInflation.html
+5/30
+A simpler approach to obtain the traction force: NPTEL link
+Let us again consider the cylindrical element shown in Figure 7.5. Earlier, we had done the derivation by
+considering the variation of traction at different points on 
+ and 
+ planes. If we assume the traction to be
+constant everywhere on the plane with its value being equal to the value at the center of the plane, we can
+directly multiply it with the area of the plane to get the total force. We illustrate it now. As the center of the
+cylindrical element has coordinates 
+, the center of 
+-plane will be at 
+. Thus, the
+traction at the center of 
+-plane will be
+The three basis vectors in the above expression when evaluated at the center of 
+ plane will be the same as
+the one at the center of cylindrical element because the two points have the same -coordinate. Similarly, the
+traction on 
+ face at its center will be
+All the traction components point in the negative direction as this is 
+ face. The basis vectors at this point
+are also the same as those at the center of the cylindrical element. Thus, the total force on the two -planes
+will be
+which is obtained after assuming that traction does not vary over different points in a face of the cylindrical
+element. Now, we do the Taylor’s expansion of the components of traction about the center of the cylindrical
+element. As only  coordinate has changed, the Taylor’s expansion will only have terms corresponding to
+derivatives of . The first term for the tractions on 
+ and 
+ planes can be expanded as
+When we add the above two equations, 
+ terms cancel while the partial derivative terms add. We can also
+expand the 
+ and 
+ terms in the same way. The total force on the two -planes will thus become
+This is the same result that we had obtained in 
+ while also considering the variation of traction over the
+plane. The two results are same because the variation of traction over -planes only gives us smaller order
+terms and is captured in 
+ term. This term vanishes when we divide by 
+ and shrink the volume of the
+cylindrical element to a point.
+7.2.2 Force on 
+ and 
+ planes: NPTEL link
+For getting the total force on 
+ and 
+ planes, we will use the approximate method just discussed above as
+the exact derivation is much more tedious. We thus assume that traction on 
+ plane (the convex plane) is
+constant and equal to the value at its center, i.e., at 
+ and likewise the traction on 
+ plane is
+constant and equal to the value at 
+. We will denote the area of 
+ plane by 
+ and the area
+F +z + F −z = ( ∂σzz
+∂z e–z + ∂τrz
+∂z e–r + ∂τθz
+∂z e–θ)ΔV + o(ΔV ).
+–
+–
+(19)
++z
+−z
+(r, θ, z)
++z
+(r, θ, z + Δz
+2 )
++z
+t–
++z(r, θ, z + Δz
+2 ) = σzz(r, θ, z + Δz
+2 )e–z + τθz(r, θ, z + Δz
+2 )e–θ + τrz(r, θ, z + Δz
+2 )e–r.
++z
+θ
+−z
+t–
+−z(r, θ, z −Δz
+2 ) = −σzz(r, θ, z −Δz
+2 )e–z −τθz(r, θ, z −Δz
+2 )e–θ −τrz(r, θ, z −Δz
+2 )e–r.
+−z
+z
+F +z + F −z = [t–
++z(r, θ, z + Δz
+2 ) + t–
+−z(r, θ, z −Δz
+2 )]Az
+–
+–
+(20)
+z
+z
++z
+−z
+σzz(r, θ, z + Δz
+2 )e–z = [σzz(r, θ, z) + ∂σzz
+∂z (r, θ, z) Δz
+2 ]e–z,
+−σzz(r, θ, z −Δz
+2 )e–z = [ −σzz(r, θ, z) + ∂σzz
+∂z (r, θ, z) Δz
+2 ]e–z.
+σzz
+τrz
+τθz
+z
+F +z + F −z = [ ∂σzz
+∂z e–z + ∂τθz
+∂z e–θ + ∂τrz
+∂z e–r]ΔV + o(ΔV ).
+–
+–
+(21)
+(19)
+z
+o(ΔV )
+ΔV
++r
+−r
++r
+−r
++r
+(r + Δr
+2 , θ, z)
+−r
+(r −Δr
+2 , θ, z)
++r
+Ar+
+8/27/26, 4:40 PM
+7 Solving Axisymmetric Problems: Extension, Torsion and Inflation
+https://web.iitd.ac.in/~ajeetk/smb/SolvingAxisymmetricProblemsExtensionTorsionandInflation.html
+6/30
+of 
+ plane by 
+. From Figure 7.4b, we can observe that the area of -planes will be equal to the curved
+edge multiplied with the height.‡ Thus
+The traction vectors on radial planes can be written as
+The basis vectors at the centers of the  planes are the same as those at the center of the cylindrical element as
+they have the same  coordinate. Thus, we would not have to use Taylor’s expansion for basis vectors. Let’s
+consider the first term in the total force expression on 
+ plane:
+We can now rearrange the terms to bring all the terms dependent on  together and use the Taylor’s expansion
+about the center of the cylindrical element, i.e.,
+The corresponding term for 
+ plane can be simplified in a similar manner, i.e.,
+When we add these contributions from 
+ and 
+ planes, 
+ terms cancel whereas the remaining terms add
+up. A similar analysis for other terms in the total force expression can be done to obtain
+As the volume of the cylindrical element is 
+, the above expression can also be written as
+Unlike the derivation in Cartesian coordinate systen, We get 
+, 
+ and 
+ as additional terms here
+because, in the cylindrical element, the areas of 
+ and 
+ planes are not the same.§ We did not get similar
+terms for 
+ and 
+ planes in 
+ because the areas of those planes are the same.
+7.2.3 Force on 
+ and 
+ planes: NPTEL link
+We will again use the approximate method. The coordinates of the center of 
+ and 
+ planes are
+ and 
+ respectively. The areas of 
+ and 
+ planes are the same but we will
+still get extra terms here because of difference in basis vectors on the two planes: the two planes have different
+−r
+Ar−
+r
+Ar−= [(r −Δr
+2 )Δθ]
+curved edge
+Δz
+height
+,
+Ar+ = [(r + Δr
+2 )Δθ]
+curved edge
+Δz
+height
+.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+(22)
+t–
++r(r + Δr
+2 , θ, z) = σrr(r + Δr
+2 , θ, z)e–r + τθr(r + Δr
+2 , θ, z)e–θ + τzr(r + Δr
+2 , θ, z)e–z,
+t–
+−r(r −Δr
+2 , θ, z) = −σrr(r −Δr
+2 , θ, z)e–r −τθr(r −Δr
+2 , θ, z)e–θ −τzr(r −Δr
+2 , θ, z)e–z.
+r
+θ
++r
+σrr(r + Δr
+2 , θ, z)e–r (r + Δr
+2 )ΔθΔz.
+(23)
+r
+[σrr(r + Δr
+2 , θ, z)(r + Δr
+2 )]e–rΔθΔz = [σrrr + ∂
+∂r (σrrr) Δr
+2 +. . . ]e–rΔθΔz
+= [σrrr + ( ∂σrr
+∂r r + σrr) Δr
+2 +. . . ]e–rΔθΔz.
+−r
+−[σrr(r −Δr
+2 , θ, z)(r −Δr
+2 )]e–rΔθΔz = −[σrrr −∂
+∂r (σrrr) Δr
+2 ]e–rΔθΔz
+= [ −σrrr + ( ∂σrr
+∂r r + σrr) Δr
+2 ]e–rΔθΔz.
++r
+−r
+σrrr
+F +r + F −r = ( ∂σrr
+∂r r + σrr)e–rΔrΔθΔz + ( ∂τθr
+∂r r + τθr)e–θΔrΔθΔz + ( ∂τzr
+∂r r + τzr)e–zΔrΔθΔz.
+–
+–
+rΔrΔθΔz
+F +r + F −r = [( ∂σrr
+∂r
++ σrr
+r )e–r + ( ∂τθr
+∂r
++ τθr
+r )e–θ + ( ∂τzr
+∂r + τzr
+r )e–z]ΔV .
+–
+–
+(24)
+σrr
+r
+τθr
+r
+τzr
+r
++r
+−r
++z
+−z
+(21)
++θ
+−θ
++θ
+−θ
+(r, θ + Δθ
+2 , z)
+(r, θ −Δθ
+2 , z)
++θ
+−θ
+8/27/26, 4:40 PM
+7 Solving Axisymmetric Problems: Extension, Torsion and Inflation
+https://web.iitd.ac.in/~ajeetk/smb/SolvingAxisymmetricProblemsExtensionTorsionandInflation.html
+7/30
+ coordinates. From Figure 7.4b, we can note that the area of -face is 
+ The total force on 
+ and
+ planes will therefore be
+The traction on 
+ plane will be
+whereas the traction on 
+ plane will be
+Now 
+ and 
+ also have to be expanded using Taylor’s series. After a careful Taylor’s expansion and addition
+of forces on the two -planes, we obtain
+We can see from this equation that the product rule will give us extra terms in the form of the derivatives of
+basis vectors with respect to . We finally obtain
+Total force due to traction
+Adding the traction forces on all the faces of the cylindrical element yields
+Body force
+For the body force, we just need to find the body force at the center of the cylindrical element and multiply it
+with the volume of the element. We further decompose the body force into components along 
+, 
+ and 
+ to
+obtain
+Rate of change of linear momentum: NPTEL link
+Just like the body force term, the rate of change of linear momentum term 
+ will also be very similar to
+that in the Cartesian coordinate system. Only the acceleration vector has to be decomposed along the
+cylindrical coordinate basis vectors, i.e.,
+We can now plug equations 
+, 
+ and 
+ in the following balance law:
+θ
+θ
+Aθ = ΔrΔz.
++θ
+−θ
+F +θ + F −θ = [t–
++θ(r, θ + Δθ
+2 , z) + t–
+−θ(r, θ −Δθ
+2 , z)]ΔrΔz.
+–
+–
+(25)
++θ
+t–
++θ(r, θ + Δθ
+2 , z) = σθθ(r, θ + Δθ
+2 , z)e–θ(θ + Δθ
+2 ) + τrθ(r, θ + Δθ
+2 , z)e–r(θ + Δθ
+2 ) + τzθ(r, θ + Δθ
+2 , z)
+−θ
+t–
+−θ(r, θ −Δθ
+2 , z) = −σθθ(r, θ −Δθ
+2 , z)e–θ(θ −Δθ
+2 ) −τrθ(r, θ −Δθ
+2 , z)e–r(θ −Δθ
+2 ) −τzθ(r, θ −Δθ
+2 ,
+e–r
+e–θ
+θ
+F +θ + F −θ = [ ∂
+∂θ (σθθe–θ)Δθ + ∂
+∂θ (τrθe–r)Δθ + ∂τzθ
+∂θ Δθe–z]ΔrΔz.
+–
+–
+(26)
+θ
+F +θ + F −θ = 1
+r [ ∂σθθ
+∂θ e–θ + σθθ(−e–r) + ∂τrθ
+∂θ e–r + τrθe–θ + ∂τzθ
+∂θ e–z]rΔrΔθΔz
+= 1
+r [ ∂σθθ
+∂θ e–θ + σθθ(−e–r) + ∂τrθ
+∂θ e–r + τrθe–θ + ∂τzθ
+∂θ e–z]ΔV .
+–
+–
+(27)
+F tr = [ ∂σzz
+∂z e–z + ∂τθz
+∂z e–θ + ∂τrz
+∂z e–r
+z plane
++ ( ∂σrr
+∂r
++ σrr
+r )e–r + ( ∂τθr
+∂r
++ τθr
+r )e–θ + ( ∂τzr
+∂r + τzr
+r )e–z
+r plane
++ 1
+r ( ∂τrθ
+∂θ −σθθ)e–r + 1
+r (τrθ + ∂σθθ
+∂θ )e–θ + ∂τzθ
+∂θ e–z
+θ plane
+]ΔV + o(ΔV ).
+–
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+(28)
+e–r e–θ
+e–z
+F b = (bre–r + bθe–θ + bze–z)ΔV + o(ΔV ).
+–
+(29)
+( d
+dt
+→
+P)
+d
+dt (
+→
+P) = ρ(are–r + aθe–θ + aze–z)ΔV + o(ΔV ).
+(30)
+(28) (29)
+(30)
+8/27/26, 4:40 PM
+7 Solving Axisymmetric Problems: Extension, Torsion and Inflation
+https://web.iitd.ac.in/~ajeetk/smb/SolvingAxisymmetricProblemsExtensionTorsionandInflation.html
+8/30
+divide both the sides by 
+ and take the limit 
+. By doing this, the 
+ terms will drop out. We
+finally separate the terms in the final balance equation along different basis vectors to obtain the following
+component form of balance equation:
+Equation in -direction:
+Equation in -direction:
+Equation in -direction:
+The first three terms in each of the equations are similar to what we had gotten in Cartesian coordinate system.
+There is one extra term in each equation.
+7.3 Strain matrix in cylindrical coordinate system: NPTEL link
+The strain tensor  was defined as
+Let us work out its matrix form in cylindrical coordinate system. We need to first express the gradient operator
+in cylindrical coordinate system. In Cartesian coordinate system, the gradient of a quantity is given by
+whereas its definition in cylindrical coordinates system is
+Notice that the partial derivative with respect to  is divided by  as  is non-dimensional and we are taking
+the gradient in space. We will now use the above definition to obtain the gradient of displacement vector u in
+cylindrical coordinate system.
+Representation of displacement vector and its gradient
+The displacement vector can be written in cylindrical coordinate system by decomposing it along cylindrical
+basis vectors as follows:
+To understand the physical significance of various components, a section of an arbitrary body (in its reference
+configuration) parallel to z-plane is shown in Figure 7.6.
+F t + F b = d
+dt (
+→
+P),
+–
+–
+(31)
+ΔV
+ΔV →0
+o(ΔV )
+r
+∂σrr
+∂r
++ 1
+r
+∂τrθ
+∂θ + ∂τrz
+∂z + σrr −σθθ
+r
++ br = ρar,
+(32)
+θ
+∂τθr
+∂r
++ 1
+r
+∂σθθ
+∂θ
++ ∂τθz
+∂z + 2 τrθ
+r
++ bθ = ρaθ,
+(33)
+z
+∂τzr
+∂r + 1
+r
+∂τzθ
+∂θ + ∂σzz
+∂z
++ τzr
+r + bz = ρaz.
+(34)
+ϵ––
+ϵ–– = 1
+2 (∇u + ∇uT).
+–
+–
+(35)
+∇(⋅) =
+∂
+∂X1
+(⋅) ⊗e–1 +
+∂
+∂X2
+(⋅) ⊗e–2 +
+∂
+∂X3
+(⋅) ⊗e–3
+–
+(36)
+∇(⋅) = ∂
+∂r (⋅) ⊗e–r + 1
+r
+∂
+∂θ (⋅) ⊗e–θ + ∂
+∂z (⋅) ⊗e–z.
+–
+(37)
+θ
+r
+θ
+u = ure–r + uθe–θ + uze–z.
+–
+(38)
+8/27/26, 4:40 PM
+7 Solving Axisymmetric Problems: Extension, Torsion and Inflation
+https://web.iitd.ac.in/~ajeetk/smb/SolvingAxisymmetricProblemsExtensionTorsionandInflation.html
+9/30
+Figure 7.6: A typical section of an arbitrary body parallel to  plane: a point with
+coordinates 
+ is also shown along with the components of displacement along basis
+directions
+A point with coordinates (
+) is also shown. After deformation of the body, displacement of this point in
+radial direction is 
+, displacement in -direction is 
+ and displacement in -direction (coming out of the
+plane) is 
+. Now, we can plug in the displacement vector given in equation 
+ in the gradient definition
+ to obtain the following:
+For 
+ and 
+ terms here, the basis vectors act as a constant as they change only with . The derivatives
+of basis vectors with respect to  were derived earlier which when substituted in the above equation yields
+We have gotten two extra terms here due to change in basis vectors. Let us use the above expression to obtain
+the displacement gradient matrix in cylindrical coordinate system. As the coefficient of the basis tensor
+ goes into 
+ row and 
+ column, we obtain
+Representation of strain tensor
+Now, we can use equation 
+ to obtain strain matrix which is the symmetric part of displacement gradient
+matrix derived above. It turns out to be
+z
+(r, θ)
+r, θ
+ur
+θ
+uθ
+z
+uz
+(38)
+(37)
+∇ u = ∂
+∂r (ure–r + uθe–θ + uze–z) ⊗e–r + 1
+r
+∂
+∂θ (ure–r + uθe–θ + uze–z) ⊗e–θ + ∂
+∂z (ure–r + uθe–θ + uze–z) ⊗e–z.
+–
+∂/∂r
+∂/∂z
+θ
+θ
+∇u = (
+∂ur
+∂r e–r +
+∂uθ
+∂r e–θ +
+∂uz
+∂r e–z) ⊗e–r + (
+∂ur
+∂z e–r +
+∂uθ
+∂z e–θ +
+∂uz
+∂z e–z) ⊗e–z
++ 1
+r (
+∂ur
+∂θ e–r + ure–θ +
+∂uθ
+∂θ e–θ + uθ(−e–r) +
+∂uz
+∂θ e–z) ⊗e–θ.
+–
+–
+–
+–
+–
+–
+–
+–
+–
+–
+–
+–
+(39)
+e–i ⊗e–j
+ith
+jth
+r
+θ
+z
+[
+](r,θ,z) =   
+   
+.
+∇u
+–
+r
+$θ$
+z
+⎡
+⎢
+⎣
+∂ur
+∂r
+1
+r ( ∂ur
+∂θ −uθ)
+∂ur
+∂z
+∂uθ
+∂r
+1
+r ( ∂uθ
+∂θ + ur)
+∂uθ
+∂z
+∂uz
+∂r
+1
+r
+∂uz
+∂θ
+∂uz
+∂z
+⎤
+⎥
+⎦
+(40)
+(35)
+8/27/26, 4:40 PM
+7 Solving Axisymmetric Problems: Extension, Torsion and Inflation
+https://web.iitd.ac.in/~ajeetk/smb/SolvingAxisymmetricProblemsExtensionTorsionandInflation.html
+10/30
+7.3.1 Physical significance of strain components: NPTEL link
+The formulas of strain components (
+) are quite intuitive while the remaining strain components
+have unusual terms. The quantity 
+ gives us half of shear strain between line elements along 
+ and 
+, 
+gives us half of shear strain between line elements along 
+ and 
+ and 
+ gives us longitudinal strain of a line
+element directed along 
+. Let us now develop a physical understanding of other strain components.
+Significance of 
+This is called radial longitudinal strain or simply radial strain. To visualize this, we can think of a typical
+cross-section of a hollow cylinder as shown in Figure 7.7.
+Figure 7.7: A typical cross-section of a hollow cylinder with longitudinal strains for two line
+elements shown - one in radial direction and the other in -direction
+The elongation of a radial line element generates 
+ as shown.
+Significance of 
+[ ](r,θ,z) =
+.
+ϵ––
+⎡
+⎢
+⎣
+∂ur
+∂r
+1
+2 [ 1
+r ( ∂ur
+∂θ −uθ) + ∂uθ
+∂r ]
+1
+2 ( ∂ur
+∂z + ∂uz
+∂r )
+1
+2 [ 1
+r ( ∂ur
+∂θ −uθ) + ∂uθ
+∂r ]
+1
+r ( ∂uθ
+∂θ + ur)
+1
+2 ( ∂uθ
+∂z + 1
+r
+∂uz
+∂θ )
+1
+2 ( ∂ur
+∂z + ∂uz
+∂r )
+1
+2 ( ∂uθ
+∂z + 1
+r
+∂uz
+∂θ )
+∂uz
+∂z
+⎤
+⎥
+⎦
+(41)
+ϵrr, ϵzz, ϵrz, ϵθz
+ϵrz
+e–r
+e–z ϵθz
+e–θ
+e–z
+ϵzz
+e–z
+ϵrr
+ϵrr = (ϵ–– e–r) ⋅e–r = ∂ur
+∂r .
+(42)
+θ
+ϵrr
+ϵθθ
+ϵθθ = (ϵ–– e–θ) ⋅e–θ = 1
+r ( ∂uθ
+∂θ + ur).
+(43)
+8/27/26, 4:40 PM
+7 Solving Axisymmetric Problems: Extension, Torsion and Inflation
+https://web.iitd.ac.in/~ajeetk/smb/SolvingAxisymmetricProblemsExtensionTorsionandInflation.html
+11/30
+This strain is also called hoop strain or circumferential strain. This is the elongation of a line element directed
+along -direction (circumferential line element) as shown in Figure 7.7. The circumferential strain has two
+contributions. The partial derivative term is intuitive because longitudinal strain along a direction is
+understood as the derivative of displacement in that direction with respect to distance in the same direction.
+The other term 
+ is the unusual term which we now try to understand physically. Think of a displacement
+which has only radial component, i.e.,
+For such a displacement, if we find 
+ using equation 
+, we will get
+Figure 7.8 again shows a typical cross section of a hollow cylinder. For the displacement given in 
+, all
+points in the cross-section simply displace radially.
+Figure 7.8: A typical cross section of a hollow cylinder: the circumferential lines for both
+reference and deformed configurations are shown for the displacement function in 
+We have also drawn a circumferential line both before and after deformation. All points on this line initially at
+radial coordinate  displace to radial coordinate 
+. We can notice that the length of the original
+circumferential line (shown in red) has increased generating longitudinal strain in it, i.e.,
+which by definition is 
+. This specific case shows that despite 
+ being zero, the extra term in 
+ generates
+non-zero hoop strain.
+Significance of 
+We can see from the strain matrix that we have an extra term in 
+ also, i.e.,
+This denotes the change in angle between two initially perpendicular line elements directed along 
+ and 
+.
+θ
+ur
+r
+ur ≠0,
+uθ = 0,
+uz = 0.
+(44)
+ϵθθ
+(43)
+ϵθθ = ur
+r ≠0.
+(45)
+(44)
+(44)
+r
+r + ur
+ϵ = Δl
+L = 2π(r + ur) −2πr
+2πr
+= ur
+r
+(46)
+ϵθθ
+uθ
+ϵθθ
+γrθ
+ϵrθ
+γrθ = 2ϵrθ = 2(ϵ–– e–r) ⋅e–θ = 1
+r ( ∂ur
+∂θ −uθ) + ∂uθ
+∂r .
+(47)
+e–r
+e–θ
+8/27/26, 4:40 PM
+7 Solving Axisymmetric Problems: Extension, Torsion and Inflation
+https://web.iitd.ac.in/~ajeetk/smb/SolvingAxisymmetricProblemsExtensionTorsionandInflation.html
+12/30
+Figure 7.9: Radial and circumferential line elements at a point before and after being
+displaced
+Let us try to figure out the origin of unusual term in 
+. Think of a simple displacement such that
+ but 
+ is a non-zero constant, i.e., 
+. Notice that although the coefficient 
+ is
+assumed constant but  is not because 
+ changes with . At an arbitrary point 
+, we consider two line
+elements directed along 
+ and 
+ respectively (see Figure 7.9): 
+ is the radial line element, 
+ is the
+circumferential line element and the three points there have the following position vectors:
+Keep in mind that the two line elements are infinitesimally small in length - they are just shown as being of
+finite length for clarity. After displacement, the three points move to (also see Figure 7.9)
+Accordingly,
+Notice that the radial line element has not changed its orientation but the circumferential line element has.
+Thus, the final angle between the two line elements is
+Basically, the unusual term arises because 
+ is in different direction for different points!
+7.4 Relating stress and strain in cylindrical coordinate system:
+NPTEL link
+Once we have stress and strain matrices in cylindrical coordinate system, let us relate them for an isotropic
+material. We know how to relate stress and strain in Cartesian coordinate system. We also know that for an
+isotropic material, the material properties are independent of direction. Thus, the relationship between stress
+and strain components must also be independent of the coordinate system. This means that we could choose
+any set of three perpendicular directions and resolve our stress and strain tensors in those directions but the
+mathematical form of their relationship would remain unchanged. For example:
+We can obtain all other relations in a similar way leading to
+γrθ
+ur = uz = 0
+uθ
+u = uθ e–θ(θ)
+–
+uθ
+u
+–
+e–θ
+θ
+(r, θ, z)
+e–r
+e–θ
+AB
+−
+→
+AC
+−
+→
+→
+A = r e–r(θ),
+→
+B = (r + Δr) e–r(θ),
+→
+C = r e–r(θ + Δθ).
+(48)
+→
+Af = re–r(θ) + uθe–θ(θ),
+→
+Bf = (r + Δr)e–r(θ) + uθe–θ(θ),
+→
+C f = re–r(θ + Δθ) + uθe–θ(θ + Δθ).
+(49)
+AB
+f
+=
+→
+Bf −
+→
+Af = Δre–r(θ) = AB,
+AC
+f
+=
+→
+C f −
+→
+Af = re–r(θ + Δθ) + uθe–θ(θ + Δθ) −re–r(θ) + uθe–θ(θ)
+= r
+∂e–r
+∂θ Δθ + uθ
+∂e–θ
+∂θ Δθ + h. o. t. ≈rΔθ e–θ −uθΔθ e–r.
+−
+→
+−
+→
+−
+→
+(50)
+cos θf =
+AB
+f
+⋅AC
+f
+||AB
+f
+|| ||AC
+f
+||
+=
+Δre–r ⋅(rΔθ e–θ −uθΔθ e–r)
+Δr rΔθ√1 +
+u2
+θ
+r2
+≈−uθ
+r
+⇒sin (90 −θf) = −uθ
+r
+or shear strain = −uθ
+r .
+−
+→
+−
+→
+−
+→
+−
+→
+(51)
+uθ
+ϵ11 = 1
+E (σ11 −ν(σ22 + σ33)) ⇒ϵrr = 1
+E (σrr −ν(σθθ + σzz)).
+(52)
+8/27/26, 4:40 PM
+7 Solving Axisymmetric Problems: Extension, Torsion and Inflation
+https://web.iitd.ac.in/~ajeetk/smb/SolvingAxisymmetricProblemsExtensionTorsionandInflation.html
+13/30
+Having obtained stress and strain components and their relation in cylindrical coordinate system, we will learn
+next how using them leads to simplified form of equations when studying axisymmetric deformation of
+cylindrical bodies. Such problems could also be solved in Cartesian coordinate system but the equations
+would not simplify then.
+7.5 Extension, torsion and inflation of cylinders: NPTEL link
+We will now study three special cases of deformation, i.e., extension, torsion and inflation which generate
+axisymmetric deformation in cylinders. If we apply axial force to a cylinder by applying normal traction on its
+two end cross-sections as shown in Figure 7.10, the cylinder gets stretched.
+Figure 7.10: Normal traction applied to the ends of a cylinder to generate extension in it
+Such deformations are called extension. On the other hand, if we hold the two ends of a cylinder and rotate
+them in opposite directions as shown in Figure 7.11, different cross-sections of the cylinder rotate by different
+angle.
+Figure 7.11: Two ends of a cylinder being rotated in opposite directions to impose twist: an
+initially flat -plane (shown in dark) becomes non-planar (shown in red) on being
+twisted
+Such a deformation is called twisting or torsion of a cylinder. Finally, if we pressurize a hollow cylinder from
+within its inner cavity as shown in Figure 7.12, the inner and outer radii of the cylinder change. It has
+application in modeling of pressure vessels.
+Figure 7.12: A hollow cylinder being internally pressurized
+Such deformations are called inflation. Let us develop a mathematical formulation for the deformation of a
+cylinder when it is subjected to combined axial load, torque and internal pressure. Note that the stress
+components are proportional to strain components and strain components are proportional to displacement
+components. This implies that the governing equations being linear in stress components, also become linear
+in unknown displacement components. Likewise, the boundary conditions also become linear in the
+unknowns. As a whole, we therefore call it linear elasticity. This linearity allows us to use the principle of
+superposition, i.e., we can obtain solution to extension, torsion and inflation problems individually and finally
+combine the individual solutions to obtain solution to the combined loading problem.¶ Nevertheless, we will
+investigate this problem in a combined manner here for the sake of the brevity of presentation.
+ϵθθ = 1
+E (σθθ −ν(σrr + σzz)),
+ϵzz = 1
+E (σzz −ν(σrr + σθθ)),
+γrθ = τrθ
+G ,
+γrz = τrz
+G ,
+γθz = τθz
+G .
+(53)
+θ
+8/27/26, 4:40 PM
+7 Solving Axisymmetric Problems: Extension, Torsion and Inflation
+https://web.iitd.ac.in/~ajeetk/smb/SolvingAxisymmetricProblemsExtensionTorsionandInflation.html
+14/30
+Problem definition
+Let us consider a hollow cylinder subjected to an axial force F, torque T and internal pressure P as shown in
+Figure 7.13.ʺ
+Figure 7.13: A hollow cylinder being stretched, twisted and inflated
+Our goal is to find all the displacement and stress components that generate in the cylinder.
+7.5.1 Simplification using physical considerations: NPTEL link
+Before we start solving the problem mathematically, let us simplify it using physical considerations. The
+displacement  is given by
+where each of the displacement components is a function of ,  and , i.e.,
+However, as we are analyzing a special deformation here, some of the dependencies on ,  and  won’t be
+there as we show now.
+Axisymmetry
+We can imagine that upon applying axial force, torque and pressure to an axisymmetric cylinder, the
+deformation induced would also be axisymmetric. This automatically implies that none of the displacement
+components depend on , i.e., if we consider any two points in the cylinder with the same  and  coordinates
+but different  coordinate, the displacement components at the two points must be the same. If 
+ depends on
+, a circular cross-section will not remain circular after deformation voilating axisymmetry (see Figure 7.14).
+Figure 7.14: A typical cross section of a hollow cylinder: a circumferential line element is
+shown before and after deformation for the case when 
+ depends on 
+Similarly, if 
+ or 
+ changes with , axisymmetry will be lost. Thus, using axisymmetry, we can write
+Axial Homogeneity
+u
+–
+u = ure–r + uθe–θ + uze–z
+–
+(54)
+r θ
+z
+ur = ur(r, θ, z),
+uθ = uθ(r, θ, z),
+uz = uz(r, θ, z).
+(55)
+r θ
+z
+θ
+r
+z
+θ
+ur
+θ
+ur
+θ
+uθ
+uz
+θ
+ur = ur(r, z),
+uθ = uθ(r, z),
+uz = uz(r, z).
+(56)
+8/27/26, 4:40 PM
+7 Solving Axisymmetric Problems: Extension, Torsion and Inflation
+https://web.iitd.ac.in/~ajeetk/smb/SolvingAxisymmetricProblemsExtensionTorsionandInflation.html
+15/30
+If 
+ is a function of , homogeneity along the axis will be lost.
+Figure 7.15: A cylinder before and after deformation for the case where 
+ changes with 
+Figure 7.15 displays such a case where a simple cylinder (constant radius along the axis) with outer radius 
+is shown in black. If 
+ changes with , the final radius of the cylinder at different locations along the axis will
+be different and the deformed configuration (shown in red) will no more be a simple cylinder. This is usually
+the case when we compress a cylinder while holding the end cross-sections tightly: the two end cross-section
+radii do not change but the radius of the cross-sections between the two ends increase due to Poisson’s effect.
+The analysis of such a deformation is more difficult. We will instead consider a a simpler case where we allow
+the end cross-sections to also relax. In such a case, all the cross-sections of the cylinder will undergo the same
+change in radius giving us an axially homogeneous deformed configuration. Thus, 
+ would be independent of
+, i.e,
+No warping of cross-section
+Let us think of the cylinder again and consider its planar cross-section. All the points in the cross-section have
+the same  coordinate. The displacement component 
+ displaces these points in the axial direction. If 
+changes with , two points on a typical cross-section (having different radial coordinate) would displace in the
+axial direction by different amounts. This will make the deformed cross section non-planar which is also
+called warping. We assume no such warping occurs. So, 
+ must be independent of , i.e.,
+ generates only due to torsion
+We also have some restriction on 
+ which we explain now. The extension of a cylinder generates both axial
+and radial (due to Poisson’s effect) components of displacement but no 
+ for isotropic tubes. Similarly, by
+applying internal pressure, we can generate radial and axial displacements (due to Poisson’s effect) but no 
+again for isotropic cylinders. An application of torque, on the other hand, causes a typical cross-section to
+rotate which only generates 
+ for isotropic tubes.∗∗ To quantify this displacement, let us consider a cross-
+section of the cylinder which rotates by an angle  (see Figure 7.16).
+Figure 7.16: A typical cross-section of a cylinder rotating by angle : a point on the cross-
+section displaces due to this rotation
+ur
+z
+ur
+z
+ro
+ur
+z
+ur
+z
+ur(r, z)
+ur(r).
+axial homogeneity
+=
+⇒
+(57)
+z
+uz
+uz
+r
+uz
+r
+uz(r, z)
+uz(z)
+no warping
+=
+⇒
+(58)
+uθ
+uθ
+uθ
+uθ
+uθ
+α
+α
+8/27/26, 4:40 PM
+7 Solving Axisymmetric Problems: Extension, Torsion and Inflation
+https://web.iitd.ac.in/~ajeetk/smb/SolvingAxisymmetricProblemsExtensionTorsionandInflation.html
+16/30
+An arbitrary point on the cross section having initial coordinate (
+) displaces to (
+). The arc of
+rotation of the point under consideration is shown as a solid red curve whose length equals 
+. This arc would
+become a straight line in 
+ direction when  is very small. Thus, we get
+We can observe that 
+ is independent of  as required due to axisymmetry. We have finally simplified our
+displacement functions to
+Strain Matrix
+Let us now obtain the strain matrix. Upon substituting the simplified displacement components 
+ in 
+,
+we get
+Note that the only shear strain that is non-zero is 
+ - it arises due to torsion.
+Stress-Strain relation
+Substituting strain components from 
+ in isotropic stress-strain relation, we get
+7.5.2 Simplified equilibrium equations: NPTEL link
+Let us now substitute the above stress components in the below equations of equilibrium:
+Most of the terms in the above equations become zero which simplifies the equations to††
+If we had used Cartesian coordinate system, this simplification would not have been possible. Let us now
+consider some simple axisymmetric deformation examples and find out the corresponding body force
+r, θ, z
+r, θ + α, z
+rα
+e–θ
+α
+uθ = α(z) r (if α is very small).
+(59)
+uθ
+θ
+ur = ur(r),
+uθ = α(z) r,
+uz = uz(z).
+(60)
+(60)
+(41)
+[ ](r,θ,z) =
+.
+ϵ––
+⎡
+⎢
+⎣
+u′
+r
+0
+0
+0
+ur
+r
+α′r
+2
+0
+α′r
+2
+u′
+z
+⎤
+⎥
+⎦
+(61)
+γθz
+(61)
+σrr = λ(u′
+r + ur
+r + u′
+z) + 2μu′
+r,
+σθθ = λ(u′
+r + ur
+r + u′
+z) + 2μ ur
+r ,
+σzz = λ(u′
+r + ur
+r + u′
+z) + 2μu′
+z,
+τrθ = 0,
+τrz = 0,
+τθz = Gα′r.
+(62)
+(63)
+(64)
+(65)
+(66)
+(67)
+∂σrr
+∂r
++ 1
+r
+∂τrθ
+∂θ + ∂τrz
+∂z + σrr −σθθ
+r
++ br = ρar,
+∂τθr
+∂r
++ 1
+r
+∂σθθ
+∂θ
++ ∂τθz
+∂z + 2 τrθ
+r
++ bθ = ρaθ,
+∂τzr
+∂r + 1
+r
+∂τzθ
+∂θ + ∂σzz
+∂z
++ τrz
+r + bz = ρaz.
+(68)
+∂σrr
+∂r
++ σrr −σθθ
+r
++ br = ρar,
+Gα′′r + bθ = ρaθ,
+∂σzz
+∂z
++ bz = ρaz.
+(69)
+8/27/26, 4:40 PM
+7 Solving Axisymmetric Problems: Extension, Torsion and Inflation
+https://web.iitd.ac.in/~ajeetk/smb/SolvingAxisymmetricProblemsExtensionTorsionandInflation.html
+17/30
+components and acceleration components.
+A vertical cylinder under gravity
+When the cylinder is vertical and  acts along the axis of the cylinder as shown in Figure 7.17, the body force
+components would be
+Figure 7.17: A vertical cylinder under gravity
+A rotating shaft/cylinder without gravity
+Figure 7.18: A cylinder rotating with a constant angular speed  about its axis
+If the cylinder rotates about its axis with a constant angular speed  as shown in Figure 7.18, it will have
+centripetal acceleration of magnitude 
+ acting in the radially inward direction, i.e.,‡‡
+There is no body force in this case if we neglect gravity. If we sit on the rotating shaft itself and analyze its
+deformation, we need to apply pseudo force, i.e., centrifugal force to use Newton’s second law. Thus, a body
+force in the radially outward direction replaces the radial acceleration component, i.e,
+In both the view points, the radial equation of equilibrium becomes
+A horizontal cylinder under gravity
+Figure 7.19: A horizontal cylinder with gravity acting vertically downward
+If the axis of the cylinder is horizontal and gravity acts vertically downwards as shown in Figure 7.19, the
+body force components (
+ and 
+) will become function of  as shown below:
+g
+br = 0,
+bθ = 0,
+bz = −ρg.
+(70)
+ω
+ω
+ρω2r
+ar = −ω2r,
+aθ = 0,
+az = 0.
+(71)
+ar = 0,
+aθ = 0,
+az = 0,
+br = ρω2r,
+bθ = 0,
+bz = 0.
+(72)
+∂σrr
+∂r
++ σrr −σθθ
+r
++ ρω2r = 0.
+(73)
+br
+bθ
+θ
+8/27/26, 4:40 PM
+7 Solving Axisymmetric Problems: Extension, Torsion and Inflation
+https://web.iitd.ac.in/~ajeetk/smb/SolvingAxisymmetricProblemsExtensionTorsionandInflation.html
+18/30
+This breaks our axisymmetric assumption.
+Zero gravity and statics problem
+For the original problem where only axial force 
+, torque 
+ and internal pressure 
+ are applied, all body
+force components will be zero.§§ If it is also a statics problem, all the acceleration components will be zero
+too. Setting all body force and acceleration components to zero in 
+, the final simplified set of equations
+for extension-torsion-inflation problem would be
+We can solve these to obtain the unknown displacement components (
+) and also the variable 
+.
+Concerning , the second equation above implies 
+ is a constant or the angle  by which every cross-section
+rotates varies linearly in . Let us now write  in terms of end-to-end rotation 
+. If the right most cross-
+section rotates by 
+ in one direction while the leftmost cross-section rotates by 
+ in the other direction (see
+Figure 7.11), then
+Here we have assumed that z=0 lies at the mid-section of the cylinder where the cross-section does not rotate.
+The quantity 
+ is also called twist. Plugging the above form for  into equation 
+, we get
+Thus, the mathematical form of 
+ gets fully determined.
+7.6 Solving the simplified equations: NPTEL link
+As 
+ and 
+ are functions of  and  respectively, we can rewrite equation 
+ as
+Notice that 
+ does not have any dependence on . Also from the third equation in 
+, we can infer that 
+does not depend on . Thus, it is a function of  only, i.e.,
+Accordingly, the term dependent on  in the LHS must be a constant or 
+ is a constant. As 
+ denotes the
+longitudinal strain in axial direction, we will denote it by : an unknown parameter. Upon integrating 
+,
+we finally get
+Here we have assumed that 
+ vanishes when 
+ where the cylinder’s mid-section lies. In order to obtain
+an expression for 
+, we look at the radial component of equilibrium equation. The expressions of 
+ and 
+given in 
+ and 
+ now become
+Subtracting them, we get
+br = ρg cos θ,
+bθ = ρg sin θ,
+bz = 0.
+(74)
+F
+T
+P
+(69)
+∂σrr
+∂r
++ σrr −σθθ
+r
+= 0,
+α′′ = 0,
+∂σzz
+∂z
+= 0.
+(75)
+ur, uz
+α
+α
+α′
+α
+z
+α
+Ω
+Ω
+2
+Ω
+2
+α′ = Ω
+L
+or α = Ω
+L z.
+α′
+α
+(59)
+uθ = Ω
+L rz.
+(76)
+uθ
+uz
+ur
+z
+r
+(64)
+σzz = (λ + 2μ)u′
+z
+depends on z
++ λ(u′
+r + ur
+r )
+depends on r
+.
+
+
+
+
+
+
+
+
+
+
+(77)
+σzz
+θ
+(75)
+σzz
+z
+r
+(λ + 2μ)u′
+z
+depends on z
++ λ(u′
+r + ur
+r )
+depends on r
+= f(r).
+
+
+
+
+
+
+
+
+
+
+(78)
+z
+u′
+z
+u′
+z
+ϵ
+u′
+z = ϵ
+uz = ϵz.
+(79)
+uz
+z = 0
+ur
+σrr
+σθθ
+(62)
+(63)
+σrr = λ(u′
+r + ur
+r + ϵ) + 2μu′
+r,
+σθθ = λ(u′
+r + ur
+r + ϵ) + 2μ ur
+r .
+(80)
+(81)
+8/27/26, 4:40 PM
+7 Solving Axisymmetric Problems: Extension, Torsion and Inflation
+https://web.iitd.ac.in/~ajeetk/smb/SolvingAxisymmetricProblemsExtensionTorsionandInflation.html
+19/30
+Likewise, taking the partial derivative of equation 
+ with respect to , we get
+Now, we can plug equations 
+ and 
+ into the first equation in 
+ to get
+We can infer from this that 
+ is also a constant, say 
+. Further, from the definition of strain
+components, we know that 
+ and 
+. Thus, we get
+Integrating 
+ twice, we finally get
+where 
+ and 
+ are the unknown integrating constants. These constants can be obtained by applying the
+boundary condition at inner and outer radii of the cylinder.
+Solution for 
+ and 
+: NPTEL link
+Let us add equations 
+ and 
+:
+Thus, the sum of radial and hoop stresses turns out to be a constant through the thickness of the tube although
+they vary individually. Let us now solve the radial equilibrium equation in 
+ directly in terms of stress
+components as follows:
+Notice that the partial derivative above has become total derivative since we now know that 
+ is just a
+function of . Continuing further, we get
+Here 
+ and 
+ are the unknown integrating constants. Let us now use boundary condition to obtain these
+constants.
+Application of boundary conditions: NPTEL link
+σrr −σθθ = 2μ(u′
+r −ur
+r ).
+(82)
+(80)
+r
+∂σrr
+∂r
+= λ(u′
+r + ur
+r )
+′
++ 2μu′′
+r.
+(83)
+(82)
+(83)
+(75)
+λ(u′
+r + ur
+r )
+′
++ 2μu′′
+r + 2μ
+r (u′
+r −ur
+r ) = 0
+⇒λ(u′
+r + ur
+r )
+′
++ 2μ(u′
+r + ur
+r )
+′
+= 0
+⇒(u′
+r + ur
+r )
+′
+= 0 ⇒( 1
+r (urr)′)
+′
+= 0.
+(84)
+(u′
+r + ur
+r )
+C
+ϵrr = u′
+r
+ϵθθ = ur
+r
+u′
+r + ur
+r = ϵrr + ϵθθ = C
+(85)
+(84)
+ur = C
+2 r + D
+r
+(86)
+C
+D
+σrr
+σθθ
+(80)
+(81)
+σrr + σθθ = 2(λ + μ)(u′
+r + ur
+r ) + 2λϵ = 2(λ + μ)C + 2λϵ = A
+(a constant)
+(87)
+(75)
+dσrr
+dr
++ σrr −σθθ
+r
+= 0 ⇒dσrr
+dr
++ 2 σrr
+r
+−σrr + σθθ
+r
+= 0
+or  dσrr
+dr
++ 2 σrr
+r
+= A
+r
+(using (87)).
+(88)
+σrr
+r
+1
+r2
+d
+dr (σrrr2) = A
+r
+⇒σrr = A
+2 + B
+r2   and  σθθ = A
+2 −B
+r2
+(using (87)).
+(89)
+A
+B
+8/27/26, 4:40 PM
+7 Solving Axisymmetric Problems: Extension, Torsion and Inflation
+https://web.iitd.ac.in/~ajeetk/smb/SolvingAxisymmetricProblemsExtensionTorsionandInflation.html
+20/30
+Figure 7.20: Pressure acting on the inner surface of hollow cylinder
+Figure 7.20 shows a cylinder subjected to some internal pressure on its inner surface and zero traction on its
+outer surface. The outward surface normal of the inner curved surface (at 
+) points in 
+ direction, i.e.,
+while the pressure traction there acts in 
+ direction, i.e.,
+Upon writing the boundary condition 
+ at the inner surface in cylindrical coordinate system, we get
+Similar analysis for the outer surface where no external traction is present yields
+We have thus obtained the following two boundary conditions to obtain the unknown integrating constants in
+the expression of 
+:
+Upon plugging them in equation 
+, we get the following set of equations:
+solving which we get
+For a positive internal pressure 
+, we always have 
+ and 
+. Using 
+, we can now plot the
+variation in both 
+ and 
+ through the tube’s thickness as shown in Figure 7.21.
+r = r1
+−r
+[ ](r,θ,z) =
+n
+–
+⎡
+⎢
+⎣
+−1
+0
+0
+⎤
+⎥
+⎦
+(90)
++r
+[
+](r,θ,z) =
+.
+t–
+ext
+⎡
+⎢
+⎣
+P
+0
+0
+⎤
+⎥
+⎦
+(91)
+σ n = t–
+ext
+–
+=
+⇒
+=
+or σrr(r1) = −P,
+τθr(r1) = 0,
+τzr(r1) = 0.
+⎡
+⎢
+⎣
+σrr
+τrθ
+τrz
+τθr
+σθθ
+τθz
+τzr
+τzθ
+σzz
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+−1
+0
+0
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+P
+0
+0
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+−σrr
+−τθr
+−τzr
+⎤
+⎥
+⎦
+⎡
+⎢
+⎣
+P
+0
+0
+⎤
+⎥
+⎦
+(92)
+σrr(r2) = 0,
+τθr(r2) = 0,
+τzr(r2) = 0.
+(93)
+σrr
+σrr(r1) = −P,
+σrr(r2) = 0.
+(94)
+(89)
+A
+2 + B
+r2
+1
+= −P,
+A
+2 + B
+r2
+2
+= 0
+(95)
+A = 2P
+r2
+1
+r2
+2 −r2
+1
+,
+B = −P
+r2
+1r2
+2
+r2
+2 −r2
+1
+.
+(96)
+P
+A > 0
+B < 0
+(89)
+σrr
+σθθ
+8/27/26, 4:40 PM
+7 Solving Axisymmetric Problems: Extension, Torsion and Inflation
+https://web.iitd.ac.in/~ajeetk/smb/SolvingAxisymmetricProblemsExtensionTorsionandInflation.html
+21/30
+Figure 7.21: Plot showing variation of 
+ and 
+ with 
+The red curve shows the variation of 
+ while the black curve shows the variation of 
+. As 
+, both
+ and 
+ approach 
+ (see the blue dashed line in Figure 7.21) which is a positive number.¶¶ Furthermore,
+as the sum of 
+ and 
+ is , the curve for 
+ is the mirror image of 
+ about the blue dashed line. Lastly,
+ and 
+ depend only on pressure 
+ and radial coordinate as can be seen from equations 
+ and 
+. If
+there is no internal pressure, 
+ and 
+ will simply vanish even if axial force and twisting moment are
+present. This happens because the cross section is free to relax during extension and torsion of a circular
+cylinder.∗∗∗
+Final step to obtain 
+: NPTEL link
+To obtain the constants 
+ in expression 
+, let us rewrite equation 
+ after substituting equation 
+in it:
+Comparing this with equation 
+, we get
+Thus 
+ finally becomes
+In the special case when pressure is not acting, the above equation reduces to
+and the radial longitudinal strain becomes
+This is exactly what we would expect in the absence of pressure - radial displacement has arisen only due to
+Poisson’s effect. We need to finally obtain axial strain  and the end-to-end rotation  in terms of prescribed
+external loads (axial force , Torque  and internal pressure ).
+7.6.1 Relating axial force and axial strain: NPTEL link
+Typically, the ends of a cylinder are capped as in pressure vessels. In such a case, the end cap is pushed out by
+internal pressure 
+ but pulled in by traction component 
+. It is further pulled out by external load 
+. Upon
+σrr
+σθθ
+r
+σθθ
+σrr
+r →∞
+σrr
+σθθ
+A/2
+σrr
+σθθ
+A
+σθθ
+σrr
+σrr
+σθθ
+P
+(96)
+(89)
+σrr
+σθθ
+ur
+(C, D)
+(86)
+(80)
+(86)
+σrr = λ(u′
+r + ur
+r + ϵ) + 2μu′
+r = λ(C + ϵ) + 2μ( C
+2 −D
+r2 ) = [(λ + μ)C + λϵ] −2μ D
+r2 .
+(89)
+2(λ + μ)C + 2λϵ = A = 2P
+r2
+1
+r2
+2 −r2
+1
+⇒C =
+−λ
+λ + μ ϵ +
+P
+λ + μ
+r2
+1
+r2
+2 −r2
+1
+,  D = −B
+2μ = P
+2μ
+r2
+1r2
+2
+r2
+2 −r2
+1
+.
+(97)
+ur
+ur = (
+−λ
+2(λ + μ) ϵ +
+P
+2(λ + μ)
+r2
+1
+r2
+2 −r2
+1
+)r +
+P
+2μr
+r2
+1r2
+2
+r2
+2 −r2
+1
+.
+(98)
+ur =
+−λ
+2(λ + μ) ϵr = −νϵr
+(∵ν =
+λ
+2(λ + μ) )
+(99)
+ϵrr = u′
+r = −νϵ.
+(100)
+ϵ
+Ω
+F
+T
+P
+P
+σzz
+F
+8/27/26, 4:40 PM
+7 Solving Axisymmetric Problems: Extension, Torsion and Inflation
+https://web.iitd.ac.in/~ajeetk/smb/SolvingAxisymmetricProblemsExtensionTorsionandInflation.html
+22/30
+doing its force balance, we can then write
+Upon further substituting  from 
+, we finally obtain
+Here 
+ is the cross-sectional area. Upon further noting that the Young’s modulus 
+and the Poisson’s ratio 
+, the above expression simplifies to
+This expression relates axial strain  with the applied axial load and pressure.
+7.6.2 Relating torque and end-to-end rotation: NPTEL link
+A typical cross-section of a hollow cylinder is shown in Figure 7.22.
+Figure 7.22: A typical cross-section of a hollow cylinder: 
+ acts in  direction and
+contributes to torque
+As the cross-section normal points along  direction, the stress components 
+, 
+ and 
+ act on it. We had
+earlier found 
+ to be zero. Let 
+ denote the area of the cross section. The moment 
+ about the cross-
+section’s centroid will be given by
+Before, we obtain torque from it, let us analyze graphically the variation in 
+ in the cross-section - we show
+later that this is responsible for generating torque. We know
+This implies that both the quantities vary linearly with  (see Figure 7.23).
+F = ∬
+Ω0
+σzzdA −πr2
+1P = ∬
+Ω0
+[λ(u′
+r + ur
+r + u′
+z) + 2μu′
+z]dA −πr2
+1P
+= ∬
+Ω0
+[λC + (λ + 2μ)ϵ]dA −πr2
+1P
+(using (85))
+= π(r2
+2 −r2
+1)(λC + (λ + 2μ)ϵ) −πr2
+1P.
+(101)
+C
+(97)
+F = [(λ + 2μ) −
+λ2
+λ + μ ]Aϵ −πr2
+1P (1 −
+λ
+λ + μ ).
+(102)
+A = π(r2
+2 −r2
+1)
+E = μ(3λ+2μ)
+λ+μ
+ν =
+λ
+2(λ+μ)
+F = EAϵ −πr2
+1P (1 −2ν).
+(103)
+ϵ
+τθz
+θ
+z
+σzz τθz
+τrz
+τrz
+Ω0
+M
+M = ∬
+Ω0
+re–r × t–
+z(r)dA = ∬
+Ω0
+re–r × [σzze–z + τθze–θ]dA.
+–
+(104)
+τθz
+γθz = Ω
+L r ⇒τθz = Gγθz = G Ω
+L r.
+(105)
+r
+8/27/26, 4:40 PM
+7 Solving Axisymmetric Problems: Extension, Torsion and Inflation
+https://web.iitd.ac.in/~ajeetk/smb/SolvingAxisymmetricProblemsExtensionTorsionandInflation.html
+23/30
+Figure 7.23: Variation of shear strain and shear stress in the cross section of a cylinder
+The torque  is simply the component of moment along the axis, i.e.,
+The term 
+ is the polar moment of area (a geometric quantity) and is denoted by . Thus, we finally
+get
+We have finally derived the relationship between 
+ and  as well as the relationship between  and 
+. The
+constant 
+ is called stretching stiffness while the constant GJ is called torsional stiffness. One can now write
+Special case: composite cylinder
+We can also think of a composite cylinder made up of two different materials as shown in Figure 7.24a.
+Figure 7.24: (a) Cross section of a composite cylinder made up of aluminium and steel (b)
+variation of shear strain and shear stress vs. radial coordinate in the cross section
+Supposing the inner part (up to radius 
+) is made up of Aluminium and the outer part is made up of Steel. The
+two parts are glued together or fitted tightly. If we now twist the composite cylinder, the cross section will
+again rotate as a whole. The shear strain 
+ will then vary linearly in radius as earlier. However, when we
+T
+T = M ⋅e–z = ∬
+Ω0
+(re–r × [σzze–z + τθze–θ]) ⋅e–z dA = ∬
+Ω0
+rτθz dA = ∬
+Ω0
+rG Ωr
+L  dA
+(using (67))
+= G Ω
+L ∬
+Ω0
+r2dA.
+–
+(1
+∬Ω0 r2dA
+J
+T = GJ Ω
+L  or Ω = TL
+GJ .
+(107)
+Ω
+T
+ϵ
+F
+EA
+F
+axial force
+=
+EA
+stretching stiffness
+  
+ϵ
+axial strain
+−πr2
+1P (1 −2ν),
+T
+torque
+=
+GJ
+torsional stiffness
+   Ω
+L
+twist
+.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+r1
+γθz
+8/27/26, 4:40 PM
+7 Solving Axisymmetric Problems: Extension, Torsion and Inflation
+https://web.iitd.ac.in/~ajeetk/smb/SolvingAxisymmetricProblemsExtensionTorsionandInflation.html
+24/30
+calculate 
+ from equation 
+, we will have different shear modulus for aluminium and steel. Thus, there
+will be a discontinuity in shear stress at 
+. The variation of 
+ and 
+ for this cross-section is shown in
+Figure 7.24b. The variation of 
+ is shown by the continuous blue line while the variation of 
+ is shown by
+the discontinuous red line which is piecewise linear: the slopes of the two parts are different and proportional
+to the shear modulus of the corresponding material. Working out the integration as in 
+ will give us the
+following formula for torque in a composite cylinder:
+Here subscripts ‘ ’ and ‘ ’ denote aluminium and steel parts, respectively. One can think of an analogous
+relation relating axial force with axial strain for a composite cylinder.
+7.6.3 Thin tube approximation for pressurized tubes with application to pres‐
+sure vessels
+For pressurized thin cylinders which are capped at its two ends (see Figure 7.25), one can approximate the
+outer radius 
+ to be almost equal to 
+, i.e., 
+ and the thickness being 
+. Using these, we
+arrive at the following simpler expressions of coefficients 
+ and 
+ (see equation 
+ above for exact
+expression):
+Now, substituting these values of  and  back in the expression for 
+ and 
+, and letting 
+ we get:
+To obtain thin tube approximation of 
+, we saw earlier that 
+ does not vary through the wall thickness.
+Accordingly when no external axial force acts on the cylinder, we have
+Instead of deriving the thin-tube approximations from the formula of thick cylinders, we will now consider
+deriving them directly from force balance of various sections of a thin cylinder (see Figure 7.26).
+Figure 7.25: A pressurized thin cylinder capped at its ends
+τθz
+(105)
+r = r1
+γθz
+τθz
+γθz
+τθz
+(106)
+T = (GAJA + GSJS) Ω
+L .
+(108)
+A
+S
+r2
+r1
+r2 ≈r1
+t = r2 −r1
+A
+B
+(96)
+A = 2P
+r2
+1
+r2
+2 −r2
+1
+= 2P
+r2
+1
+(r2 + r1) (r2 −r1) ≈2P r2
+1
+2r1t = Pr1
+t
+,
+B = −P
+r2
+1r2
+2
+r2
+2 −r2
+1
+= −P
+r2
+1r2
+2
+(r2 + r1) (r2 −r1) ≈−P
+r2
+1r2
+1
+2r1t = −
+Pr3
+1
+2t .
+A
+B
+σrr
+σθθ
+r ≈r1
+σrr = A
+2 + B
+r2
+1
+= Pr1
+2t
+−Pr3
+1
+2tr2
+1
+= Pr1
+2t
+−Pr1
+2t
+= 0,
+σθθ = A
+2 −B
+r2
+1
+= Pr1
+2t
++ Pr3
+1
+2tr2
+1
+= Pr1
+2t
++ Pr1
+2t
+= Pr1
+t
+.
+σzz
+σzz
+σzz =
+π r2
+1 P
+π(r2
+2 −r2
+1) ≈Pr1
+2t .
+8/27/26, 4:40 PM
+7 Solving Axisymmetric Problems: Extension, Torsion and Inflation
+https://web.iitd.ac.in/~ajeetk/smb/SolvingAxisymmetricProblemsExtensionTorsionandInflation.html
+25/30
+Figure 7.26: Different sections of a thin cylinder
+To obtain 
+, we take a vertical section through the cylinder (see Figure 7.26a) and do force balance in 
+direction, i.e.,
+To obtain 
+, we take a horizontal section through the cylinder (see Figure 7.26b) and do force balance in
+vertical direction, i.e.,
+Note that pressure is thought of as acting over the projected area of 
+.
+To obtain radial stress 
+, consider the outer traction-free surface (
+) and the internally pressurized
+surface (
+). Through the thickness of thin tube, the radial stress drops sharply from 
+ at inner
+surface to zero at the outer surface. However, 
+ for thin tubes. Accordingly, the values of 
+ and
+ for hoop and axial stresses, respectively, will be very large compared to . Accordingly, 
+ is neglected
+and set to zero.
+7.7 Solved examples
+Q1.
+Determine the largest weight W that can be supported by the wires shown in figure below. The
+stress in either wire is not to exceed 
+. The cross-sectional area of wires AB and AC are 
+ and
+, respectively.
+Solution: Using free body diagram and doing force balance, let us find tension in wires.
+σzz
+z−
+σzz (2πr1t) = P (πr2
+1) or σzz = Pr1
+2t .
+σθθ
+σθθ (2Lt) = P (2r1L) or σθθ = Pr1
+t
+.
+2r1L
+σrr
+σrr = 0
+σrr = −P
+−P
+r1
+t >> 1
+Pr1
+t
+Pr1
+2t
+P
+σrr
+σtol
+A1
+A2
+8/27/26, 4:40 PM
+7 Solving Axisymmetric Problems: Extension, Torsion and Inflation
+https://web.iitd.ac.in/~ajeetk/smb/SolvingAxisymmetricProblemsExtensionTorsionandInflation.html
+26/30
+The stress in each wire should not exceed the prescribed limit, so check that
+The maximum permissible load 
+ would be the minimum of the loads obtained from relations 
+ and
+. Note that as the wires undergo extension, the angles 
+ would also change. However, we have
+assumed that such changes are negligible here.
+Q2.
+The rigid bars AB and CD as shown in figure below are supported by pins at A and C and the two
+aluminium and steel rods. Determine the maximum force P that can be applied (see the figure
+below) if its vertical movement is to be limited to some 
+. Neglect the wights of all members.
+Solution: The bars AB and CD are rigid but the aluminium and steel rods are deformable. Let us first find the
+force acting in elements EF and BD to know how much they will stretch. To do that, we draw free diagrams
+and do force and moments balance of all the members. Note that all joints are pinned joints - hence no
+moment acts at these joints.
++→∑Fx = 0 ⇒T2 cos θ2 −T1 cos θ1 = 0 ⇒T2 = T1
+cos θ1
+cos θ2
+.
++ ↑∑Fy = 0 ⇒T1 sin θ1 + T2 sin θ2 = W ⇒T1 sin θ1 + T1
+cos θ1
+cos θ2
+sin θ2 = W
+⇒T1 =
+W
+cos θ1 (tan θ1 + tan θ2)  and  T2 =
+W
+cos θ2 (tan θ1 + tan θ2) .
+σ1 =
+T1
+A1
+=
+W
+A1 cos θ1 (tan θ1 + tan θ2) ≤σtol ⇒W ≤σtol [A1 cos θ1 (tan θ1 + tan θ2)],
+σ2 =
+T2
+A2
+=
+W
+A2 cos θ2 (tan θ1 + tan θ2) ≤σtol ⇒W ≤σtol [A2 cos θ2 (tan θ1 + tan θ2)].
+(109)
+(110)
+W
+(109)
+(110)
+(θ1, θ2)
+δc
+8/27/26, 4:40 PM
+7 Solving Axisymmetric Problems: Extension, Torsion and Inflation
+https://web.iitd.ac.in/~ajeetk/smb/SolvingAxisymmetricProblemsExtensionTorsionandInflation.html
+27/30
+Aluminium rod EF:
+This implies point  goes down by 
+ whereas point  will accordingly go down by 
+. Steel rod BD:
+This implies point 
+ goes down by 
+ and hence the the displacement of the point of application of
+load  turns out to be
+Q3.
+A steel tube just fits within a rigid hole as shown below. Find the hoop stress if an axial compressive
+load is applied to it.
+Solution: It might seem like a uniaxial loading problem. However, this is a biaxial loading problem since an
+unknown pressure will act on the outer lateral surface. The axial load causes the steel tube to compress axially
+and expand radially but the wall being rigid does not allow any radial expansion. So, in turn, the wall applies a
+compressive pressure on the outer surface of the tube. We can say that 
+, 
+, 
+. We need to
+find out 
+. Let us first find out 
+:
+δa =
+Fl
+EA =
+PLa
+EaAa
+.
+E
+δa
+B
+2δa
+δs =
+Fl
+EA = (P/2)Ls
+EsAs
+.
+D
+2δa + δs
+P
+δ = δa + δs
+2
+≤δc ⇒
+PLa
+EaAa
++
+PLs
+4EsAs
+≤δc
+or P ≤
+δc
+LAl
+EAlAAl
++
+Ls
+4EsAs
+.
+uθ = 0 uz ≠0 ur ≠0
+σθθ
+σzz
+8/27/26, 4:40 PM
+7 Solving Axisymmetric Problems: Extension, Torsion and Inflation
+https://web.iitd.ac.in/~ajeetk/smb/SolvingAxisymmetricProblemsExtensionTorsionandInflation.html
+28/30
+Here we used the fact that 
+ does not vary through the wall thickness as proved in the theory. The solution
+of 
+ and 
+ from radial stress equilibrium equation in cylindrical coordinates are as follows:
+The values of integrating constants  and  can be obtained using boundary conditions!
+Traction BC: No internal pressure:
+Displacement BC: No radial displacement at the outer boundary:
+The radial displacement 
+ is given by 
+ and the integrating constants 
+ and 
+ in the radial
+stress expression above are related to  and 
+ as follows:
+We also have 
+ which when substituted in the above
+equation leads to
+So, the final equations to obtain  and  are
+One can then also evaluate 
+ to obtain the unknown pressure applied by the rigid hole.
+For an exhaustive set of solved examples and
+unsolved objective and subjective type questions,
+please refer to the printed book: click here
+If you would like to share any feedback/comment: click here
+∗We remark that cylindrical coordinate system can otherwise be used also for general deformation of bodies having arbitrary shape.
+†The formula for area 
+ can be found either by actual integration of 
+ or by identifying the lengths in Figure 7.5b. The length of the
+curved centerline is 
+ (arc of radius  subtending an angle 
+) while the length of the straight edges is 
+. As 
+ and 
+ are
+very small, the curved top face becomes a trapezoid when the cylindrical element becomes very small. The centerline of the curved face
+gives the average of the two sides of the trapezoid. Thus, the area of this face will be 
+.
+‡As the dimensions of the cylindrical element tends to 0, the curved edge becomes nearly a straight line.
+§For a cuboid element, the areas of opposite faces are the same.
+¶The superposition principle does not hold in nonlinear elasticity though which is the realm of large deformation problems.
+ʺWe could have also applied pressure on the outer surface of the cylinder to analyze inflation, but here we will focus on pressure on the
+inner surface.
+∗∗Our assumption that only 
+ generates during torsion again holds good only when a small enough torque is applied to a beam.
+However, when torque applied is large, torsion can also generate radial contraction/expansion and axial elongation/contraction in
+beams. This happens solely due to nonlinearity and superposition principle does not hold then.
+††As we started with axisymmetric displacement components, the strain components also become axisymmetric which further lead to
+axisymmetry of stress components. Due to this, the derivatives of stress components with respect to  vanish.
+σzz =
+F
+π(D2−d2)
+4
+=
+F
+π(D+d)(D−d)
+4
+=
+F
+π(d+2t+d)(2t)
+4
+=
+F
+π(d + t)t .
+σzz
+σrr
+σθθ
+σrr = A
+2
++ B
+r2 ,
+σθθ = A
+2
+−B
+r2 .
+A
+B
+⇒σrr (r1) = 0
+We can’t say σrr (r2) = 0 since the outer constraining pressure is an unknown.
+ur (r2) = 0.
+ur
+ur = Cr
+2 + D
+r
+A
+B
+C
+D
+A = (λ + μ)C + λu
+′
+z,
+B = 2μD.
+u′
+z = 1/E(σzz −ν(σrr + σθθ)) = 1/E(σzz −ν A)
+C = 1/(λ + μ) [A(1 + λν/E) −λ/E σzz],  D = B/2μ.
+A
+B
+σrr(r1) = 0 ⇒A
+2 + B
+r2
+1
+= 0,
+ur(r2) = 0 ⇒A 1 + λν/E
+2(λ + μ) r2 +
+B
+2μr2
+−ν/E 
+F
+π(d + t)t r2 = 0.
+σrr(r2)
+Az
+dA
+rΔθ
+r
+Δθ
+Δr
+Δr
+Δθ
+rΔrΔθ
+uθ
+θ
+8/27/26, 4:40 PM
+7 Solving Axisymmetric Problems: Extension, Torsion and Inflation
+https://web.iitd.ac.in/~ajeetk/smb/SolvingAxisymmetricProblemsExtensionTorsionandInflation.html
+29/30
+‡‡There are numerous examples of rotating cylinders in practice. Motors have constantly rotating shafts. Rotors in jet engines rotate
+continuously. Shafts in lathe machines also rotate constantly while under operating condition.
+§§Note that pressure acts only on internal surface and hence it is not a body force
+¶¶Keep in mind though that the radial coordinate  is physically realizable only between 
+ and 
+.
+∗∗∗For cross-sections having irregular shape however, axisymmetry does not hold and we can then have non-zero 
+ and 
+ even
+during extension and torsion.
+r
+r1
+r2
+σrr
+σθθ
+8/27/26, 4:40 PM
+7 Solving Axisymmetric Problems: Extension, Torsion and Inflation
+https://web.iitd.ac.in/~ajeetk/smb/SolvingAxisymmetricProblemsExtensionTorsionandInflation.html
+30/30

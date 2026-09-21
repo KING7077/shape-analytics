@@ -3,356 +3,447 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Interactive Solid Mechanics Laboratory — 3D stress analysis, Mohr's Circle, beam failure, torsion, pressure vessel, and thermal stress simulation.">
     <title>Solid Mechanics Analyzer</title>
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
         <h1>Solid Mechanics Analyzer</h1>
-        <div class="tabs">
-            <button class="tab-btn active" id="tab-point" onclick="switchTab('point')">Point Stress (Mohr)</button>
-            <button class="tab-btn" id="tab-beam" onclick="switchTab('beam')">Beam Analysis</button>
-            <button class="tab-btn" id="tab-torsion" onclick="switchTab('torsion')">Shaft Torsion</button>
-            <button class="tab-btn" id="tab-axial" onclick="switchTab('axial')">Axial Loading</button>
-            <button class="tab-btn" id="tab-pressure" onclick="switchTab('pressure')">Pressure Vessel</button>
-            <button class="tab-btn" id="tab-thermal" onclick="switchTab('thermal')">Thermal Stress</button>
-        </div>
+        <nav role="tablist" aria-label="Laboratory Tabs">
+            <button role="tab" id="tab-point" aria-controls="view-point" aria-selected="true">Point Stress (Mohr)</button>
+            <button role="tab" id="tab-beam" aria-controls="view-beam" aria-selected="false">Beam Analysis</button>
+            <button role="tab" id="tab-torsion" aria-controls="view-torsion" aria-selected="false">Shaft Torsion</button>
+            <button role="tab" id="tab-axial" aria-controls="view-axial" aria-selected="false">Axial Loading</button>
+            <button role="tab" id="tab-pressure" aria-controls="view-pressure" aria-selected="false">Pressure Vessel</button>
+            <button role="tab" id="tab-thermal" aria-controls="view-thermal" aria-selected="false">Thermal Stress</button>
+        </nav>
     </header>
 
     <!-- Point Stress Analysis Lab -->
-    <main class="dashboard" id="view-point">
-        <div class="top-section">
-            <section class="panel">
-                <h2>Stress Tensor Input (MPa)</h2>
-                <div class="matrix-input">
-                    <input type="number" id="s11" value="100.0" step="1">
-                    <input type="number" id="s12" value="50.0" step="1">
-                    <input type="number" id="s13" value="0.0" step="1">
-                    <input type="number" id="s21" value="50.0" step="1" readonly title="Symmetric to S12">
-                    <input type="number" id="s22" value="50.0" step="1">
-                    <input type="number" id="s23" value="0.0" step="1">
-                    <input type="number" id="s31" value="0.0" step="1" readonly title="Symmetric to S13">
-                    <input type="number" id="s32" value="0.0" step="1" readonly title="Symmetric to S23">
-                    <input type="number" id="s33" value="0.0" step="1">
+    <main class="dashboard" id="view-point" role="tabpanel" aria-labelledby="tab-point" aria-hidden="false">
+        <section class="top-section">
+            <article class="panel">
+                <h2>Stress Tensor &amp; Material Properties</h2>
+                <div class="input-flex-container">
+                    <div class="input-column">
+                        <div class="matrix-input">
+                            <input type="number" id="s11" value="100.0" step="1" aria-label="Sigma 11">
+                            <input type="number" id="s12" value="50.0" step="1" aria-label="Sigma 12">
+                            <input type="number" id="s13" value="0.0" step="1" aria-label="Sigma 13">
+                            <input type="number" id="s21" value="50.0" step="1" readonly title="Symmetric to S12" aria-label="Sigma 21">
+                            <input type="number" id="s22" value="50.0" step="1" aria-label="Sigma 22">
+                            <input type="number" id="s23" value="0.0" step="1" aria-label="Sigma 23">
+                            <input type="number" id="s31" value="0.0" step="1" readonly title="Symmetric to S13" aria-label="Sigma 31">
+                            <input type="number" id="s32" value="0.0" step="1" readonly title="Symmetric to S23" aria-label="Sigma 32">
+                            <input type="number" id="s33" value="0.0" step="1" aria-label="Sigma 33">
+                        </div>
+                    </div>
+                    <div class="input-column">
+                        <div class="input-group">
+                            <label for="pt-sy">Yield Strength <span class="math">S<sub>y</sub></span> (MPa):</label>
+                            <input type="number" id="pt-sy" value="250" step="10">
+                        </div>
+                        <div class="input-group">
+                            <label for="pt-e">Young's Mod. <span class="math">E</span> (GPa):</label>
+                            <input type="number" id="pt-e" value="200" step="10">
+                        </div>
+                        <div class="input-group">
+                            <label for="pt-nu">Poisson's Ratio <span class="math">ν</span>:</label>
+                            <input type="number" id="pt-nu" value="0.3" step="0.01">
+                        </div>
+                        <div class="input-group">
+                            <label>Arbitrary Plane <span class="math"><b>n̂</b></span> (x, y, z):</label>
+                            <div class="vector-input-group">
+                                <input type="number" id="pt-nx" value="1.0" step="0.1">
+                                <input type="number" id="pt-ny" value="1.0" step="0.1">
+                                <input type="number" id="pt-nz" value="1.0" step="0.1">
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <button id="calculate-btn" class="primary-btn">Calculate via Python Math Engine</button>
-                <div class="results">
-                    <h3>Principal Stresses</h3>
-                    <p>σ₁: <span id="p-s1">-</span> MPa</p>
-                    <p>σ₂: <span id="p-s2">-</span> MPa</p>
-                    <p>σ₃: <span id="p-s3">-</span> MPa</p>
-                    <h3 style="margin-top:1rem;">Maximum Shear Stress</h3>
-                    <p>τ_max: <span id="t-max">-</span> MPa</p>
+                
+                <div class="export-bar">
+                    <button id="calculate-btn" class="primary-btn">Calculate via Python Math Engine</button>
+                    <button class="secondary-btn btn-baseline" data-target="point">Save Baseline A/B</button>
+                    <button class="secondary-btn btn-export" data-target="point">Export Lab Report</button>
                 </div>
-            </section>
-        </div>
-        <div class="bottom-section">
-            <section class="panel viz-panel">
-                <h2>3D Stress Element (Three.js)</h2>
+                
+                <div class="error-banner" id="error-point" role="alert">⚠ Could not connect to backend.</div>
+                
+                <div class="results results-grid">
+                    <div>
+                        <h3>Principal Stresses</h3>
+                        <p><span><span class="math">σ<sub>1</sub></span>:</span> <span><span id="p-s1">-</span> MPa</span></p>
+                        <p><span><span class="math">σ<sub>2</sub></span>:</span> <span><span id="p-s2">-</span> MPa</span></p>
+                        <p><span><span class="math">σ<sub>3</sub></span>:</span> <span><span id="p-s3">-</span> MPa</span></p>
+                        <p><span><span class="math">τ<sub>max</sub></span>:</span> <span><span id="t-max">-</span> MPa</span></p>
+                        <h3>Failure Criteria</h3>
+                        <p><span><span class="math">σ<sub>VM</sub></span> (von Mises):</span> <span><span id="pt-vm">-</span> MPa</span></p>
+                        <p><span><span class="math">FS<sub>VM</sub></span>:</span> <span><span id="pt-fsvm">-</span></span></p>
+                        <p><span><span class="math">σ<sub>Tresca</sub></span>:</span> <span><span id="pt-tresca">-</span> MPa</span></p>
+                        <p><span><span class="math">FS<sub>Tresca</sub></span>:</span> <span><span id="pt-fstresca">-</span></span></p>
+                    </div>
+                    <div>
+                        <h3>Strain &amp; Traction</h3>
+                        <p><span>Dilatation <span class="math">ε<sub>kk</sub></span>:</span> <span><span id="pt-dil">-</span></span></p>
+                        <p><span><span class="math"><b>T</b></span> (Traction):</span> <span>[<span id="pt-tx">-</span>, <span id="pt-ty">-</span>, <span id="pt-tz">-</span>] MPa</span></p>
+                        <p><span>Normal <span class="math">σ<sub>n</sub></span>:</span> <span><span id="pt-sn">-</span> MPa</span></p>
+                        <p><span>Shear <span class="math">τ<sub>n</sub></span>:</span> <span><span id="pt-tn">-</span> MPa</span></p>
+                    </div>
+                </div>
+            </article>
+        </section>
+        <section class="bottom-section">
+            <article class="panel viz-panel">
+                <h2>3D Stress Element</h2>
                 <div class="canvas-wrapper">
                     <div id="three-container" class="canvas-inner"></div>
                 </div>
                 <p class="hint">Click and drag to rotate. Colored lines indicate Principal Axes.</p>
-            </section>
-            <section class="panel viz-panel">
-                <h2>Mohr's Circle (Plotly.js)</h2>
+            </article>
+            <article class="panel viz-panel">
+                <h2>Mohr's Circle</h2>
                 <div class="canvas-wrapper">
                     <div id="plotly-container" class="canvas-inner"></div>
                 </div>
-            </section>
-        </div>
+            </article>
+        </section>
     </main>
 
     <!-- Beam Failure Analysis Lab -->
-    <main class="dashboard" id="view-beam" style="display: none;">
-        <div class="top-section">
-            <section class="panel">
-                <h2>Beam & Load Parameters</h2>
+    <main class="dashboard" id="view-beam" role="tabpanel" aria-labelledby="tab-beam" aria-hidden="true">
+        <section class="top-section">
+            <article class="panel">
+                <h2>Beam &amp; Load Parameters</h2>
                 <div class="input-flex-container">
                     <div class="input-column">
-                        <h3>Material & Geometry</h3>
+                        <h3>Material &amp; Geometry</h3>
                         <div class="input-group">
-                            <label>Young's Modulus E (GPa):</label>
+                            <label for="beam-e">Young's Modulus <span class="math">E</span> (GPa):</label>
                             <input type="number" id="beam-e" value="200" step="10">
                         </div>
                         <div class="input-group">
-                            <label>Yield Stress σ_y (MPa):</label>
+                            <label for="beam-sy">Yield Stress <span class="math">S<sub>y</sub></span> (MPa):</label>
                             <input type="number" id="beam-sy" value="250" step="10">
                         </div>
                         <div class="input-group">
-                            <label>Length L (m):</label>
+                            <label for="beam-l">Length <span class="math">L</span> (m):</label>
                             <input type="number" id="beam-l" value="2.0" step="0.1">
                         </div>
                     </div>
                     <div class="input-column">
-                        <h3>Cross-Section & Loading</h3>
+                        <h3>Cross-Section &amp; Loading</h3>
                         <div class="input-group">
-                            <label>Support Type:</label>
+                            <label for="beam-support">Support Type:</label>
                             <select id="beam-support" class="select-input">
                                 <option value="cantilever">Cantilever</option>
                                 <option value="simply_supported">Simply Supported</option>
                             </select>
                         </div>
                         <div class="input-group">
-                            <label>Load Type:</label>
+                            <label for="beam-load-type">Load Type:</label>
                             <select id="beam-load-type" class="select-input">
                                 <option value="point">Point Load</option>
                                 <option value="udl">Uniform Distributed (UDL)</option>
                             </select>
                         </div>
                         <div class="input-group">
-                            <label>Width b (m):</label>
+                            <label for="beam-w">Width <span class="math">b</span> (m):</label>
                             <input type="number" id="beam-w" value="0.1" step="0.01">
                         </div>
                         <div class="input-group">
-                            <label>Height h (m):</label>
+                            <label for="beam-h">Height <span class="math">h</span> (m):</label>
                             <input type="number" id="beam-h" value="0.2" step="0.01">
                         </div>
                         <div class="input-group">
-                            <label>Load Magnitude (kN or kN/m):</label>
+                            <label for="beam-p">Load Mag. <span class="math">P</span> (kN or kN/m):</label>
                             <input type="number" id="beam-p" value="50" step="5">
                         </div>
                     </div>
                 </div>
-                <button id="calculate-beam-btn" class="primary-btn">Analyze Failure Criteria</button>
+                <div class="export-bar">
+                    <button id="calculate-beam-btn" class="primary-btn">Analyze Failure Criteria</button>
+                    <button class="secondary-btn btn-baseline" data-target="beam">Save Baseline A/B</button>
+                    <button class="secondary-btn btn-export" data-target="beam">Export Lab Report</button>
+                </div>
+                <div class="error-banner" id="error-beam" role="alert">⚠ Could not connect to backend.</div>
+                
                 <div class="results" id="beam-failure-status">
-                    <h3>Failure Status (von Mises)</h3>
-                    <p>Status: <span id="failure-flag" style="color: #10b981;">SAFE</span></p>
-                    <p>Max Stress: <span id="max-vm-stress">-</span> MPa</p>
+                    <h3>Failure Status (von Mises &amp; Tresca)</h3>
+                    <p><span>Status:</span> <span><span id="failure-flag" class="status-safe">SAFE</span></span></p>
+                    <p><span><span class="math">σ<sub>VM</sub></span>:</span> <span><span id="max-vm-stress">-</span> MPa | <span class="math">FS<sub>VM</sub></span>: <span id="fs-vm-beam">-</span></span></p>
+                    <p><span><span class="math">σ<sub>Tresca</sub></span>:</span> <span><span id="max-tresca-stress">-</span> MPa | <span class="math">FS<sub>Tresca</sub></span>: <span id="fs-tresca-beam">-</span></span></p>
                 </div>
-            </section>
-        </div>
-        <div class="bottom-section">
-            <section class="panel viz-panel">
+            </article>
+        </section>
+        <section class="bottom-section">
+            <article class="panel viz-panel">
                 <h2>Macroscopic Analysis (1D)</h2>
-                <div class="canvas-wrapper" style="display:flex; flex-direction:column;">
-                    <div id="plot-sfd" style="flex:1; width:100%;"></div>
-                    <div id="plot-bmd" style="flex:1; width:100%;"></div>
-                    <div id="plot-def" style="flex:1; width:100%;"></div>
+                <div class="canvas-wrapper canvas-wrapper--stacked">
+                    <div id="plot-sfd"></div>
+                    <div id="plot-bmd"></div>
+                    <div id="plot-def"></div>
                 </div>
-            </section>
-            <section class="panel viz-panel">
+            </article>
+            <article class="panel viz-panel">
                 <h2>von Mises Stress Field (2D Heatmap)</h2>
                 <div class="canvas-wrapper">
                     <div id="heatmap-container" class="canvas-inner"></div>
                 </div>
                 <p class="hint">Side profile of the beam (X vs Y). Yield Stress is <span id="hint-sy">250</span> MPa.</p>
-            </section>
-        </div>
+            </article>
+        </section>
     </main>
 
     <!-- Shaft Torsion Lab -->
-    <main class="dashboard" id="view-torsion" style="display: none;">
-        <div class="top-section">
-            <section class="panel">
+    <main class="dashboard" id="view-torsion" role="tabpanel" aria-labelledby="tab-torsion" aria-hidden="true">
+        <section class="top-section">
+            <article class="panel">
                 <h2>Shaft Torsion Parameters</h2>
                 <div class="input-flex-container">
                     <div class="input-column">
                         <div class="input-group">
-                            <label>Applied Torque T (kNm):</label>
+                            <label for="tor-t">Applied Torque <span class="math">T</span> (kNm):</label>
                             <input type="number" id="tor-t" value="10" step="1">
                         </div>
                         <div class="input-group">
-                            <label>Length L (m):</label>
+                            <label for="tor-l">Length <span class="math">L</span> (m):</label>
                             <input type="number" id="tor-l" value="3.0" step="0.1">
                         </div>
                         <div class="input-group">
-                            <label>Shear Modulus G (GPa):</label>
+                            <label for="tor-g">Shear Modulus <span class="math">G</span> (GPa):</label>
                             <input type="number" id="tor-g" value="80" step="5">
                         </div>
                     </div>
                     <div class="input-column">
                         <div class="input-group">
-                            <label>Outer Radius R (m):</label>
+                            <label for="tor-r">Outer Radius <span class="math">R</span> (m):</label>
                             <input type="number" id="tor-r" value="0.1" step="0.01">
                         </div>
                         <div class="input-group">
-                            <label>Inner Radius r_i (m, 0 for solid):</label>
+                            <label for="tor-ri">Inner Radius <span class="math">r<sub>i</sub></span> (m, 0 for solid):</label>
                             <input type="number" id="tor-ri" value="0" step="0.01">
                         </div>
                     </div>
                 </div>
-                <button id="calculate-torsion-btn" class="primary-btn">Analyze Torsion in Python</button>
+                <div class="export-bar">
+                    <button id="calculate-torsion-btn" class="primary-btn">Analyze Torsion in Python</button>
+                    <button class="secondary-btn btn-baseline" data-target="torsion">Save Baseline A/B</button>
+                    <button class="secondary-btn btn-export" data-target="torsion">Export Lab Report</button>
+                </div>
+                <div class="error-banner" id="error-torsion" role="alert">⚠ Could not connect to backend.</div>
+                
                 <div class="results">
                     <h3>Maximum Shear Stress</h3>
-                    <p>τ_max: <span id="tor-tau">-</span> MPa</p>
-                    <h3 style="margin-top:1rem;">Total Angle of Twist</h3>
-                    <p>φ_max: <span id="tor-phi">-</span> degrees</p>
+                    <p><span><span class="math">τ<sub>max</sub></span>:</span> <span><span id="tor-tau">-</span> MPa</span></p>
+                    <h3>Total Angle of Twist</h3>
+                    <p><span><span class="math">φ<sub>max</sub></span>:</span> <span><span id="tor-phi">-</span> degrees</span></p>
                 </div>
-            </section>
-        </div>
-        <div class="bottom-section">
-            <section class="panel viz-panel">
+            </article>
+        </section>
+        <section class="bottom-section">
+            <article class="panel viz-panel">
                 <h2>Angle of Twist vs Length</h2>
                 <div class="canvas-wrapper">
                     <div id="plot-torsion-twist" class="canvas-inner"></div>
                 </div>
-            </section>
-            <section class="panel viz-panel">
+            </article>
+            <article class="panel viz-panel">
                 <h2>Shear Stress vs Radius</h2>
                 <div class="canvas-wrapper">
                     <div id="plot-torsion-stress" class="canvas-inner"></div>
                 </div>
-            </section>
-        </div>
+            </article>
+        </section>
     </main>
 
     <!-- Axial Loading Lab -->
-    <main class="dashboard" id="view-axial" style="display: none;">
-        <div class="top-section">
-            <section class="panel">
+    <main class="dashboard" id="view-axial" role="tabpanel" aria-labelledby="tab-axial" aria-hidden="true">
+        <section class="top-section">
+            <article class="panel">
                 <h2>Axial Loading Parameters</h2>
                 <div class="input-flex-container">
                     <div class="input-column">
                         <div class="input-group">
-                            <label>Axial Load P (kN, tension):</label>
+                            <label for="ax-p">Axial Load <span class="math">P</span> (kN):</label>
                             <input type="number" id="ax-p" value="100" step="10">
                         </div>
                         <div class="input-group">
-                            <label>Length L (m):</label>
+                            <label for="ax-l">Length <span class="math">L</span> (m):</label>
                             <input type="number" id="ax-l" value="5.0" step="0.5">
                         </div>
                     </div>
                     <div class="input-column">
                         <div class="input-group">
-                            <label>Cross-Sectional Area A (cm²):</label>
+                            <label for="ax-a">Cross-Area <span class="math">A</span> (cm²):</label>
                             <input type="number" id="ax-a" value="20" step="1">
                         </div>
                         <div class="input-group">
-                            <label>Young's Modulus E (GPa):</label>
+                            <label for="ax-e">Young's Mod. <span class="math">E</span> (GPa):</label>
                             <input type="number" id="ax-e" value="200" step="10">
                         </div>
                     </div>
                 </div>
-                <button id="calculate-axial-btn" class="primary-btn">Analyze Axial Stress in Python</button>
+                <div class="export-bar">
+                    <button id="calculate-axial-btn" class="primary-btn">Analyze Axial Stress in Python</button>
+                    <button class="secondary-btn btn-baseline" data-target="axial">Save Baseline A/B</button>
+                    <button class="secondary-btn btn-export" data-target="axial">Export Lab Report</button>
+                </div>
+                <div class="error-banner" id="error-axial" role="alert">⚠ Could not connect to backend.</div>
+                
                 <div class="results">
                     <h3>Normal Stress</h3>
-                    <p>σ: <span id="ax-sig">-</span> MPa</p>
-                    <h3 style="margin-top:1rem;">Total Elongation</h3>
-                    <p>δ: <span id="ax-del">-</span> mm</p>
+                    <p><span><span class="math">σ</span>:</span> <span><span id="ax-sig">-</span> MPa</span></p>
+                    <h3>Total Elongation</h3>
+                    <p><span><span class="math">δ</span>:</span> <span><span id="ax-del">-</span> mm</span></p>
                 </div>
-            </section>
-        </div>
-        <div class="bottom-section">
-            <section class="panel viz-panel">
+            </article>
+        </section>
+        <section class="bottom-section">
+            <article class="panel viz-panel">
                 <h2>Normal Stress Profile</h2>
                 <div class="canvas-wrapper">
                     <div id="plot-axial-stress" class="canvas-inner"></div>
                 </div>
-            </section>
-            <section class="panel viz-panel">
+            </article>
+            <article class="panel viz-panel">
                 <h2>Elongation Profile</h2>
                 <div class="canvas-wrapper">
                     <div id="plot-axial-def" class="canvas-inner"></div>
                 </div>
-            </section>
-        </div>
+            </article>
+        </section>
     </main>
 
     <!-- Pressure Vessel Lab -->
-    <main class="dashboard" id="view-pressure" style="display: none;">
-        <div class="top-section">
-            <section class="panel">
-                <h2>Thin-Walled Pressure Vessel Parameters</h2>
+    <main class="dashboard" id="view-pressure" role="tabpanel" aria-labelledby="tab-pressure" aria-hidden="true">
+        <section class="top-section">
+            <article class="panel">
+                <h2>Pressure Vessel Parameters (Lamé's Eq)</h2>
                 <div class="input-flex-container">
                     <div class="input-column">
                         <div class="input-group">
-                            <label>Vessel Type:</label>
+                            <label for="pv-type">Vessel Type:</label>
                             <select id="pv-type" class="select-input">
                                 <option value="cylinder">Cylindrical</option>
                                 <option value="sphere">Spherical</option>
                             </select>
                         </div>
                         <div class="input-group">
-                            <label>Internal Pressure p (MPa):</label>
+                            <label for="pv-thick">Thickness Regime:</label>
+                            <select id="pv-thick" class="select-input">
+                                <option value="false">Thin-Walled (Approx)</option>
+                                <option value="true" selected>Thick-Walled (Exact)</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="pv-p">Internal Pressure <span class="math">p</span> (MPa):</label>
                             <input type="number" id="pv-p" value="5" step="0.5">
                         </div>
                     </div>
                     <div class="input-column">
                         <div class="input-group">
-                            <label>Inner Radius r (m):</label>
+                            <label for="pv-r">Inner Radius <span class="math">r<sub>i</sub></span> (m):</label>
                             <input type="number" id="pv-r" value="1.0" step="0.1">
                         </div>
                         <div class="input-group">
-                            <label>Wall Thickness t (mm):</label>
-                            <input type="number" id="pv-t" value="10" step="1">
+                            <label for="pv-t">Wall Thickness <span class="math">t</span> (mm):</label>
+                            <input type="number" id="pv-t" value="100" step="10">
                         </div>
                     </div>
                 </div>
-                <button id="calculate-pv-btn" class="primary-btn">Analyze Vessel in Python</button>
-                <div class="results">
-                    <h3>Hoop Stress (σ₁)</h3>
-                    <p>σ₁: <span id="pv-s1">-</span> MPa</p>
-                    <h3 style="margin-top:1rem;">Longitudinal Stress (σ₂)</h3>
-                    <p>σ₂: <span id="pv-s2">-</span> MPa</p>
-                    <h3 style="margin-top:1rem;">Maximum Shear Stress</h3>
-                    <p>τ_max: <span id="pv-tmax">-</span> MPa</p>
+                <div class="export-bar">
+                    <button id="calculate-pv-btn" class="primary-btn">Analyze Vessel in Python</button>
+                    <button class="secondary-btn btn-baseline" data-target="pressure">Save Baseline A/B</button>
+                    <button class="secondary-btn btn-export" data-target="pressure">Export Lab Report</button>
                 </div>
-            </section>
-        </div>
-        <div class="bottom-section">
-            <section class="panel viz-panel">
-                <h2>Vessel Wall State (Mohr's Circle)</h2>
+                <div class="error-banner" id="error-pressure" role="alert">⚠ Could not connect to backend.</div>
+                
+                <div class="results">
+                    <h3>Inner Surface Stresses</h3>
+                    <p><span>Hoop <span class="math">σ<sub>θ</sub></span>:</span> <span><span id="pv-s1">-</span> MPa</span></p>
+                    <p><span>Longitudinal <span class="math">σ<sub>z</sub></span>:</span> <span><span id="pv-s2">-</span> MPa</span></p>
+                    <p><span><span class="math">τ<sub>max</sub></span>:</span> <span><span id="pv-tmax">-</span> MPa</span></p>
+                </div>
+            </article>
+        </section>
+        <section class="bottom-section">
+            <article class="panel viz-panel">
+                <h2>Stress Distribution vs Radius</h2>
+                <div class="canvas-wrapper">
+                    <div id="plot-pv-dist" class="canvas-inner"></div>
+                </div>
+            </article>
+            <article class="panel viz-panel">
+                <h2>Mohr's Circle (Inner Surface)</h2>
                 <div class="canvas-wrapper">
                     <div id="plot-pv-mohr" class="canvas-inner"></div>
                 </div>
-            </section>
-        </div>
+            </article>
+        </section>
     </main>
 
     <!-- Thermal Stress Lab -->
-    <main class="dashboard" id="view-thermal" style="display: none;">
-        <div class="top-section">
-            <section class="panel">
+    <main class="dashboard" id="view-thermal" role="tabpanel" aria-labelledby="tab-thermal" aria-hidden="true">
+        <section class="top-section">
+            <article class="panel">
                 <h2>Thermal Stress Parameters</h2>
                 <div class="input-flex-container">
                     <div class="input-column">
                         <div class="input-group">
-                            <label>Boundary Constraint:</label>
+                            <label for="th-constraint">Boundary Constraint:</label>
                             <select id="th-constraint" class="select-input">
                                 <option value="free">Free Expansion (No walls)</option>
                                 <option value="fixed">Fixed Both Ends</option>
                             </select>
                         </div>
                         <div class="input-group">
-                            <label>Temp Change ΔT (°C):</label>
+                            <label for="th-dt">Temp Change <span class="math">ΔT</span> (°C):</label>
                             <input type="number" id="th-dt" value="50" step="5">
                         </div>
                         <div class="input-group">
-                            <label>Length L (m):</label>
+                            <label for="th-l">Length <span class="math">L</span> (m):</label>
                             <input type="number" id="th-l" value="2.0" step="0.1">
                         </div>
                     </div>
                     <div class="input-column">
                         <div class="input-group">
-                            <label>Thermal Expansion α (10⁻⁶ /°C):</label>
+                            <label for="th-alpha">Therm. Exp. <span class="math">α</span> (10⁻⁶ /°C):</label>
                             <input type="number" id="th-alpha" value="12" step="1">
                         </div>
                         <div class="input-group">
-                            <label>Young's Modulus E (GPa):</label>
+                            <label for="th-e">Young's Mod. <span class="math">E</span> (GPa):</label>
                             <input type="number" id="th-e" value="200" step="10">
                         </div>
                     </div>
                 </div>
-                <button id="calculate-thermal-btn" class="primary-btn">Analyze Thermal State in Python</button>
+                <div class="export-bar">
+                    <button id="calculate-thermal-btn" class="primary-btn">Analyze Thermal State in Python</button>
+                    <button class="secondary-btn btn-baseline" data-target="thermal">Save Baseline A/B</button>
+                    <button class="secondary-btn btn-export" data-target="thermal">Export Lab Report</button>
+                </div>
+                <div class="error-banner" id="error-thermal" role="alert">⚠ Could not connect to backend.</div>
+                
                 <div class="results">
                     <h3>Thermal Stress</h3>
-                    <p>σ: <span id="th-sig">-</span> MPa</p>
-                    <h3 style="margin-top:1rem;">Resulting Deformation</h3>
-                    <p>δ: <span id="th-del">-</span> mm</p>
+                    <p><span><span class="math">σ</span>:</span> <span><span id="th-sig">-</span> MPa</span></p>
+                    <h3>Resulting Deformation</h3>
+                    <p><span><span class="math">δ</span>:</span> <span><span id="th-del">-</span> mm</span></p>
                 </div>
-            </section>
-        </div>
-        <div class="bottom-section">
-            <section class="panel viz-panel">
+            </article>
+        </section>
+        <section class="bottom-section">
+            <article class="panel viz-panel">
                 <h2>Thermal Deformation Profile</h2>
                 <div class="canvas-wrapper">
                     <div id="plot-th-def" class="canvas-inner"></div>
                 </div>
-            </section>
-        </div>
+            </article>
+        </section>
     </main>
 
     <script src="app.js"></script>

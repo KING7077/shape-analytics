@@ -40,3 +40,41 @@ def get_mohr_circle_parameters(stress_tensor: np.ndarray):
         "C13": c13, "R13": r13,
         "principal_stresses": ps
     }
+
+def get_failure_criteria(stress_tensor: np.ndarray):
+    ps, _ = get_principal_stresses(stress_tensor)
+    s1, s2, s3 = ps[0], ps[1], ps[2]
+    vm = np.sqrt(((s1-s2)**2 + (s2-s3)**2 + (s3-s1)**2) / 2.0)
+    tresca = s1 - s3
+    return {"von_mises": vm, "tresca": tresca}
+
+def get_strain_tensor(stress_tensor: np.ndarray, E: float, nu: float):
+    # Generalized Hooke's Law for Isotropic Material
+    # e_ij = (1+nu)/E * s_ij - nu/E * s_kk * d_ij
+    s_kk = np.trace(stress_tensor)
+    strain_tensor = ((1.0 + nu) / E) * stress_tensor - (nu / E) * s_kk * np.eye(3)
+    e_kk = np.trace(strain_tensor)
+    deviatoric_strain = strain_tensor - (e_kk / 3.0) * np.eye(3)
+    return {
+        "strain_matrix": strain_tensor.tolist(),
+        "dilatation": float(e_kk),
+        "deviatoric_matrix": deviatoric_strain.tolist()
+    }
+
+def get_traction_vector(stress_tensor: np.ndarray, n: list):
+    n_arr = np.array(n, dtype=float)
+    n_norm = np.linalg.norm(n_arr)
+    if n_norm > 0:
+        n_arr = n_arr / n_norm
+    else:
+        n_arr = np.array([1.0, 0.0, 0.0])
+    
+    T = np.dot(stress_tensor, n_arr)
+    sigma_n = np.dot(T, n_arr)
+    tau_n = np.linalg.norm(T - sigma_n * n_arr)
+    
+    return {
+        "T": T.tolist(),
+        "sigma_n": float(sigma_n),
+        "tau_n": float(tau_n)
+    }

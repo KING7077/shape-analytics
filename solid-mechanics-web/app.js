@@ -1,296 +1,443 @@
 /**
  * app.js
- * Main application logic for the Solid Mechanics Web App
+ * Main application logic for the Solid Mechanics Web App.
+ * All code is wrapped in an IIFE to prevent global scope pollution.
  */
+(function () {
+    'use strict';
 
-// --- TAB NAVIGATION ---
-const tabs = ['point', 'beam', 'torsion', 'axial', 'pressure', 'thermal'];
+    const API_BASE = 'http://127.0.0.1:8000';
+    const TABS = ['point', 'beam', 'torsion', 'axial', 'pressure', 'thermal'];
 
-function switchTab(activeTab) {
-    tabs.forEach(tab => {
-        document.getElementById(`view-${tab}`).style.display = (tab === activeTab) ? 'flex' : 'none';
-        const btn = document.getElementById(`tab-${tab}`);
-        if (tab === activeTab) btn.classList.add('active');
-        else btn.classList.remove('active');
-    });
-    
-    // Trigger resize to fix Plotly canvases in newly un-hidden tabs
-    window.dispatchEvent(new Event('resize')); 
-    
-    // Call the specific update function to draw initial plots if not drawn
-    if(activeTab === 'beam') updateBeamApplication();
-    if(activeTab === 'torsion') updateTorsionApplication();
-    if(activeTab === 'axial') updateAxialApplication();
-    if(activeTab === 'pressure') updatePressureApplication();
-    if(activeTab === 'thermal') updateThermalApplication();
-}
+    const PLOTLY_CONFIG = { responsive: true, displayModeBar: false };
+    const PLOTLY_LAYOUT = {
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        font: { color: '#8892a4', family: "'JetBrains Mono', monospace", size: 11 },
+        margin: { t: 40, r: 20, l: 55, b: 45 },
+        xaxis: { gridcolor: 'rgba(0,229,160,0.06)', zerolinecolor: 'rgba(0,229,160,0.12)' },
+        yaxis: { gridcolor: 'rgba(0,229,160,0.06)', zerolinecolor: 'rgba(0,229,160,0.12)' },
+        autosize: true
+    };
 
-// --- Plotly Config ---
-const plotlyConfig = { responsive: true, displayModeBar: false };
-const plotlyLayout = {
-    paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
-    font: { color: '#94a3b8' }, margin: { t: 40, r: 20, l: 50, b: 40 },
-    xaxis: { gridcolor: 'rgba(255,255,255,0.1)' }, yaxis: { gridcolor: 'rgba(255,255,255,0.1)' },
-    autosize: true
-};
+    // A/B Comparison Baseline storage
+    let baselines = {};
+    // Last fetched datasets for export
+    let latestData = {};
 
-function generateCircleData(cx, r, color, name) {
-    const theta = [];
-    for(let i=0; i<100; i++) theta.push((i/99)*Math.PI);
-    const x = theta.map(t => cx + r * Math.cos(t));
-    const y = theta.map(t => r * Math.sin(t));
-    return { x: [...x, ...x.slice().reverse()], y: [...y, ...y.map(()=>0)], fill: 'toself', fillcolor: color, line: { color: color, width: 2 }, name: name, type: 'scatter', hoverinfo: 'none' };
-}
+    function $(id) { return document.getElementById(id); }
+    function val(id) { return parseFloat($(id).value) || 0; }
+    function setText(id, text) { if ($(id)) $(id).innerText = text; }
 
-// ==========================================
-// 1. POINT STRESS LABORATORY
-// ==========================================
-const pointInputs = {
-    s11: document.getElementById('s11'), s12: document.getElementById('s12'), s13: document.getElementById('s13'),
-    s21: document.getElementById('s21'), s22: document.getElementById('s22'), s23: document.getElementById('s23'),
-    s31: document.getElementById('s31'), s32: document.getElementById('s32'), s33: document.getElementById('s33'),
-};
-
-let scene, camera, renderer, cube, arrowsGroup, axesGroup;
-let isDragging = false, previousMousePosition = { x: 0, y: 0 };
-
-function initThreeJS() {
-    const container = document.getElementById('three-container');
-    scene = new THREE.Scene();
-    camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
-    camera.position.set(2, 2, 5);
-    camera.lookAt(0, 0, 0);
-    
-    renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    container.appendChild(renderer.domElement);
-    
-    scene.add(new THREE.AmbientLight(0xffffff, 0.6));
-    const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    dirLight.position.set(10, 20, 10);
-    scene.add(dirLight);
-    scene.add(new THREE.AxesHelper(1.5));
-    
-    const geo = new THREE.BoxGeometry(1.5, 1.5, 1.5);
-    const mats = [
-        new THREE.MeshLambertMaterial({ color: 0x3b82f6, transparent: true, opacity: 0.7 }),
-        new THREE.MeshLambertMaterial({ color: 0x1e3a8a, transparent: true, opacity: 0.7 }),
-        new THREE.MeshLambertMaterial({ color: 0x10b981, transparent: true, opacity: 0.7 }),
-        new THREE.MeshLambertMaterial({ color: 0x064e3b, transparent: true, opacity: 0.7 }),
-        new THREE.MeshLambertMaterial({ color: 0x8b5cf6, transparent: true, opacity: 0.7 }),
-        new THREE.MeshLambertMaterial({ color: 0x4c1d95, transparent: true, opacity: 0.7 }),
-    ];
-    cube = new THREE.Mesh(geo, mats);
-    cube.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({ color: 0xffffff })));
-    arrowsGroup = new THREE.Group(); cube.add(arrowsGroup);
-    axesGroup = new THREE.Group(); cube.add(axesGroup);
-    scene.add(cube);
-
-    renderer.domElement.addEventListener('mousedown', () => { isDragging = true; });
-    renderer.domElement.addEventListener('mouseup', () => { isDragging = false; });
-    renderer.domElement.addEventListener('mousemove', (e) => {
-        if (isDragging) {
-            const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(Math.PI/180 * (e.offsetY - previousMousePosition.y) * 0.5, Math.PI/180 * (e.offsetX - previousMousePosition.x) * 0.5, 0, 'XYZ'));
-            cube.quaternion.multiplyQuaternions(q, cube.quaternion);
+    function showError(labName) {
+        const banner = $('error-' + labName);
+        if (banner) banner.classList.add('visible');
+    }
+    function hideError(labName) {
+        const banner = $('error-' + labName);
+        if (banner) banner.classList.remove('visible');
+    }
+    function setButtonLoading(btn, isLoading, defaultText) {
+        if (!btn) return;
+        if (isLoading) {
+            btn.disabled = true;
+            btn.innerText = 'Computing…';
+        } else {
+            btn.disabled = false;
+            btn.innerText = defaultText;
         }
-        previousMousePosition = { x: e.offsetX, y: e.offsetY };
-    });
+    }
 
-    window.addEventListener('resize', () => {
-        camera.aspect = container.clientWidth / container.clientHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(container.clientWidth, container.clientHeight);
-    });
-    animate();
-}
-
-function animate() { requestAnimationFrame(animate); renderer.render(scene, camera); }
-
-async function updateApplication() {
-    pointInputs.s21.value = pointInputs.s12.value; pointInputs.s31.value = pointInputs.s13.value; pointInputs.s32.value = pointInputs.s23.value;
-    const matrix = [
-        [parseFloat(pointInputs.s11.value), parseFloat(pointInputs.s12.value), parseFloat(pointInputs.s13.value)],
-        [parseFloat(pointInputs.s21.value), parseFloat(pointInputs.s22.value), parseFloat(pointInputs.s23.value)],
-        [parseFloat(pointInputs.s31.value), parseFloat(pointInputs.s32.value), parseFloat(pointInputs.s33.value)]
-    ];
-    
-    document.getElementById('calculate-btn').innerText = "Computing...";
-    try {
-        const response = await fetch('http://127.0.0.1:8000/api/analyze_tensor', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ matrix: matrix }) });
+    async function apiPost(endpoint, body, labName) {
+        hideError(labName);
+        const response = await fetch(API_BASE + endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+        if (!response.ok) throw new Error('Server returned ' + response.status);
         const data = await response.json();
-        
-        document.getElementById('p-s1').innerText = data.principal_stresses[0].toFixed(2);
-        document.getElementById('p-s2').innerText = data.principal_stresses[1].toFixed(2);
-        document.getElementById('p-s3').innerText = data.principal_stresses[2].toFixed(2);
-        document.getElementById('t-max').innerText = data.mohr.tMax.toFixed(2);
-        
-        const mohrLayout = { ...plotlyLayout, xaxis: { ...plotlyLayout.xaxis, title: 'Normal Stress σ' }, yaxis: { ...plotlyLayout.yaxis, title: 'Shear Stress τ', scaleanchor: 'x', scaleratio: 1 } };
-        Plotly.react('plotly-container', [
-            generateCircleData(data.mohr.c13, data.mohr.r13, 'rgba(59, 130, 246, 0.4)', 'σ1 - σ3'),
-            generateCircleData(data.mohr.c12, data.mohr.r12, 'rgba(30, 41, 59, 1)', 'σ1 - σ2'),
-            generateCircleData(data.mohr.c23, data.mohr.r23, 'rgba(30, 41, 59, 1)', 'σ2 - σ3')
-        ], mohrLayout, plotlyConfig);
-        
-        // Update 3D Arrows
-        while(arrowsGroup.children.length > 0) arrowsGroup.remove(arrowsGroup.children[0]); 
-        const addArr = (dx,dy,dz, ox,oy,oz, col) => { if(Math.abs(dx)+Math.abs(dy)+Math.abs(dz) > 0) arrowsGroup.add(new THREE.ArrowHelper(new THREE.Vector3(dx,dy,dz).normalize(), new THREE.Vector3(ox,oy,oz), 0.5, col, 0.2, 0.1)); }
-        if(matrix[0][0]!==0) addArr(matrix[0][0]>0?1:-1,0,0, 0.75,0,0, 0xff0000);
-        if(matrix[1][1]!==0) addArr(0,matrix[1][1]>0?1:-1,0, 0,0.75,0, 0x00ff00);
-        if(matrix[2][2]!==0) addArr(0,0,matrix[2][2]>0?1:-1, 0,0,0.75, 0x0000ff);
+        latestData[labName] = data; // store for export
+        return data;
+    }
 
-        // Update Principal Axes
-        while(axesGroup.children.length > 0) axesGroup.remove(axesGroup.children[0]); 
-        for(let i=0; i<3; i++) {
-            const p = new THREE.Vector3(data.eigenvectors[0][i], data.eigenvectors[1][i], data.eigenvectors[2][i]).normalize();
-            axesGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([p.clone().multiplyScalar(1.5), p.clone().multiplyScalar(-1.5)]), new THREE.LineBasicMaterial({ color: [0xffaaaa, 0xaaffaa, 0xaaaaff][i], linewidth: 3 })));
-        }
-    } catch(e) { console.error(e); }
-    finally { document.getElementById('calculate-btn').innerText = "Calculate via Python Math Engine"; }
-}
-document.getElementById('calculate-btn').addEventListener('click', updateApplication);
-pointInputs.s12.addEventListener('input', () => { pointInputs.s21.value = pointInputs.s12.value; });
-pointInputs.s13.addEventListener('input', () => { pointInputs.s31.value = pointInputs.s13.value; });
-pointInputs.s23.addEventListener('input', () => { pointInputs.s32.value = pointInputs.s23.value; });
+    function generateCircleData(cx, r, color, name, isDash = false) {
+        let theta = [];
+        for (let i = 0; i < 100; i++) theta.push((i / 99) * Math.PI);
+        let x = theta.map(t => cx + r * Math.cos(t));
+        let y = theta.map(t => r * Math.sin(t));
+        return {
+            x: x.concat(x.slice().reverse()),
+            y: y.concat(y.map(() => 0)),
+            fill: isDash ? 'none' : 'toself',
+            fillcolor: isDash ? 'transparent' : color,
+            line: { color: color, width: 2, dash: isDash ? 'dot' : 'solid' },
+            name: name,
+            type: 'scatter',
+            hoverinfo: 'none'
+        };
+    }
 
-// ==========================================
-// 2. BEAM FAILURE LABORATORY
-// ==========================================
-async function updateBeamApplication() {
-    const p = {
-        E: parseFloat(document.getElementById('beam-e').value) * 1e9,
-        L: parseFloat(document.getElementById('beam-l').value),
-        b: parseFloat(document.getElementById('beam-w').value),
-        h: parseFloat(document.getElementById('beam-h').value),
-        load_mag: parseFloat(document.getElementById('beam-p').value) * 1000,
-        support_type: document.getElementById('beam-support').value,
-        load_type: document.getElementById('beam-load-type').value
-    };
-    const Sy = parseFloat(document.getElementById('beam-sy').value) * 1e6;
-    document.getElementById('hint-sy').innerText = document.getElementById('beam-sy').value;
-    const btn = document.getElementById('calculate-beam-btn'); btn.innerText = "Analyzing in Python...";
-    try {
-        const res = await fetch('http://127.0.0.1:8000/api/analyze_beam', { method: 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(p) });
-        const d = await res.json();
-        
-        Plotly.react('plot-sfd', [{x: d.x, y: d.V, type: 'scatter', line: {color: '#ef4444'}}], { ...plotlyLayout, yaxis: {title: 'Shear (kN)'} }, plotlyConfig);
-        Plotly.react('plot-bmd', [{x: d.x, y: d.M, type: 'scatter', line: {color: '#3b82f6'}}], { ...plotlyLayout, yaxis: {title: 'Moment (kNm)'} }, plotlyConfig);
-        Plotly.react('plot-def', [{x: d.x, y: d.deflection, type: 'scatter', line: {color: '#10b981'}}], { ...plotlyLayout, yaxis: {title: 'Deflection (mm)'}, xaxis:{title:'Length X (m)'} }, plotlyConfig);
-        Plotly.react('heatmap-container', [{z: d.heatmap, x: d.x, y: d.y_cross, type: 'heatmap', colorscale: 'Jet'}], { ...plotlyLayout, xaxis: {title: 'Length X (m)'}, yaxis: {title:'Height Y (m)'} }, plotlyConfig);
-        
-        const stat = document.getElementById('failure-flag');
-        document.getElementById('max-vm-stress').innerText = d.max_vm.toFixed(2);
-        stat.innerText = d.max_vm >= (Sy/1e6) ? "YIELD FAILURE" : "SAFE";
-        stat.style.color = d.max_vm >= (Sy/1e6) ? "#ef4444" : "#10b981";
-    } catch(e) { console.error(e); } finally { btn.innerText = "Analyze Failure Criteria"; }
-}
-document.getElementById('calculate-beam-btn').addEventListener('click', updateBeamApplication);
+    // ==========================================
+    // TAB NAVIGATION
+    // ==========================================
+    function switchTab(activeTab) {
+        TABS.forEach(tab => {
+            var panel = $('view-' + tab);
+            var btn = $('tab-' + tab);
+            if (panel) panel.setAttribute('aria-hidden', String(tab !== activeTab));
+            if (btn) btn.setAttribute('aria-selected', String(tab === activeTab));
+        });
+        window.dispatchEvent(new Event('resize'));
+        var updaters = { beam: updateBeamApplication, torsion: updateTorsionApplication, axial: updateAxialApplication, pressure: updatePressureApplication, thermal: updateThermalApplication };
+        if (updaters[activeTab]) updaters[activeTab]();
+    }
 
-// ==========================================
-// 3. SHAFT TORSION LABORATORY
-// ==========================================
-async function updateTorsionApplication() {
-    const p = {
-        T: parseFloat(document.getElementById('tor-t').value) * 1000,
-        L: parseFloat(document.getElementById('tor-l').value),
-        G: parseFloat(document.getElementById('tor-g').value) * 1e9,
-        R: parseFloat(document.getElementById('tor-r').value),
-        ri: parseFloat(document.getElementById('tor-ri').value)
-    };
-    try {
-        const res = await fetch('http://127.0.0.1:8000/api/analyze_torsion', { method: 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(p) });
-        const d = await res.json();
-        document.getElementById('tor-tau').innerText = d.tau_max.toFixed(2);
-        document.getElementById('tor-phi').innerText = d.phi_max_deg.toFixed(2);
-        
-        Plotly.react('plot-torsion-twist', [{x: d.x, y: d.phi, type: 'scatter', line: {color: '#8b5cf6'}}], { ...plotlyLayout, xaxis:{title:'Length (m)'}, yaxis:{title:'Angle (deg)'} }, plotlyConfig);
-        Plotly.react('plot-torsion-stress', [{x: d.r, y: d.tau, type: 'scatter', line: {color: '#ef4444'}}], { ...plotlyLayout, xaxis:{title:'Radius (m)'}, yaxis:{title:'Shear Stress (MPa)'} }, plotlyConfig);
-    } catch(e) { console.error(e); }
-}
-document.getElementById('calculate-torsion-btn').addEventListener('click', updateTorsionApplication);
+    function initTabs() {
+        var tablist = document.querySelector('nav[role="tablist"]');
+        if (!tablist) return;
+        tablist.addEventListener('click', e => {
+            var btn = e.target.closest('button[role="tab"]');
+            if (btn) switchTab(btn.id.replace('tab-', ''));
+        });
+        tablist.addEventListener('keydown', e => {
+            var currentBtn = e.target;
+            if (currentBtn.getAttribute('role') !== 'tab') return;
+            var btns = Array.from(tablist.querySelectorAll('button[role="tab"]'));
+            var idx = btns.indexOf(currentBtn);
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); btns[(idx + 1) % btns.length].focus(); btns[(idx + 1) % btns.length].click(); }
+            else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); btns[(idx - 1 + btns.length) % btns.length].focus(); btns[(idx - 1 + btns.length) % btns.length].click(); }
+        });
+    }
 
-// ==========================================
-// 4. AXIAL LOADING LABORATORY
-// ==========================================
-async function updateAxialApplication() {
-    const p = {
-        P: parseFloat(document.getElementById('ax-p').value) * 1000,
-        L: parseFloat(document.getElementById('ax-l').value),
-        A: parseFloat(document.getElementById('ax-a').value) / 10000, // cm2 to m2
-        E: parseFloat(document.getElementById('ax-e').value) * 1e9
-    };
-    try {
-        const res = await fetch('http://127.0.0.1:8000/api/analyze_axial', { method: 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(p) });
-        const d = await res.json();
-        document.getElementById('ax-sig').innerText = d.sigma_max.toFixed(2);
-        document.getElementById('ax-del').innerText = d.delta_max.toFixed(2);
-        
-        Plotly.react('plot-axial-stress', [{x: d.x, y: d.sigma, type: 'scatter', line: {color: '#f59e0b'}}], { ...plotlyLayout, xaxis:{title:'Length (m)'}, yaxis:{title:'Stress (MPa)'} }, plotlyConfig);
-        Plotly.react('plot-axial-def', [{x: d.x, y: d.delta, type: 'scatter', line: {color: '#10b981'}}], { ...plotlyLayout, xaxis:{title:'Length (m)'}, yaxis:{title:'Elongation (mm)'} }, plotlyConfig);
-    } catch(e) { console.error(e); }
-}
-document.getElementById('calculate-axial-btn').addEventListener('click', updateAxialApplication);
+    // ==========================================
+    // EXPORT & BASELINE
+    // ==========================================
+    function initExports() {
+        document.querySelectorAll('.btn-baseline').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const target = btn.getAttribute('data-target');
+                if (latestData[target]) {
+                    baselines[target] = JSON.parse(JSON.stringify(latestData[target]));
+                    btn.innerText = "Baseline Saved!";
+                    setTimeout(() => btn.innerText = "Save Baseline A/B", 2000);
+                    // Retrigger update to plot A/B
+                    switchTab(target); 
+                    if (target === 'point') updatePointApplication();
+                }
+            });
+        });
+        document.querySelectorAll('.btn-export').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const target = btn.getAttribute('data-target');
+                if (latestData[target]) {
+                    const csvContent = "data:text/csv;charset=utf-8," + encodeURIComponent(JSON.stringify(latestData[target], null, 2));
+                    const link = document.createElement("a");
+                    link.setAttribute("href", csvContent);
+                    link.setAttribute("download", `lab_report_${target}.json`);
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+            });
+        });
+    }
 
-// ==========================================
-// 5. PRESSURE VESSEL LABORATORY
-// ==========================================
-async function updatePressureApplication() {
-    const p = {
-        p: parseFloat(document.getElementById('pv-p').value) * 1e6,
-        r: parseFloat(document.getElementById('pv-r').value),
-        t: parseFloat(document.getElementById('pv-t').value) / 1000, // mm to m
-        type: document.getElementById('pv-type').value
-    };
-    try {
-        const res = await fetch('http://127.0.0.1:8000/api/analyze_pressure_vessel', { method: 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(p) });
-        const d = await res.json();
-        document.getElementById('pv-s1').innerText = d.s1.toFixed(2);
-        document.getElementById('pv-s2').innerText = d.s2.toFixed(2);
-        document.getElementById('pv-tmax').innerText = d.tmax.toFixed(2);
-        
-        const m = d.mohr;
-        const mohrLayout = { ...plotlyLayout, xaxis: { title: 'Normal Stress σ' }, yaxis: { title: 'Shear Stress τ', scaleanchor: 'x', scaleratio: 1 } };
-        Plotly.react('plot-pv-mohr', [
-            generateCircleData(m.c13, m.r13, 'rgba(59, 130, 246, 0.4)', 'σ1 - σ3'),
-            generateCircleData(m.c12, m.r12, 'rgba(30, 41, 59, 1)', 'σ1 - σ2'),
-            generateCircleData(m.c23, m.r23, 'rgba(30, 41, 59, 1)', 'σ2 - σ3')
-        ], mohrLayout, plotlyConfig);
-    } catch(e) { console.error(e); }
-}
-document.getElementById('calculate-pv-btn').addEventListener('click', updatePressureApplication);
+    // ==========================================
+    // 1. POINT STRESS LABORATORY
+    // ==========================================
+    var scene, camera, renderer, cube, arrowsGroup, axesGroup;
+    var isDragging = false;
+    var previousMousePosition = { x: 0, y: 0 };
 
-// ==========================================
-// 6. THERMAL STRESS LABORATORY
-// ==========================================
-async function updateThermalApplication() {
-    const p = {
-        dt: parseFloat(document.getElementById('th-dt').value),
-        L: parseFloat(document.getElementById('th-l').value),
-        alpha: parseFloat(document.getElementById('th-alpha').value) * 1e-6,
-        E: parseFloat(document.getElementById('th-e').value) * 1e9,
-        constraint: document.getElementById('th-constraint').value
-    };
-    try {
-        const res = await fetch('http://127.0.0.1:8000/api/analyze_thermal', { method: 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(p) });
-        const d = await res.json();
-        document.getElementById('th-sig').innerText = d.sigma.toFixed(2);
-        document.getElementById('th-del').innerText = d.delta.toFixed(2);
-        
-        Plotly.react('plot-th-def', [{x: d.x, y: d.deflection, type: 'scatter', fill:'tozeroy', line: {color: '#ec4899'}}], { ...plotlyLayout, xaxis:{title:'Length (m)'}, yaxis:{title:'Deformation (mm)'} }, plotlyConfig);
-    } catch(e) { console.error(e); }
-}
-document.getElementById('calculate-thermal-btn').addEventListener('click', updateThermalApplication);
+    function initThreeJS() {
+        var container = $('three-container');
+        if(!container) return;
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
+        camera.position.set(2, 2, 5);
+        camera.lookAt(0, 0, 0);
 
+        renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
 
-// Handlers for dynamic window resizing of all Plotly divs
-window.addEventListener('resize', () => {
-    const divs = ['plotly-container', 'plot-sfd', 'plot-bmd', 'plot-def', 'heatmap-container', 'plot-torsion-twist', 'plot-torsion-stress', 'plot-axial-stress', 'plot-axial-def', 'plot-pv-mohr', 'plot-th-def'];
-    divs.forEach(id => {
-        const el = document.getElementById(id);
-        if(el && el.getBoundingClientRect().width > 0) Plotly.Plots.resize(el);
+        scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+        var dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        dirLight.position.set(10, 20, 10);
+        scene.add(dirLight);
+        scene.add(new THREE.AxesHelper(1.5));
+
+        var geo = new THREE.BoxGeometry(1.5, 1.5, 1.5);
+        var mats = [
+            new THREE.MeshLambertMaterial({ color: 0x00e5a0, transparent: true, opacity: 0.35 }),
+            new THREE.MeshLambertMaterial({ color: 0x00996b, transparent: true, opacity: 0.35 }),
+            new THREE.MeshLambertMaterial({ color: 0x6366f1, transparent: true, opacity: 0.35 }),
+            new THREE.MeshLambertMaterial({ color: 0x4338ca, transparent: true, opacity: 0.35 }),
+            new THREE.MeshLambertMaterial({ color: 0x8892a4, transparent: true, opacity: 0.35 }),
+            new THREE.MeshLambertMaterial({ color: 0x5e6b80, transparent: true, opacity: 0.35 })
+        ];
+        cube = new THREE.Mesh(geo, mats);
+        cube.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({ color: 0xffffff })));
+        arrowsGroup = new THREE.Group();
+        cube.add(arrowsGroup);
+        axesGroup = new THREE.Group();
+        cube.add(axesGroup);
+        scene.add(cube);
+
+        renderer.domElement.addEventListener('mousedown', () => isDragging = true);
+        renderer.domElement.addEventListener('mouseup', () => isDragging = false);
+        renderer.domElement.addEventListener('mouseleave', () => isDragging = false);
+        renderer.domElement.addEventListener('mousemove', e => {
+            if (isDragging) {
+                var q = new THREE.Quaternion().setFromEuler(new THREE.Euler(Math.PI/180*(e.offsetY-previousMousePosition.y)*0.5, Math.PI/180*(e.offsetX-previousMousePosition.x)*0.5, 0, 'XYZ'));
+                cube.quaternion.multiplyQuaternions(q, cube.quaternion);
+            }
+            previousMousePosition = { x: e.offsetX, y: e.offsetY };
+        });
+
+        window.addEventListener('resize', () => {
+            if (container.clientWidth === 0) return;
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        });
+        requestAnimationFrame(function animate() { requestAnimationFrame(animate); renderer.render(scene, camera); });
+    }
+
+    function initPointSymmetrySync() {
+        if(!$('s12')) return;
+        $('s12').addEventListener('input', function () { $('s21').value = this.value; });
+        $('s13').addEventListener('input', function () { $('s31').value = this.value; });
+        $('s23').addEventListener('input', function () { $('s32').value = this.value; });
+    }
+
+    async function updatePointApplication() {
+        $('s21').value = $('s12').value; $('s31').value = $('s13').value; $('s32').value = $('s23').value;
+
+        var payload = {
+            matrix: [[val('s11'), val('s12'), val('s13')], [val('s21'), val('s22'), val('s23')], [val('s31'), val('s32'), val('s33')]],
+            Sy: val('pt-sy'), E: val('pt-e'), nu: val('pt-nu'), n_vec: [val('pt-nx'), val('pt-ny'), val('pt-nz')]
+        };
+        var btn = $('calculate-btn');
+        setButtonLoading(btn, true, 'Calculate via Python Math Engine');
+
+        try {
+            var data = await apiPost('/api/analyze_tensor', payload, 'point');
+
+            setText('p-s1', data.principal_stresses[0].toFixed(2));
+            setText('p-s2', data.principal_stresses[1].toFixed(2));
+            setText('p-s3', data.principal_stresses[2].toFixed(2));
+            setText('t-max', data.mohr.tMax.toFixed(2));
+            
+            setText('pt-vm', data.failure.von_mises.toFixed(2));
+            setText('pt-fsvm', data.failure.fs_vm === null ? '∞' : data.failure.fs_vm.toFixed(2));
+            setText('pt-tresca', data.failure.tresca.toFixed(2));
+            setText('pt-fstresca', data.failure.fs_tresca === null ? '∞' : data.failure.fs_tresca.toFixed(2));
+            
+            setText('pt-dil', data.strain.dilatation.toExponential(3));
+            setText('pt-tx', data.traction.T[0].toFixed(2));
+            setText('pt-ty', data.traction.T[1].toFixed(2));
+            setText('pt-tz', data.traction.T[2].toFixed(2));
+            setText('pt-sn', data.traction.sigma_n.toFixed(2));
+            setText('pt-tn', data.traction.tau_n.toFixed(2));
+
+            var mohrLayout = Object.assign({}, PLOTLY_LAYOUT, { xaxis: Object.assign({}, PLOTLY_LAYOUT.xaxis, { title: 'Normal Stress σ (MPa)' }), yaxis: Object.assign({}, PLOTLY_LAYOUT.yaxis, { title: 'Shear Stress τ (MPa)', scaleanchor: 'x', scaleratio: 1 }) });
+            let traces = [
+                generateCircleData(data.mohr.c13, data.mohr.r13, 'rgba(0, 229, 160, 0.25)', 'σ₁ - σ₃'),
+                generateCircleData(data.mohr.c12, data.mohr.r12, 'rgba(99, 102, 241, 0.5)', 'σ₁ - σ₂'),
+                generateCircleData(data.mohr.c23, data.mohr.r23, 'rgba(0, 229, 160, 0.5)', 'σ₂ - σ₃')
+            ];
+            
+            if (baselines['point']) {
+                let mB = baselines['point'].mohr;
+                traces.push(generateCircleData(mB.c13, mB.r13, 'rgba(0, 229, 160, 0.8)', 'Base σ₁ - σ₃', true));
+            }
+            Plotly.react('plotly-container', traces, mohrLayout, PLOTLY_CONFIG);
+
+            while (arrowsGroup.children.length > 0) arrowsGroup.remove(arrowsGroup.children[0]);
+            var addArrow = function (dx, dy, dz, ox, oy, oz, col) {
+                if (Math.abs(dx) + Math.abs(dy) + Math.abs(dz) > 0) arrowsGroup.add(new THREE.ArrowHelper(new THREE.Vector3(dx, dy, dz).normalize(), new THREE.Vector3(ox, oy, oz), 0.5, col, 0.2, 0.1));
+            };
+            if (payload.matrix[0][0] !== 0) addArrow(payload.matrix[0][0] > 0 ? 1 : -1, 0, 0, 0.75, 0, 0, 0xff4d6a);
+            if (payload.matrix[1][1] !== 0) addArrow(0, payload.matrix[1][1] > 0 ? 1 : -1, 0, 0, 0.75, 0, 0x00e5a0);
+            if (payload.matrix[2][2] !== 0) addArrow(0, 0, payload.matrix[2][2] > 0 ? 1 : -1, 0, 0, 0.75, 0x6366f1);
+
+            while (axesGroup.children.length > 0) axesGroup.remove(axesGroup.children[0]);
+            var axisColors = [0xff4d6a, 0x00e5a0, 0x6366f1];
+            for (var i = 0; i < 3; i++) {
+                var p = new THREE.Vector3(data.eigenvectors[0][i], data.eigenvectors[1][i], data.eigenvectors[2][i]).normalize();
+                axesGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([p.clone().multiplyScalar(1.5), p.clone().multiplyScalar(-1.5)]), new THREE.LineBasicMaterial({ color: axisColors[i], linewidth: 3 })));
+            }
+        } catch (e) { console.error(e); showError('point'); } finally { setButtonLoading(btn, false, 'Calculate via Python Math Engine'); }
+    }
+
+    // ==========================================
+    // 2. BEAM FAILURE LABORATORY
+    // ==========================================
+    async function updateBeamApplication() {
+        var params = { E: val('beam-e') * 1e9, L: val('beam-l'), b: val('beam-w'), h: val('beam-h'), load_mag: val('beam-p') * 1000, support_type: $('beam-support').value, load_type: $('beam-load-type').value, Sy: val('beam-sy') * 1e6 };
+        setText('hint-sy', val('beam-sy'));
+        var btn = $('calculate-beam-btn'); setButtonLoading(btn, true, 'Analyze Failure Criteria');
+        try {
+            var d = await apiPost('/api/analyze_beam', params, 'beam');
+            let traces_sfd = [{ x: d.x, y: d.V, type: 'scatter', name: 'Shear', line: { color: '#ff4d6a', width: 2 } }];
+            let traces_bmd = [{ x: d.x, y: d.M, type: 'scatter', name: 'Moment', line: { color: '#6366f1', width: 2 } }];
+            let traces_def = [{ x: d.x, y: d.deflection, type: 'scatter', name: 'Deflection', line: { color: '#00e5a0', width: 2 } }];
+            
+            if (baselines['beam']) {
+                let bd = baselines['beam'];
+                traces_sfd.push({ x: bd.x, y: bd.V, type: 'scatter', name: 'Base V', line: { color: '#ff4d6a', width: 2, dash: 'dot' } });
+                traces_bmd.push({ x: bd.x, y: bd.M, type: 'scatter', name: 'Base M', line: { color: '#6366f1', width: 2, dash: 'dot' } });
+                traces_def.push({ x: bd.x, y: bd.deflection, type: 'scatter', name: 'Base δ', line: { color: '#00e5a0', width: 2, dash: 'dot' } });
+            }
+
+            Plotly.react('plot-sfd', traces_sfd, Object.assign({}, PLOTLY_LAYOUT, { yaxis: Object.assign({}, PLOTLY_LAYOUT.yaxis, { title: 'Shear (kN)' }) }), PLOTLY_CONFIG);
+            Plotly.react('plot-bmd', traces_bmd, Object.assign({}, PLOTLY_LAYOUT, { yaxis: Object.assign({}, PLOTLY_LAYOUT.yaxis, { title: 'Moment (kNm)' }) }), PLOTLY_CONFIG);
+            Plotly.react('plot-def', traces_def, Object.assign({}, PLOTLY_LAYOUT, { yaxis: Object.assign({}, PLOTLY_LAYOUT.yaxis, { title: 'Deflection (mm)' }), xaxis: Object.assign({}, PLOTLY_LAYOUT.xaxis, { title: 'Length X (m)' }) }), PLOTLY_CONFIG);
+            Plotly.react('heatmap-container', [{ z: d.heatmap, x: d.x, y: d.y_cross, type: 'heatmap', colorscale: 'Portland' }], Object.assign({}, PLOTLY_LAYOUT, { xaxis: Object.assign({}, PLOTLY_LAYOUT.xaxis, { title: 'Length X (m)' }), yaxis: Object.assign({}, PLOTLY_LAYOUT.yaxis, { title: 'Height Y (m)' }) }), PLOTLY_CONFIG);
+
+            setText('max-vm-stress', d.max_vm.toFixed(2));
+            setText('fs-vm-beam', d.fs_vm.toFixed(2));
+            setText('max-tresca-stress', d.max_tresca.toFixed(2));
+            setText('fs-tresca-beam', d.fs_tresca.toFixed(2));
+            
+            var isFailed = d.fs_vm <= 1.0 || d.fs_tresca <= 1.0;
+            $('failure-flag').innerText = isFailed ? 'YIELD FAILURE' : 'SAFE';
+            $('failure-flag').className = isFailed ? 'status-failure' : 'status-safe';
+        } catch (e) { console.error(e); showError('beam'); } finally { setButtonLoading(btn, false, 'Analyze Failure Criteria'); }
+    }
+
+    // ==========================================
+    // 3. SHAFT TORSION LABORATORY
+    // ==========================================
+    async function updateTorsionApplication() {
+        var params = { T: val('tor-t') * 1000, L: val('tor-l'), G: val('tor-g') * 1e9, R: val('tor-r'), ri: val('tor-ri') };
+        var btn = $('calculate-torsion-btn'); setButtonLoading(btn, true, 'Analyze Torsion in Python');
+        try {
+            var d = await apiPost('/api/analyze_torsion', params, 'torsion');
+            setText('tor-tau', d.tau_max.toFixed(2)); setText('tor-phi', d.phi_max_deg.toFixed(2));
+            
+            let traces_phi = [{ x: d.x, y: d.phi, type: 'scatter', line: { color: '#6366f1', width: 2 } }];
+            let traces_tau = [{ x: d.r, y: d.tau, type: 'scatter', line: { color: '#ff4d6a', width: 2 } }];
+            
+            if (baselines['torsion']) {
+                let bd = baselines['torsion'];
+                traces_phi.push({ x: bd.x, y: bd.phi, type: 'scatter', line: { color: '#6366f1', width: 2, dash:'dot' } });
+                traces_tau.push({ x: bd.r, y: bd.tau, type: 'scatter', line: { color: '#ff4d6a', width: 2, dash:'dot' } });
+            }
+
+            Plotly.react('plot-torsion-twist', traces_phi, Object.assign({}, PLOTLY_LAYOUT, { xaxis: Object.assign({}, PLOTLY_LAYOUT.xaxis, { title: 'Length (m)' }), yaxis: Object.assign({}, PLOTLY_LAYOUT.yaxis, { title: 'Angle (deg)' }) }), PLOTLY_CONFIG);
+            Plotly.react('plot-torsion-stress', traces_tau, Object.assign({}, PLOTLY_LAYOUT, { xaxis: Object.assign({}, PLOTLY_LAYOUT.xaxis, { title: 'Radius (m)' }), yaxis: Object.assign({}, PLOTLY_LAYOUT.yaxis, { title: 'Shear Stress (MPa)' }) }), PLOTLY_CONFIG);
+        } catch (e) { console.error(e); showError('torsion'); } finally { setButtonLoading(btn, false, 'Analyze Torsion in Python'); }
+    }
+
+    // ==========================================
+    // 4. AXIAL LOADING LABORATORY
+    // ==========================================
+    async function updateAxialApplication() {
+        var params = { P: val('ax-p') * 1000, L: val('ax-l'), A: val('ax-a') / 10000, E: val('ax-e') * 1e9 };
+        var btn = $('calculate-axial-btn'); setButtonLoading(btn, true, 'Analyze Axial Stress in Python');
+        try {
+            var d = await apiPost('/api/analyze_axial', params, 'axial');
+            setText('ax-sig', d.sigma_max.toFixed(2)); setText('ax-del', d.delta_max.toFixed(2));
+            
+            let traces_sig = [{ x: d.x, y: d.sigma, type: 'scatter', line: { color: '#6366f1', width: 2 } }];
+            let traces_del = [{ x: d.x, y: d.delta, type: 'scatter', line: { color: '#00e5a0', width: 2 } }];
+            
+            if (baselines['axial']) {
+                let bd = baselines['axial'];
+                traces_sig.push({ x: bd.x, y: bd.sigma, type: 'scatter', line: { color: '#6366f1', width: 2, dash:'dot' } });
+                traces_del.push({ x: bd.x, y: bd.delta, type: 'scatter', line: { color: '#00e5a0', width: 2, dash:'dot' } });
+            }
+
+            Plotly.react('plot-axial-stress', traces_sig, Object.assign({}, PLOTLY_LAYOUT, { xaxis: Object.assign({}, PLOTLY_LAYOUT.xaxis, { title: 'Length (m)' }), yaxis: Object.assign({}, PLOTLY_LAYOUT.yaxis, { title: 'Stress (MPa)' }) }), PLOTLY_CONFIG);
+            Plotly.react('plot-axial-def', traces_del, Object.assign({}, PLOTLY_LAYOUT, { xaxis: Object.assign({}, PLOTLY_LAYOUT.xaxis, { title: 'Length (m)' }), yaxis: Object.assign({}, PLOTLY_LAYOUT.yaxis, { title: 'Elongation (mm)' }) }), PLOTLY_CONFIG);
+        } catch (e) { console.error(e); showError('axial'); } finally { setButtonLoading(btn, false, 'Analyze Axial Stress in Python'); }
+    }
+
+    // ==========================================
+    // 5. PRESSURE VESSEL LABORATORY
+    // ==========================================
+    async function updatePressureApplication() {
+        var params = { p: val('pv-p') * 1e6, r: val('pv-r'), t: val('pv-t') / 1000, type: $('pv-type').value, is_thick: $('pv-thick').value === "true" };
+        var btn = $('calculate-pv-btn'); setButtonLoading(btn, true, 'Analyze Vessel in Python');
+        try {
+            var d = await apiPost('/api/analyze_pressure_vessel', params, 'pressure');
+            setText('pv-s1', d.s1.toFixed(2)); setText('pv-s2', d.s2.toFixed(2)); setText('pv-tmax', d.tmax.toFixed(2));
+
+            let traces_dist = [];
+            if (d.is_thick) {
+                traces_dist = [
+                    { x: d.r_vals, y: d.sig_theta, type: 'scatter', name: 'Hoop σ_θ', line: { color: '#00e5a0', width: 2 } },
+                    { x: d.r_vals, y: d.sig_r, type: 'scatter', name: 'Radial σ_r', line: { color: '#ff4d6a', width: 2 } },
+                    { x: d.r_vals, y: d.sig_z, type: 'scatter', name: 'Long. σ_z', line: { color: '#6366f1', width: 2 } }
+                ];
+                if (baselines['pressure'] && baselines['pressure'].is_thick) {
+                    let bd = baselines['pressure'];
+                    traces_dist.push({ x: bd.r_vals, y: bd.sig_theta, type: 'scatter', name: 'Base σ_θ', line: { color: '#00e5a0', width: 2, dash:'dot' } });
+                }
+            } else {
+                traces_dist = [{ x: [params.r, params.r + params.t], y: [d.s1, d.s1], type: 'scatter', name: 'Hoop Approx', line: { color: '#00e5a0', width: 2 } }];
+            }
+            Plotly.react('plot-pv-dist', traces_dist, Object.assign({}, PLOTLY_LAYOUT, { xaxis: Object.assign({}, PLOTLY_LAYOUT.xaxis, { title: 'Radius (m)' }), yaxis: Object.assign({}, PLOTLY_LAYOUT.yaxis, { title: 'Stress (MPa)' }) }), PLOTLY_CONFIG);
+
+            var m = d.mohr;
+            var mohrLayout = Object.assign({}, PLOTLY_LAYOUT, { xaxis: Object.assign({}, PLOTLY_LAYOUT.xaxis, { title: 'Normal Stress σ (MPa)' }), yaxis: Object.assign({}, PLOTLY_LAYOUT.yaxis, { title: 'Shear Stress τ (MPa)', scaleanchor: 'x', scaleratio: 1 }) });
+            let traces_mohr = [
+                generateCircleData(m.c13, m.r13, 'rgba(0, 229, 160, 0.25)', 'σ₁ - σ₃'),
+                generateCircleData(m.c12, m.r12, 'rgba(99, 102, 241, 0.5)', 'σ₁ - σ₂'),
+                generateCircleData(m.c23, m.r23, 'rgba(0, 229, 160, 0.5)', 'σ₂ - σ₃')
+            ];
+            Plotly.react('plot-pv-mohr', traces_mohr, mohrLayout, PLOTLY_CONFIG);
+        } catch (e) { console.error(e); showError('pressure'); } finally { setButtonLoading(btn, false, 'Analyze Vessel in Python'); }
+    }
+
+    // ==========================================
+    // 6. THERMAL STRESS LABORATORY
+    // ==========================================
+    async function updateThermalApplication() {
+        var params = { dt: val('th-dt'), L: val('th-l'), alpha: val('th-alpha') * 1e-6, E: val('th-e') * 1e9, constraint: $('th-constraint').value };
+        var btn = $('calculate-thermal-btn'); setButtonLoading(btn, true, 'Analyze Thermal State in Python');
+        try {
+            var d = await apiPost('/api/analyze_thermal', params, 'thermal');
+            setText('th-sig', d.sigma.toFixed(2)); setText('th-del', d.delta.toFixed(2));
+            
+            let traces_def = [{ x: d.x, y: d.deflection, type: 'scatter', fill: 'tozeroy', line: { color: '#ff4d6a', width: 2 }, fillcolor: 'rgba(255, 77, 106, 0.15)' }];
+            if (baselines['thermal']) {
+                let bd = baselines['thermal'];
+                traces_def.push({ x: bd.x, y: bd.deflection, type: 'scatter', line: { color: '#ff4d6a', width: 2, dash:'dot' } });
+            }
+
+            Plotly.react('plot-th-def', traces_def, Object.assign({}, PLOTLY_LAYOUT, { xaxis: Object.assign({}, PLOTLY_LAYOUT.xaxis, { title: 'Length (m)' }), yaxis: Object.assign({}, PLOTLY_LAYOUT.yaxis, { title: 'Deformation (mm)' }) }), PLOTLY_CONFIG);
+        } catch (e) { console.error(e); showError('thermal'); } finally { setButtonLoading(btn, false, 'Analyze Thermal State in Python'); }
+    }
+
+    function initResizeHandler() {
+        var plotDivs = ['plotly-container', 'plot-sfd', 'plot-bmd', 'plot-def', 'heatmap-container', 'plot-torsion-twist', 'plot-torsion-stress', 'plot-axial-stress', 'plot-axial-def', 'plot-pv-mohr', 'plot-pv-dist', 'plot-th-def'];
+        window.addEventListener('resize', () => {
+            plotDivs.forEach(id => { var el = $(id); if (el && el.getBoundingClientRect().width > 0) Plotly.Plots.resize(el); });
+        });
+    }
+
+    function initButtons() {
+        $('calculate-btn').addEventListener('click', updatePointApplication);
+        $('calculate-beam-btn').addEventListener('click', updateBeamApplication);
+        $('calculate-torsion-btn').addEventListener('click', updateTorsionApplication);
+        $('calculate-axial-btn').addEventListener('click', updateAxialApplication);
+        $('calculate-pv-btn').addEventListener('click', updatePressureApplication);
+        $('calculate-thermal-btn').addEventListener('click', updateThermalApplication);
+    }
+
+    window.addEventListener('load', function () {
+        initTabs();
+        initButtons();
+        initExports();
+        initPointSymmetrySync();
+        initResizeHandler();
+        initThreeJS();
+        updatePointApplication();
     });
-});
 
-window.onload = () => {
-    initThreeJS();
-    updateApplication();
-};
+})();

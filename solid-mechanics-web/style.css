@@ -1,267 +1,406 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+/*
+ * DESIGN DIRECTION: Industrial Precision
+ * Tone: Industrial / Utilitarian + Editorial
+ * Differentiation Anchor: The tensor matrix grid with its engineering-graph-paper
+ * texture on visualization panels — unmistakable as a mechanics instrument.
+ *
+ * DFII Score: Aesthetic Impact 4 + Context Fit 5 + Feasibility 5 + Performance 5 − Consistency Risk 2 = 17
+ *
+ * Typography: Space Grotesk (display, geometric/technical) + Inter (body, neutral clarity)
+ *             JetBrains Mono (numeric readouts, monospaced precision)
+ * Color:      Dominant deep navy → Accent electric teal #00e5a0 → Neutral cool slate
+ * Motion:     One entrance fade. Purposeful hover borders. No decorative animation.
+ * Texture:    CSS noise grain overlay. SVG dot-grid on visualization panes.
+ */
 
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* =============================================
+   Design Tokens
+   ============================================= */
 :root {
-    --bg-base: #0b0f19;
-    --bg-surface: #151b2b;
-    --bg-panel: rgba(26, 32, 44, 0.85);
-    
-    --border-light: rgba(255, 255, 255, 0.08);
-    --border-focus: rgba(96, 165, 250, 0.5);
-    
-    --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
-    --text-accent: #a78bfa;
-    
-    --accent-blue: #3b82f6;
-    --accent-blue-hover: #2563eb;
-    --accent-green: #10b981;
-    --accent-red: #ef4444;
+    /* Color Story: dominant navy, accent teal, neutral slate */
+    --color-base: #04070d;
+    --color-surface: #0a0f1a;
+    --color-panel: #0e1525;
+    --color-panel-border: rgba(255, 255, 255, 0.05);
+    --color-panel-hover: rgba(0, 229, 160, 0.08);
+
+    --color-accent: #00e5a0;
+    --color-accent-dim: rgba(0, 229, 160, 0.15);
+    --color-accent-glow: rgba(0, 229, 160, 0.25);
+    --color-secondary: #6366f1;
+
+    --color-text: #d8dee9;
+    --color-text-muted: #5e6b80;
+    --color-text-label: #8892a4;
+    --color-text-heading: #eceff4;
+
+    --color-danger: #ff4d6a;
+    --color-safe: #00e5a0;
+
+    /* Type scale */
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-body: 'Inter', -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+    /* Spacing rhythm: 4px base */
+    --sp-1: 0.25rem;
+    --sp-2: 0.5rem;
+    --sp-3: 0.75rem;
+    --sp-4: 1rem;
+    --sp-5: 1.25rem;
+    --sp-6: 1.5rem;
+    --sp-8: 2rem;
+    --sp-10: 2.5rem;
+    --sp-12: 3rem;
+
+    --radius: 8px;
+    --radius-lg: 14px;
 }
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+/* =============================================
+   Reset
+   ============================================= */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-    font-family: 'Inter', sans-serif;
-    background-color: var(--bg-base);
-    background-image: 
-        radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.15) 0px, transparent 50%);
-    background-attachment: fixed;
-    color: var(--text-primary);
+    font-family: var(--font-body);
+    background: var(--color-base);
+    color: var(--color-text);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    line-height: 1.55;
 }
 
-/* --- Header & Navigation --- */
+/* --- Noise grain overlay: subtle film texture --- */
+body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 256px 256px;
+}
+
+/* =============================================
+   Header
+   ============================================= */
 header {
-    text-align: center;
-    padding: 2rem 1rem 1.5rem;
-    border-bottom: 1px solid var(--border-light);
-    background: rgba(11, 15, 25, 0.6);
-    backdrop-filter: blur(12px);
+    padding: var(--sp-8) var(--sp-6) var(--sp-6);
+    border-bottom: 1px solid var(--color-panel-border);
+    background: rgba(4, 7, 13, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     position: sticky;
     top: 0;
-    z-index: 50;
+    z-index: 100;
 }
 
 header h1 {
-    font-size: 2.25rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.4rem, 3.5vw, 2.2rem);
     font-weight: 700;
-    letter-spacing: -0.02em;
-    background: linear-gradient(135deg, #60a5fa 0%, #c084fc 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 1.5rem;
+    letter-spacing: -0.04em;
+    color: var(--color-text-heading);
+    text-align: center;
+    margin-bottom: var(--sp-6);
 }
 
-.tabs {
+/* Teal accent bar under the title — the "signature" mark */
+header h1::after {
+    content: '';
+    display: block;
+    width: 48px;
+    height: 3px;
+    background: var(--color-accent);
+    margin: var(--sp-3) auto 0;
+    border-radius: 2px;
+}
+
+/* =============================================
+   Tab Navigation
+   ============================================= */
+nav[role="tablist"] {
     display: flex;
     justify-content: center;
-    gap: 0.5rem;
+    gap: 2px;
     flex-wrap: wrap;
-    max-width: 1000px;
+    max-width: 960px;
     margin: 0 auto;
-    background: rgba(255,255,255,0.03);
-    padding: 0.5rem;
-    border-radius: 12px;
-    border: 1px solid var(--border-light);
 }
 
-.tab-btn {
-    background: transparent;
-    border: none;
-    color: var(--text-secondary);
-    padding: 0.6rem 1.25rem;
-    border-radius: 8px;
+button[role="tab"] {
+    font-family: var(--font-display);
+    font-size: 0.82rem;
     font-weight: 500;
-    font-size: 0.95rem;
+    letter-spacing: 0.01em;
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--color-text-muted);
+    padding: var(--sp-2) var(--sp-4);
+    border-radius: var(--radius);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: color 200ms, border-color 200ms, background 200ms;
+    white-space: nowrap;
 }
 
-.tab-btn:hover {
-    color: var(--text-primary);
-    background: rgba(255,255,255,0.05);
+button[role="tab"]:hover {
+    color: var(--color-text);
+    border-color: var(--color-panel-border);
 }
 
-.tab-btn.active {
-    background: var(--accent-blue);
-    color: #ffffff;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+button[role="tab"]:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
 }
 
-/* --- Main Layout --- */
-.dashboard {
+button[role="tab"][aria-selected="true"] {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+    background: var(--color-accent-dim);
+}
+
+/* =============================================
+   Dashboard Layout
+   ============================================= */
+main[role="tabpanel"] {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
-    padding: 2rem;
+    gap: var(--sp-6);
+    padding: var(--sp-8) var(--sp-6);
     flex-grow: 1;
-    max-width: 1600px;
+    max-width: 1520px;
     margin: 0 auto;
     width: 100%;
+}
+
+main[role="tabpanel"][aria-hidden="true"] {
+    display: none;
+}
+
+/* Entrance: single clean fade (sparse, high-impact per skill §4 Motion) */
+main[role="tabpanel"][aria-hidden="false"] {
+    animation: panelReveal 0.5s ease-out both;
+}
+
+@keyframes panelReveal {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
 .top-section {
-    display: flex;
-    flex-direction: column;
     width: 100%;
 }
 
+/* Asymmetric grid: intentional spatial composition per skill §4 */
 .bottom-section {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: 3fr 2fr;
+    gap: var(--sp-6);
     width: 100%;
 }
 
-/* --- Panels --- */
+/* =============================================
+   Panel Cards
+   ============================================= */
 .panel {
-    background: var(--bg-panel);
-    backdrop-filter: blur(16px);
-    border: 1px solid var(--border-light);
-    border-radius: 16px;
-    padding: 1.75rem;
+    background: var(--color-panel);
+    border: 1px solid var(--color-panel-border);
+    border-radius: var(--radius-lg);
+    padding: var(--sp-8);
     display: flex;
     flex-direction: column;
-    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
-    transition: border-color 0.3s;
+    transition: border-color 300ms;
 }
 
 .panel:hover {
-    border-color: rgba(255, 255, 255, 0.15);
+    border-color: rgba(0, 229, 160, 0.15);
 }
 
 .panel h2 {
-    font-size: 1.15rem;
+    font-family: var(--font-display);
+    font-size: 0.95rem;
     font-weight: 600;
-    margin-bottom: 1.5rem;
-    border-bottom: 1px solid var(--border-light);
-    padding-bottom: 0.75rem;
-    color: var(--text-primary);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--color-text-label);
+    margin-bottom: var(--sp-6);
+    padding-bottom: var(--sp-3);
+    border-bottom: 1px solid var(--color-panel-border);
 }
 
 .panel h3 {
-    font-size: 0.95rem;
-    color: var(--text-accent);
-    margin: 1.25rem 0 0.75rem;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    color: var(--color-accent);
+    margin: var(--sp-5) 0 var(--sp-2);
 }
 
-/* --- Inputs & Controls --- */
+/* =============================================
+   Form Controls
+   ============================================= */
 .input-flex-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 2rem;
+    gap: var(--sp-8);
 }
 
 .input-column {
     flex: 1;
-    min-width: 250px;
+    min-width: 240px;
 }
 
 .input-group {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.85rem;
+    margin-bottom: var(--sp-3);
 }
 
 .input-group label {
-    font-size: 0.9rem;
-    color: var(--text-secondary);
+    font-size: 0.85rem;
+    color: var(--color-text-label);
     flex: 1;
 }
 
-input[type="number"], .select-input {
-    width: 45%;
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid var(--border-light);
-    color: var(--text-primary);
-    padding: 0.6rem 0.75rem;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    font-family: inherit;
-    transition: all 0.2s;
+input[type="number"],
+.select-input {
+    width: 44%;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    font-weight: 400;
+    color: var(--color-text);
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    padding: var(--sp-2) var(--sp-3);
+    border-radius: var(--radius);
+    transition: border-color 200ms, box-shadow 200ms;
 }
 
-input[type="number"]:focus, .select-input:focus {
+input[type="number"]:focus,
+.select-input:focus {
     outline: none;
-    border-color: var(--border-focus);
-    background: rgba(0, 0, 0, 0.4);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-accent-dim);
 }
 
 input[readonly] {
-    color: #475569;
-    background: rgba(0, 0, 0, 0.1);
+    color: var(--color-text-muted);
+    background: rgba(0, 0, 0, 0.15);
     cursor: not-allowed;
     border-color: transparent;
 }
 
 .select-input option {
-    background: var(--bg-surface);
-    color: var(--text-primary);
+    background: var(--color-surface);
+    color: var(--color-text);
 }
 
+/* --- Tensor Matrix Grid ---
+   Differentiation anchor: bordered cells with monospace values,
+   resembling tensor notation from the course PDFs */
 .matrix-input {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
+    gap: 1px;
+    margin-bottom: var(--sp-6);
+    background: rgba(0, 229, 160, 0.08);
+    border: 1px solid rgba(0, 229, 160, 0.15);
+    border-radius: var(--radius);
+    overflow: hidden;
 }
 
-button.primary-btn {
-    background: var(--accent-blue);
-    color: white;
-    border: none;
-    padding: 1rem;
-    border-radius: 10px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
+.matrix-input input[type="number"] {
     width: 100%;
-    margin-top: 1.5rem;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+    text-align: center;
+    font-weight: 500;
+    border-radius: 0;
+    border: none;
+    background: var(--color-panel);
+    padding: var(--sp-3) var(--sp-2);
 }
 
-button.primary-btn:hover {
-    background: var(--accent-blue-hover);
-    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3);
-    transform: translateY(-1px);
+.matrix-input input[type="number"]:focus {
+    background: rgba(0, 229, 160, 0.06);
+    box-shadow: none;
+    position: relative;
+    z-index: 1;
 }
 
-button.primary-btn:active {
-    transform: translateY(1px);
+/* --- Primary Button --- */
+.primary-btn {
+    font-family: var(--font-display);
+    font-size: 0.88rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--color-base);
+    background: var(--color-accent);
+    border: none;
+    padding: var(--sp-3) var(--sp-6);
+    border-radius: var(--radius);
+    cursor: pointer;
+    width: 100%;
+    margin-top: var(--sp-6);
+    transition: background 200ms, transform 100ms;
 }
 
-/* --- Results --- */
+.primary-btn:hover {
+    background: #00cc8e;
+}
+
+.primary-btn:active {
+    transform: scale(0.985);
+}
+
+.primary-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.primary-btn:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+}
+
+/* =============================================
+   Results Readout
+   ============================================= */
 .results {
-    margin-top: 1.5rem;
+    margin-top: var(--sp-6);
     background: rgba(0, 0, 0, 0.25);
-    border: 1px solid var(--border-light);
-    border-radius: 10px;
-    padding: 1.25rem;
+    border-left: 3px solid var(--color-accent);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: var(--sp-5) var(--sp-6);
 }
 
 .results h3 {
     margin-top: 0;
 }
 
+.results h3 + h3 {
+    margin-top: var(--sp-5);
+}
+
 .results p {
-    font-size: 1.05rem;
-    font-weight: 500;
+    font-size: 0.92rem;
     display: flex;
     justify-content: space-between;
-    margin-bottom: 0.5rem;
-    color: var(--text-secondary);
+    margin-bottom: var(--sp-1);
+    color: var(--color-text-label);
 }
 
 .results p:last-child {
@@ -269,44 +408,228 @@ button.primary-btn:active {
 }
 
 .results span {
-    color: var(--text-primary);
+    font-family: var(--font-mono);
     font-weight: 600;
+    color: var(--color-text-heading);
+    font-variant-numeric: tabular-nums;
 }
 
-/* --- Canvas Containers for Responsive Plotly/Threejs --- */
+/* =============================================
+   Visualisation Panels
+   ============================================= */
 .viz-panel {
     display: flex;
     flex-direction: column;
-    min-height: 450px; /* Give the panel a minimum height */
+    min-height: 440px;
 }
 
+/* Graph-paper dot-grid texture behind plots — engineering aesthetic */
 .canvas-wrapper {
     position: relative;
     flex-grow: 1;
     width: 100%;
-    border-radius: 8px;
+    border-radius: var(--radius);
     overflow: hidden;
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255,255,255,0.05);
+    background:
+        radial-gradient(circle, rgba(0,229,160,0.04) 1px, transparent 1px),
+        var(--color-surface);
+    background-size: 24px 24px;
+    border: 1px solid var(--color-panel-border);
 }
 
 .canvas-inner {
     position: absolute;
-    top: 0;
-    left: 0;
+    inset: 0;
+}
+
+/* Beam macroscopic flex wrapper — removes inline styles */
+.canvas-wrapper--stacked {
+    display: flex;
+    flex-direction: column;
+}
+
+.canvas-wrapper--stacked > div {
+    flex: 1;
     width: 100%;
-    height: 100%;
 }
 
 .hint {
     text-align: center;
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+    margin-top: var(--sp-3);
+    font-style: italic;
+}
+
+/* =============================================
+   Error Banner
+   ============================================= */
+.error-banner {
+    background: rgba(255, 77, 106, 0.08);
+    border: 1px solid rgba(255, 77, 106, 0.2);
+    border-left: 3px solid var(--color-danger);
+    color: var(--color-danger);
+    padding: var(--sp-3) var(--sp-5);
+    border-radius: 0 var(--radius) var(--radius) 0;
     font-size: 0.85rem;
-    color: var(--text-secondary);
-    margin-top: 1rem;
+    font-weight: 500;
+    margin-top: var(--sp-4);
+    display: none;
+}
+
+.error-banner code {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    background: rgba(255, 77, 106, 0.1);
+    padding: 1px 5px;
+    border-radius: 3px;
+}
+
+.error-banner.visible {
+    display: block;
+}
+
+/* --- Failure / Safe status --- */
+.status-safe {
+    color: var(--color-safe) !important;
+    font-family: var(--font-mono);
+}
+
+.status-failure {
+    color: var(--color-danger) !important;
+    font-family: var(--font-mono);
+}
+
+/* =============================================
+   Scrollbar
+   ============================================= */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--color-base); }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+/* =============================================
+   Responsive — Precise spacing at every width
+   ============================================= */
+@media (max-width: 1100px) {
+    .bottom-section {
+        grid-template-columns: 1fr;
+    }
 }
 
 @media (max-width: 768px) {
-    .dashboard { padding: 1rem; }
-    .bottom-section { grid-template-columns: 1fr; }
-    .input-flex-container { flex-direction: column; gap: 0; }
+    main[role="tabpanel"] {
+        padding: var(--sp-4);
+    }
+
+    .panel {
+        padding: var(--sp-5);
+    }
+
+    .input-flex-container {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .input-column {
+        min-width: unset;
+    }
+
+    nav[role="tablist"] {
+        gap: 1px;
+    }
+
+    button[role="tab"] {
+        padding: var(--sp-2) var(--sp-3);
+        font-size: 0.75rem;
+    }
+
+    header {
+        padding: var(--sp-5) var(--sp-4) var(--sp-4);
+    }
+}
+
+@media (max-width: 480px) {
+    .matrix-input {
+        gap: 1px;
+    }
+
+    .matrix-input input[type="number"] {
+        padding: var(--sp-2);
+        font-size: 0.8rem;
+    }
+
+    .input-group {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--sp-1);
+    }
+
+    input[type="number"],
+    .select-input {
+        width: 100%;
+    }
+}
+
+/* =============================================
+   Math Typography & Extensibility
+   ============================================= */
+.math {
+    font-family: var(--font-mono);
+    font-style: italic;
+    font-size: 1.05em;
+    letter-spacing: -0.02em;
+    color: var(--color-text-heading);
+}
+.math b {
+    font-weight: bold;
+    font-style: normal;
+}
+.math sub, .math sup {
+    font-size: 0.75em;
+    font-style: italic;
+}
+.math b sub, .math b sup {
+    font-style: normal;
+}
+.results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--sp-5);
+}
+.vector-input-group {
+    display: flex; 
+    gap: var(--sp-2); 
+    width: 60%;
+    margin-top: var(--sp-1);
+}
+.vector-input-group input {
+    width: 100%;
+    text-align: center;
+    padding: var(--sp-2);
+}
+.export-bar {
+    display: flex;
+    gap: var(--sp-3);
+    margin-top: var(--sp-4);
+}
+.secondary-btn {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--color-accent);
+    background: transparent;
+    border: 1px solid var(--color-accent);
+    padding: var(--sp-2) var(--sp-4);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background 200ms, transform 100ms;
+    flex: 1;
+}
+.secondary-btn:hover {
+    background: var(--color-accent-dim);
+}
+.secondary-btn:active {
+    transform: scale(0.985);
 }

@@ -45,7 +45,7 @@ class AxialInput(BaseModel): P: float; L: float; A: float; E: float
 
 class PressureInput(BaseModel): p: float; r: float; t: float; type: str; is_thick: bool = False
 
-class ThermalInput(BaseModel): dt: float; L: float; alpha: float; E: float; constraint: str
+class ThermalInput(BaseModel): dt: float; L: float; alpha: float; E: float; constraint: str; gap: float = 0.0
 
 @app.post("/api/analyze_tensor")
 async def analyze_tensor(data: TensorInput):

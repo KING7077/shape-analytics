@@ -420,6 +420,11 @@
                     <p><span>Longitudinal <span class="math">σ<sub>z</sub></span>:</span> <span><span id="pv-s2">-</span> MPa</span></p>
                     <p><span><span class="math">τ<sub>max</sub></span>:</span> <span><span id="pv-tmax">-</span> MPa</span></p>
                 </div>
+                
+                <div class="panel diagram-panel">
+                    <h3>Vessel Cross-Section (FBD)</h3>
+                    <canvas id="pv-canvas" width="800" height="200" class="diagram-canvas"></canvas>
+                </div>
             </article>
         </section>
         <section class="bottom-section">
@@ -489,6 +494,11 @@
                     <p><span><span class="math">σ</span>:</span> <span><span id="th-sig">-</span> MPa</span></p>
                     <h3>Resulting Deformation</h3>
                     <p><span><span class="math">δ</span>:</span> <span><span id="th-del">-</span> mm</span></p>
+                </div>
+                
+                <div class="panel diagram-panel">
+                    <h3>Thermal Expansion Diagram</h3>
+                    <canvas id="th-canvas" width="800" height="150" class="diagram-canvas"></canvas>
                 </div>
             </article>
         </section>
@@ -609,6 +619,11 @@
                         <p><span>Slenderness <span class="math">L<sub>e</sub>/r</span>:</span> <span><span id="buck-slend">-</span></span></p>
                         <p><span>Failure Regime:</span> <span><span id="buck-regime">-</span></span></p>
                     </div>
+                </div>
+                
+                <div class="panel diagram-panel">
+                    <h3>Column Free Body Diagram</h3>
+                    <canvas id="buck-canvas" width="200" height="400" class="diagram-canvas"></canvas>
                 </div>
             </article>
         </section>

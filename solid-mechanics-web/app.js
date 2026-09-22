@@ -392,11 +392,11 @@
             Plotly.react('heatmap-container', [{ z: d.heatmap, x: d.x, y: d.y_cross, type: 'heatmap', colorscale: 'Portland' }], Object.assign({}, PLOTLY_LAYOUT, { xaxis: Object.assign({}, PLOTLY_LAYOUT.xaxis, { title: 'Length X (m)' }), yaxis: Object.assign({}, PLOTLY_LAYOUT.yaxis, { title: 'Height Y (m)' }) }), PLOTLY_CONFIG);
 
             setText('max-vm-stress', d.max_vm.toFixed(2));
-            setText('fs-vm-beam', d.fs_vm.toFixed(2));
+            setText('fs-vm-beam', d.fs_vm === null ? '∞' : d.fs_vm.toFixed(2));
             setText('max-tresca-stress', d.max_tresca.toFixed(2));
-            setText('fs-tresca-beam', d.fs_tresca.toFixed(2));
+            setText('fs-tresca-beam', d.fs_tresca === null ? '∞' : d.fs_tresca.toFixed(2));
             
-            var isFailed = d.fs_vm <= 1.0 || d.fs_tresca <= 1.0;
+            var isFailed = (d.fs_vm !== null && d.fs_vm <= 1.0) || (d.fs_tresca !== null && d.fs_tresca <= 1.0);
             $('failure-flag').innerText = isFailed ? 'YIELD FAILURE' : 'SAFE';
             $('failure-flag').className = isFailed ? 'status-failure' : 'status-safe';
         } catch (e) { console.error(e); showError('beam'); } finally { setButtonLoading(btn, false, 'Analyze Failure Criteria'); }

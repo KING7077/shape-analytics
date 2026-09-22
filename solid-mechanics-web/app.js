@@ -293,6 +293,153 @@
     // 2. BEAM FAILURE LABORATORY
     // ==========================================
     
+    
+    function drawTorsionDiagram(matType) {
+        var canvas = $('tor-canvas'); if (!canvas) return;
+        var ctx = canvas.getContext('2d'); var w = canvas.width, h = canvas.height;
+        ctx.clearRect(0, 0, w, h);
+        var pad = 60, beamW = w - pad * 2, beamH = 40, beamX = pad, beamY = h / 2 - beamH / 2;
+
+        // Draw Shaft
+        ctx.fillStyle = '#94a3b8'; ctx.fillRect(beamX, beamY, beamW, beamH);
+        
+        // Wall on left
+        ctx.strokeStyle = '#60728c'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(beamX, beamY - 30); ctx.lineTo(beamX, beamY + beamH + 30); ctx.stroke();
+        for(let i=-30; i<=30+beamH; i+=10) { ctx.beginPath(); ctx.moveTo(beamX, beamY + i); ctx.lineTo(beamX - 15, beamY + i + 15); ctx.stroke(); }
+        
+        // Torque Arrow
+        ctx.strokeStyle = '#ff4d6a'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.arc(beamX + beamW + 20, beamY + beamH/2, 25, -Math.PI/2, Math.PI/2); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(beamX + beamW + 20, beamY + beamH/2 + 25); ctx.lineTo(beamX + beamW + 10, beamY + beamH/2 + 35); ctx.lineTo(beamX + beamW + 10, beamY + beamH/2 + 15); ctx.fill();
+
+        // Fracture Line
+        ctx.strokeStyle = '#ffeb3b'; ctx.lineWidth = 4; ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        if (matType === 'brittle') { // 45 deg
+            setText('tor-frac-angle', '45');
+            ctx.moveTo(beamX + beamW/2 - 20, beamY + beamH); ctx.lineTo(beamX + beamW/2 + 20, beamY);
+        } else { // 90 deg
+            setText('tor-frac-angle', '90');
+            ctx.moveTo(beamX + beamW/2, beamY + beamH); ctx.lineTo(beamX + beamW/2, beamY);
+        }
+        ctx.stroke(); ctx.setLineDash([]);
+    }
+
+    function drawAxialDiagram(matType) {
+        var canvas = $('ax-canvas'); if (!canvas) return;
+        var ctx = canvas.getContext('2d'); var w = canvas.width, h = canvas.height;
+        ctx.clearRect(0, 0, w, h);
+        var pad = 60, beamW = w - pad * 2, beamH = 20, beamX = pad, beamY = h / 2 - beamH / 2;
+
+        // Draw Bar
+        ctx.fillStyle = '#94a3b8'; ctx.fillRect(beamX, beamY, beamW, beamH);
+        
+        // Wall on left
+        ctx.strokeStyle = '#60728c'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(beamX, beamY - 30); ctx.lineTo(beamX, beamY + beamH + 30); ctx.stroke();
+        for(let i=-30; i<=30+beamH; i+=10) { ctx.beginPath(); ctx.moveTo(beamX, beamY + i); ctx.lineTo(beamX - 15, beamY + i + 15); ctx.stroke(); }
+        
+        // Force Arrow
+        ctx.strokeStyle = '#ff4d6a'; ctx.fillStyle = '#ff4d6a'; ctx.lineWidth = 3;
+        var rx = beamX + beamW;
+        ctx.beginPath(); ctx.moveTo(rx, beamY + beamH/2); ctx.lineTo(rx + 50, beamY + beamH/2); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(rx + 50, beamY + beamH/2); ctx.lineTo(rx + 40, beamY + beamH/2 - 5); ctx.lineTo(rx + 40, beamY + beamH/2 + 5); ctx.fill();
+
+        // Fracture Line
+        ctx.strokeStyle = '#ffeb3b'; ctx.lineWidth = 4; ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        if (matType === 'brittle') { // 90 deg
+            setText('ax-frac-angle', '0 / 90');
+            ctx.moveTo(beamX + beamW/2, beamY + beamH + 5); ctx.lineTo(beamX + beamW/2, beamY - 5);
+        } else { // 45 deg cup and cone approx
+            setText('ax-frac-angle', '45');
+            ctx.moveTo(beamX + beamW/2 - 15, beamY + beamH + 5); ctx.lineTo(beamX + beamW/2 + 15, beamY - 5);
+            ctx.moveTo(beamX + beamW/2 + 15, beamY + beamH + 5); ctx.lineTo(beamX + beamW/2 - 15, beamY - 5);
+        }
+        ctx.stroke(); ctx.setLineDash([]);
+    }
+
+    function drawPressureDiagram() {
+        var canvas = $('pv-canvas'); if (!canvas) return;
+        var ctx = canvas.getContext('2d'); var w = canvas.width, h = canvas.height;
+        ctx.clearRect(0, 0, w, h);
+        var cx = w/2, cy = h/2, r = 80, t = 20;
+
+        ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = t; ctx.beginPath(); ctx.arc(cx, cy, r, 0, 2*Math.PI); ctx.stroke();
+        
+        // Internal pressure arrows
+        ctx.strokeStyle = '#ff4d6a'; ctx.fillStyle = '#ff4d6a'; ctx.lineWidth = 2;
+        for (let i = 0; i < 8; i++) {
+            let angle = (i / 8) * Math.PI * 2;
+            let sx = cx + (r - t/2 - 25) * Math.cos(angle); let sy = cy + (r - t/2 - 25) * Math.sin(angle);
+            let ex = cx + (r - t/2 - 5) * Math.cos(angle); let ey = cy + (r - t/2 - 5) * Math.sin(angle);
+            ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(ex, ey); ctx.stroke();
+            // Arrowhead
+            ctx.beginPath(); ctx.arc(ex, ey, 3, 0, 2*Math.PI); ctx.fill();
+        }
+    }
+
+    function drawThermalDiagram(constraint) {
+        var canvas = $('th-canvas'); if (!canvas) return;
+        var ctx = canvas.getContext('2d'); var w = canvas.width, h = canvas.height;
+        ctx.clearRect(0, 0, w, h);
+        var pad = 60, beamW = w - pad * 2, beamH = 30, beamX = pad, beamY = h / 2 - beamH / 2;
+
+        // Gradient for Delta T
+        var grd = ctx.createLinearGradient(beamX, 0, beamX+beamW, 0);
+        var valDT = val('th-dt');
+        if (valDT > 0) { grd.addColorStop(0, "#ff4d6a"); grd.addColorStop(1, "#94a3b8"); }
+        else { grd.addColorStop(0, "#00e5a0"); grd.addColorStop(1, "#94a3b8"); }
+        ctx.fillStyle = grd; ctx.fillRect(beamX, beamY, beamW, beamH);
+        
+        ctx.strokeStyle = '#60728c'; ctx.lineWidth = 2;
+        // Left wall
+        ctx.beginPath(); ctx.moveTo(beamX, beamY - 30); ctx.lineTo(beamX, beamY + beamH + 30); ctx.stroke();
+        for(let i=-30; i<=30+beamH; i+=10) { ctx.beginPath(); ctx.moveTo(beamX, beamY + i); ctx.lineTo(beamX - 15, beamY + i + 15); ctx.stroke(); }
+        
+        // Right wall if fixed-fixed
+        if (constraint === 'fixed-fixed') {
+            var rx = beamX + beamW;
+            ctx.beginPath(); ctx.moveTo(rx, beamY - 30); ctx.lineTo(rx, beamY + beamH + 30); ctx.stroke();
+            for(let i=-30; i<=30+beamH; i+=10) { ctx.beginPath(); ctx.moveTo(rx, beamY + i); ctx.lineTo(rx + 15, beamY + i + 15); ctx.stroke(); }
+        }
+    }
+
+    function drawBucklingDiagram(bc) {
+        var canvas = $('buck-canvas'); if (!canvas) return;
+        var ctx = canvas.getContext('2d'); var w = canvas.width, h = canvas.height;
+        ctx.clearRect(0, 0, w, h);
+        var pad = 40, colW = 10, colH = h - pad * 2, colX = w / 2 - colW / 2, colY = pad;
+
+        ctx.fillStyle = '#94a3b8'; ctx.fillRect(colX, colY, colW, colH);
+        ctx.strokeStyle = '#60728c'; ctx.lineWidth = 2; ctx.fillStyle = '#080c16';
+
+        // Downward load
+        ctx.strokeStyle = '#ff4d6a'; ctx.fillStyle = '#ff4d6a'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(w/2, colY - 30); ctx.lineTo(w/2, colY); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(w/2, colY); ctx.lineTo(w/2 - 5, colY - 10); ctx.lineTo(w/2 + 5, colY - 10); ctx.fill();
+
+        ctx.strokeStyle = '#60728c'; ctx.lineWidth = 2; ctx.fillStyle = '#080c16';
+        
+        // Draw Top Support
+        if (bc.includes('pinned')) {
+            ctx.beginPath(); ctx.arc(w/2, colY, 5, 0, 2*Math.PI); ctx.fill(); ctx.stroke();
+        } else if (bc.includes('fixed') && !bc.includes('free')) { // top fixed is actually fixed-fixed or pinned-fixed, wait bc is 'fixed-free', 'pinned-pinned' etc.
+            // If it's fixed-free, top is free. 
+            // We just draw the bottom support! Let's redraw properly.
+        }
+
+        // Draw Bottom Support
+        var by = colY + colH;
+        if (bc === 'pinned-pinned' || bc === 'fixed-pinned') {
+            ctx.beginPath(); ctx.moveTo(w/2, by); ctx.lineTo(w/2 - 15, by + 20); ctx.lineTo(w/2 + 15, by + 20); ctx.closePath(); ctx.fill(); ctx.stroke();
+        } else if (bc === 'fixed-free' || bc === 'fixed-fixed') {
+            ctx.beginPath(); ctx.moveTo(w/2 - 20, by); ctx.lineTo(w/2 + 20, by); ctx.stroke();
+            for(let i=-20; i<=20; i+=10) { ctx.beginPath(); ctx.moveTo(w/2 + i, by); ctx.lineTo(w/2 + i - 10, by + 10); ctx.stroke(); }
+        }
+    }
+
     function drawBeamDiagram(supportType, loadType) {
         var canvas = $('beam-canvas');
         if (!canvas) return;
@@ -410,6 +557,7 @@
         var btn = $('calculate-torsion-btn'); setButtonLoading(btn, true, 'Analyze Torsion in Python');
         try {
             var d = await apiPost('/api/analyze_torsion', params, 'torsion');
+            drawTorsionDiagram($('tor-mat-type') ? $('tor-mat-type').value : 'ductile');
             setText('tor-tau', d.tau_max.toFixed(2)); setText('tor-phi', d.phi_max_deg.toFixed(2));
             
             let traces_phi = [{ x: d.x, y: d.phi, type: 'scatter', line: { color: '#6366f1', width: 2 } }];
@@ -434,6 +582,7 @@
         var btn = $('calculate-axial-btn'); setButtonLoading(btn, true, 'Analyze Axial Stress in Python');
         try {
             var d = await apiPost('/api/analyze_axial', params, 'axial');
+            drawAxialDiagram($('ax-mat-type') ? $('ax-mat-type').value : 'ductile');
             setText('ax-sig', d.sigma_max.toFixed(2)); setText('ax-del', d.delta_max.toFixed(2));
             
             let traces_sig = [{ x: d.x, y: d.sigma, type: 'scatter', line: { color: '#6366f1', width: 2 } }];
@@ -458,6 +607,7 @@
         var btn = $('calculate-pv-btn'); setButtonLoading(btn, true, 'Analyze Vessel in Python');
         try {
             var d = await apiPost('/api/analyze_pressure_vessel', params, 'pressure');
+            drawPressureDiagram();
             setText('pv-s1', d.s1.toFixed(2)); setText('pv-s2', d.s2.toFixed(2)); setText('pv-tmax', d.tmax.toFixed(2));
 
             let traces_dist = [];
@@ -495,6 +645,7 @@
         var btn = $('calculate-thermal-btn'); setButtonLoading(btn, true, 'Analyze Thermal State in Python');
         try {
             var d = await apiPost('/api/analyze_thermal', params, 'thermal');
+            drawThermalDiagram(params.constraint);
             setText('th-sig', d.sigma.toFixed(2)); setText('th-del', d.delta.toFixed(2));
             
             let traces_def = [{ x: d.x, y: d.deflection, type: 'scatter', fill: 'tozeroy', line: { color: '#ff4d6a', width: 2 }, fillcolor: 'rgba(255, 77, 106, 0.15)' }];
@@ -547,6 +698,7 @@
         setButtonLoading(btn, true, 'Analyze Buckling');
         try {
             var d = await apiPost('/api/analyze_buckling', params, 'buckling');
+            drawBucklingDiagram(params.bc);
             setText('buck-pcr', (d.Pcr / 1000).toFixed(2));
             setText('buck-slend', d.slenderness.toFixed(2));
             setText('buck-regime', d.regime);
@@ -585,6 +737,10 @@
         initExports();
         initPointSymmetrySync();
         initResizeHandler();
+
+        if ($('tor-mat-type')) $('tor-mat-type').addEventListener('change', () => drawTorsionDiagram($('tor-mat-type').value));
+        if ($('ax-mat-type')) $('ax-mat-type').addEventListener('change', () => drawAxialDiagram($('ax-mat-type').value));
+
         initThreeJS();
         updatePointApplication();
     });

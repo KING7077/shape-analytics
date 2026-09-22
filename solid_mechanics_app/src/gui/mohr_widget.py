@@ -26,30 +26,30 @@ class MohrCircleWidget(QWidget):
             # Circle 13 (Outer)
             x13 = c13 + r13 * np.cos(theta)
             y13 = r13 * np.sin(theta)
-            self.ax.plot(x13, y13, 'b-', label='$\sigma_1 - \sigma_3$')
+            self.ax.plot(x13, y13, 'b-', label=r'$\sigma_1 - \sigma_3$')
             self.ax.fill_between(x13, 0, y13, color='blue', alpha=0.1)
             
             # Circle 12
             x12 = c12 + r12 * np.cos(theta)
             y12 = r12 * np.sin(theta)
-            self.ax.plot(x12, y12, 'r-', label='$\sigma_1 - \sigma_2$')
+            self.ax.plot(x12, y12, 'r-', label=r'$\sigma_1 - \sigma_2$')
             self.ax.fill_between(x12, 0, y12, color='white')
             
             # Circle 23
             x23 = c23 + r23 * np.cos(theta)
             y23 = r23 * np.sin(theta)
-            self.ax.plot(x23, y23, 'g-', label='$\sigma_2 - \sigma_3$')
+            self.ax.plot(x23, y23, 'g-', label=r'$\sigma_2 - \sigma_3$')
             self.ax.fill_between(x23, 0, y23, color='white')
             
             # Principal stresses on x-axis
             self.ax.plot(ps, [0,0,0], 'ko')
             for i, p in enumerate(ps):
-                self.ax.text(p, -r13*0.05, f'$\sigma_{i+1}$', verticalalignment='top')
+                self.ax.text(p, -r13*0.05, fr'$\sigma_{{{i+1}}}$', verticalalignment='top')
                 
         self.ax.axhline(0, color='black', linewidth=1)
         self.ax.axvline(0, color='black', linewidth=1)
-        self.ax.set_xlabel('Normal Stress $\sigma$')
-        self.ax.set_ylabel('Shear Stress $\tau$')
+        self.ax.set_xlabel(r'Normal Stress $\sigma$')
+        self.ax.set_ylabel(r'Shear Stress $\tau$')
         self.ax.set_title("Mohr's Circles for 3D Stress State")
         self.ax.grid(True, linestyle='--', alpha=0.6)
         

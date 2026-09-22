@@ -9,7 +9,7 @@
     const API_BASE = 'http://127.0.0.1:8000';
     const TABS = ['point', 'beam', 'torsion', 'axial', 'pressure', 'thermal', 'section', 'buckling'];
 
-    const PLOTLY_CONFIG = { responsive: true, displayModeBar: false };
+    const PLOTLY_CONFIG = { responsive: true, displayModeBar: true, displaylogo: false, modeBarButtonsToRemove: ['lasso2d', 'select2d'], doubleClick: 'reset', scrollZoom: true };
     const PLOTLY_LAYOUT = {
         paper_bgcolor: 'rgba(0,0,0,0)',
         plot_bgcolor: 'rgba(0,0,0,0)',
@@ -264,24 +264,117 @@
             if (payload.matrix[1][1] !== 0) addArrow(0, payload.matrix[1][1] > 0 ? 1 : -1, 0, 0, 0.75, 0, 0x00e5a0);
             if (payload.matrix[2][2] !== 0) addArrow(0, 0, payload.matrix[2][2] > 0 ? 1 : -1, 0, 0, 0.75, 0x6366f1);
 
+            
             while (axesGroup.children.length > 0) axesGroup.remove(axesGroup.children[0]);
             var axisColors = [0xff4d6a, 0x00e5a0, 0x6366f1];
             for (var i = 0; i < 3; i++) {
                 var p = new THREE.Vector3(data.eigenvectors[0][i], data.eigenvectors[1][i], data.eigenvectors[2][i]).normalize();
                 axesGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([p.clone().multiplyScalar(1.5), p.clone().multiplyScalar(-1.5)]), new THREE.LineBasicMaterial({ color: axisColors[i], linewidth: 3 })));
             }
+
+            // Fracture Plane (Brittle failure plane is perpendicular to sigma_1)
+            var s1_normal = new THREE.Vector3(data.eigenvectors[0][0], data.eigenvectors[1][0], data.eigenvectors[2][0]).normalize();
+            var fracGeo = new THREE.PlaneGeometry(1.8, 1.8);
+            var fracMat = new THREE.MeshBasicMaterial({color: 0xff4d6a, side: THREE.DoubleSide, transparent: true, opacity: 0.6});
+            var fracPlane = new THREE.Mesh(fracGeo, fracMat);
+            var q = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,0,1), s1_normal);
+            fracPlane.applyQuaternion(q);
+            axesGroup.add(fracPlane);
+
+            // Compute angles relative to global X (1,0,0)
+            var angleBrittle = Math.acos(Math.abs(s1_normal.x)) * (180 / Math.PI);
+            setText('pt-brittle-angle', angleBrittle.toFixed(1));
+            // Ductile is 45 degrees to principal axes
+            setText('pt-ductile-angle', (angleBrittle + 45).toFixed(1));
         } catch (e) { console.error(e); showError('point'); } finally { setButtonLoading(btn, false, 'Calculate via Python Math Engine'); }
     }
 
     // ==========================================
     // 2. BEAM FAILURE LABORATORY
     // ==========================================
+    
+    function drawBeamDiagram(supportType, loadType) {
+        var canvas = $('beam-canvas');
+        if (!canvas) return;
+        var ctx = canvas.getContext('2d');
+        var w = canvas.width;
+        var h = canvas.height;
+        ctx.clearRect(0, 0, w, h);
+        
+        var pad = 60;
+        var beamW = w - pad * 2;
+        var beamH = 10;
+        var beamX = pad;
+        var beamY = h / 2 - beamH / 2;
+
+        // Draw Beam
+        ctx.fillStyle = '#94a3b8';
+        ctx.fillRect(beamX, beamY, beamW, beamH);
+        
+        // Draw Supports
+        ctx.strokeStyle = '#60728c';
+        ctx.lineWidth = 2;
+        ctx.fillStyle = '#080c16';
+        
+        if (supportType === 'cantilever') {
+            // Wall on left
+            ctx.beginPath();
+            ctx.moveTo(beamX, beamY - 40);
+            ctx.lineTo(beamX, beamY + 40 + beamH);
+            ctx.stroke();
+            // Hatching
+            for(let i=-40; i<=40; i+=10) {
+                ctx.beginPath(); ctx.moveTo(beamX, beamY + i); ctx.lineTo(beamX - 15, beamY + i + 15); ctx.stroke();
+            }
+        } else {
+            // Pin on left
+            ctx.beginPath();
+            ctx.moveTo(beamX, beamY + beamH);
+            ctx.lineTo(beamX - 10, beamY + beamH + 20);
+            ctx.lineTo(beamX + 10, beamY + beamH + 20);
+            ctx.closePath();
+            ctx.fill(); ctx.stroke();
+            // Roller on right
+            var rx = beamX + beamW;
+            ctx.beginPath();
+            ctx.moveTo(rx, beamY + beamH);
+            ctx.lineTo(rx - 10, beamY + beamH + 15);
+            ctx.lineTo(rx + 10, beamY + beamH + 15);
+            ctx.closePath();
+            ctx.fill(); ctx.stroke();
+            ctx.beginPath(); ctx.arc(rx - 5, beamY + beamH + 20, 4, 0, 2*Math.PI); ctx.stroke();
+            ctx.beginPath(); ctx.arc(rx + 5, beamY + beamH + 20, 4, 0, 2*Math.PI); ctx.stroke();
+        }
+
+        // Draw Load
+        ctx.fillStyle = '#ff4d6a';
+        ctx.strokeStyle = '#ff4d6a';
+        ctx.lineWidth = 3;
+        
+        function drawArrow(ax, ay) {
+            ctx.beginPath(); ctx.moveTo(ax, ay - 40); ctx.lineTo(ax, ay); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(ax - 5, ay - 10); ctx.lineTo(ax + 5, ay - 10); ctx.closePath(); ctx.fill();
+        }
+
+        if (loadType === 'point') {
+            var loadX = (supportType === 'cantilever') ? (beamX + beamW) : (beamX + beamW / 2);
+            drawArrow(loadX, beamY);
+        } else {
+            for(let i=0; i<=10; i++) {
+                drawArrow(beamX + (beamW * i / 10), beamY);
+            }
+            // Draw connecting line
+            ctx.beginPath(); ctx.moveTo(beamX, beamY - 40); ctx.lineTo(beamX + beamW, beamY - 40); ctx.stroke();
+        }
+    }
+
     async function updateBeamApplication() {
         var params = { E: val('beam-e') * 1e9, L: val('beam-l'), b: val('beam-w'), h: val('beam-h'), load_mag: val('beam-p') * 1000, support_type: $('beam-support').value, load_type: $('beam-load-type').value, Sy: val('beam-sy') * 1e6 };
         setText('hint-sy', val('beam-sy'));
         var btn = $('calculate-beam-btn'); setButtonLoading(btn, true, 'Analyze Failure Criteria');
         try {
             var d = await apiPost('/api/analyze_beam', params, 'beam');
+            drawBeamDiagram(params.support_type, params.load_type);
             let traces_sfd = [{ x: d.x, y: d.V, type: 'scatter', name: 'Shear', line: { color: '#ff4d6a', width: 2 } }];
             let traces_bmd = [{ x: d.x, y: d.M, type: 'scatter', name: 'Moment', line: { color: '#6366f1', width: 2 } }];
             let traces_def = [{ x: d.x, y: d.deflection, type: 'scatter', name: 'Deflection', line: { color: '#00e5a0', width: 2 } }];

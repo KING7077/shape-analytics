@@ -89,6 +89,10 @@
                         <p><span><span class="math">FS<sub>VM</sub></span>:</span> <span><span id="pt-fsvm">-</span></span></p>
                         <p><span><span class="math">σ<sub>Tresca</sub></span>:</span> <span><span id="pt-tresca">-</span> MPa</span></p>
                         <p><span><span class="math">FS<sub>Tresca</sub></span>:</span> <span><span id="pt-fstresca">-</span></span></p>
+                        
+                        <h3>Fracture Planes</h3>
+                        <p><span>Brittle (Normal):</span> <span>θ = <span id="pt-brittle-angle">-</span>°</span></p>
+                        <p><span>Ductile (Shear):</span> <span>θ = <span id="pt-ductile-angle">-</span>°</span></p>
                     </div>
                     <div>
                         <h3>Strain &amp; Traction</h3>
@@ -180,6 +184,11 @@
                     <p><span>Status:</span> <span><span id="failure-flag" class="status-safe">SAFE</span></span></p>
                     <p><span><span class="math">σ<sub>VM</sub></span>:</span> <span><span id="max-vm-stress">-</span> MPa | <span class="math">FS<sub>VM</sub></span>: <span id="fs-vm-beam">-</span></span></p>
                     <p><span><span class="math">σ<sub>Tresca</sub></span>:</span> <span><span id="max-tresca-stress">-</span> MPa | <span class="math">FS<sub>Tresca</sub></span>: <span id="fs-tresca-beam">-</span></span></p>
+                </div>
+                
+                <div class="panel">
+                    <h3>Beam Diagram</h3>
+                    <canvas id="beam-canvas" width="800" height="150" style="width: 100%; border: 1px solid #1a2233; border-radius: 4px; background: #080c16;"></canvas>
                 </div>
             </article>
         </section>

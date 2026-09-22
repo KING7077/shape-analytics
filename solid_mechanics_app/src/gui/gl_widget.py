@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QOpenGLWidget
+from PyQt6.QtOpenGLWidgets import QOpenGLWidget
 from PyQt6.QtCore import Qt
 from OpenGL.GL import *
 from OpenGL.GLU import *

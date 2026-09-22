@@ -263,6 +263,21 @@
                     <p><span><span class="math">τ<sub>max</sub></span>:</span> <span><span id="tor-tau">-</span> MPa</span></p>
                     <h3>Total Angle of Twist</h3>
                     <p><span><span class="math">φ<sub>max</sub></span>:</span> <span><span id="tor-phi">-</span> degrees</span></p>
+                    
+                    <div class="input-group dropdown-separator">
+                        <label for="tor-mat-type">Material Behavior:</label>
+                        <select id="tor-mat-type" class="select-input">
+                            <option value="ductile">Ductile (Mild Steel)</option>
+                            <option value="brittle">Brittle (Chalk/Cast Iron)</option>
+                        </select>
+                    </div>
+                    <h3>Predicted Fracture Plane</h3>
+                    <p><span>Angle θ:</span> <span><span id="tor-frac-angle">-</span>°</span></p>
+                </div>
+                
+                <div class="panel diagram-panel">
+                    <h3>Shaft Free Body Diagram</h3>
+                    <canvas id="tor-canvas" width="800" height="150" class="diagram-canvas"></canvas>
                 </div>
             </article>
         </section>
@@ -321,6 +336,21 @@
                     <p><span><span class="math">σ</span>:</span> <span><span id="ax-sig">-</span> MPa</span></p>
                     <h3>Total Elongation</h3>
                     <p><span><span class="math">δ</span>:</span> <span><span id="ax-del">-</span> mm</span></p>
+                    
+                    <div class="input-group dropdown-separator">
+                        <label for="ax-mat-type">Material Behavior:</label>
+                        <select id="ax-mat-type" class="select-input">
+                            <option value="ductile">Ductile (Mild Steel)</option>
+                            <option value="brittle">Brittle (Chalk/Cast Iron)</option>
+                        </select>
+                    </div>
+                    <h3>Predicted Fracture Plane</h3>
+                    <p><span>Angle θ:</span> <span><span id="ax-frac-angle">-</span>°</span></p>
+                </div>
+                
+                <div class="panel diagram-panel">
+                    <h3>Axial Free Body Diagram</h3>
+                    <canvas id="ax-canvas" width="800" height="150" class="diagram-canvas"></canvas>
                 </div>
             </article>
         </section>

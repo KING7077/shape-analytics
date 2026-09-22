@@ -643,3 +643,13 @@ input[readonly] {
     border-radius: var(--radius);
     background: var(--color-surface);
 }
+
+.dropdown-separator {
+    margin-top: 15px;
+    border-top: 1px solid var(--color-panel-border);
+    padding-top: 10px;
+}
+
+.diagram-panel {
+    margin-top: 20px;
+}

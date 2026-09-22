@@ -58,8 +58,8 @@ async def analyze_tensor(data: TensorInput):
     traction = get_traction_vector(tensor_pa, data.n_vec)
     
     Sy_pa = data.Sy * 1e6
-    fs_vm = (Sy_pa / failure["von_mises"]) if failure["von_mises"] > 0 else float('inf')
-    fs_tresca = (Sy_pa / failure["tresca"]) if failure["tresca"] > 0 else float('inf')
+    fs_vm = (Sy_pa / failure["von_mises"]) if failure["von_mises"] > 0 else None
+    fs_tresca = (Sy_pa / failure["tresca"]) if failure["tresca"] > 0 else None
 
     return {
         "principal_stresses": (ps_pa / 1e6).tolist(), 
@@ -126,8 +126,8 @@ async def analyze_beam(data: BeamInput):
     tensor_max = np.array([[ -(np.min(M_vals) * (h/2)) / I, 0, 0], [0, 0, 0], [0, 0, 0]])
     max_tresca = get_failure_criteria(tensor_max)["tresca"]
 
-    fs_vm = Sy / max_vm if max_vm > 0 else float('inf')
-    fs_tresca = Sy / max_tresca if max_tresca > 0 else float('inf')
+    fs_vm = Sy / max_vm if max_vm > 0 else None
+    fs_tresca = Sy / max_tresca if max_tresca > 0 else None
 
     return { 
         "x": x_vals.tolist(), "y_cross": y_vals.tolist(), 

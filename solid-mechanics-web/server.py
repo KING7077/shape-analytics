@@ -110,6 +110,7 @@ async def analyze_beam(data: BeamInput):
     y_vals = np.linspace(-h/2, h/2, 30)
     heatmap = np.zeros((len(y_vals), len(x_vals)))
     max_vm = 0.0
+    max_tresca = 0.0
 
     for i, y in enumerate(y_vals):
         for j, x in enumerate(x_vals):
@@ -119,13 +120,11 @@ async def analyze_beam(data: BeamInput):
             tensor = np.array([[sig_x, tau_xy, 0], [tau_xy, 0, 0], [0, 0, 0]])
             fail = get_failure_criteria(tensor)
             vm = fail["von_mises"]
+            tresca = fail["tresca"]
             heatmap[i, j] = vm / 1e6
             if vm > max_vm: max_vm = vm
+            if tresca > max_tresca: max_tresca = tresca
             
-    # Calculate Tresca as well at the max VM point (approximate worst case)
-    tensor_max = np.array([[ -(np.min(M_vals) * (h/2)) / I, 0, 0], [0, 0, 0], [0, 0, 0]])
-    max_tresca = get_failure_criteria(tensor_max)["tresca"]
-
     fs_vm = Sy / max_vm if max_vm > 0 else None
     fs_tresca = Sy / max_tresca if max_tresca > 0 else None
 

@@ -11,10 +11,21 @@ from gui.mohr_widget import MohrCircleWidget
 
 API_URL = "http://127.0.0.1:8000/api"
 
+import matplotlib.pyplot as plt
+plt.style.use('dark_background')
+
 class MatplotlibCanvas(FigureCanvas):
     def __init__(self, parent=None, width=5, height=4, dpi=100):
         fig = Figure(figsize=(width, height), dpi=dpi)
+        fig.patch.set_facecolor('#080c16')
         self.axes = fig.add_subplot(111)
+        self.axes.set_facecolor('#080c16')
+        self.axes.tick_params(colors='#60728c')
+        for spine in self.axes.spines.values():
+            spine.set_color('#1a2233')
+        self.axes.xaxis.label.set_color('#94a3b8')
+        self.axes.yaxis.label.set_color('#94a3b8')
+        self.axes.title.set_color('#00e5a0')
         super(MatplotlibCanvas, self).__init__(fig)
         self.setParent(parent)
 

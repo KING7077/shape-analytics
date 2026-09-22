@@ -6,7 +6,7 @@
 (function () {
     'use strict';
 
-    const API_BASE = 'http://127.0.0.1:8000';
+    const API_BASE = '';
     const TABS = ['point', 'beam', 'torsion', 'axial', 'pressure', 'thermal', 'section', 'buckling'];
 
     const PLOTLY_CONFIG = { responsive: true, displayModeBar: true, displaylogo: false, modeBarButtonsToRemove: ['lasso2d', 'select2d'], doubleClick: 'reset', scrollZoom: true };
@@ -63,12 +63,12 @@
 
     function generateCircleData(cx, r, color, name, isDash = false) {
         let theta = [];
-        for (let i = 0; i < 100; i++) theta.push((i / 99) * Math.PI);
+        for (let i = 0; i <= 200; i++) theta.push((i / 200) * 2 * Math.PI);
         let x = theta.map(t => cx + r * Math.cos(t));
         let y = theta.map(t => r * Math.sin(t));
         return {
-            x: x.concat(x.slice().reverse()),
-            y: y.concat(y.map(() => 0)),
+            x: x,
+            y: y,
             fill: isDash ? 'none' : 'toself',
             fillcolor: isDash ? 'transparent' : color,
             line: { color: color, width: 2, dash: isDash ? 'dot' : 'solid' },
@@ -243,6 +243,15 @@
             setText('pt-sn', data.traction.sigma_n.toFixed(2));
             setText('pt-tn', data.traction.tau_n.toFixed(2));
 
+            setText('pt-i1', data.invariants.I1.toFixed(2));
+            setText('pt-i2', data.invariants.I2.toFixed(2));
+            setText('pt-i3', data.invariants.I3.toFixed(4));
+            setText('pt-sm', data.failure.sigma_m.toFixed(2));
+
+            setText('pt-u0', data.energy.U_total.toExponential(3));
+            setText('pt-uvol', data.energy.U_vol.toExponential(3));
+            setText('pt-udist', data.energy.U_dist.toExponential(3));
+
             var mohrLayout = Object.assign({}, PLOTLY_LAYOUT, { xaxis: Object.assign({}, PLOTLY_LAYOUT.xaxis, { title: 'Normal Stress σ (MPa)' }), yaxis: Object.assign({}, PLOTLY_LAYOUT.yaxis, { title: 'Shear Stress τ (MPa)', scaleanchor: 'x', scaleratio: 1 }) });
             let traces = [
                 generateCircleData(data.mohr.c13, data.mohr.r13, 'rgba(0, 229, 160, 0.25)', 'σ₁ - σ₃'),
@@ -398,11 +407,16 @@
         ctx.beginPath(); ctx.moveTo(beamX, beamY - 30); ctx.lineTo(beamX, beamY + beamH + 30); ctx.stroke();
         for(let i=-30; i<=30+beamH; i+=10) { ctx.beginPath(); ctx.moveTo(beamX, beamY + i); ctx.lineTo(beamX - 15, beamY + i + 15); ctx.stroke(); }
         
-        // Right wall if fixed-fixed
-        if (constraint === 'fixed-fixed') {
+        // Right wall if fixed-fixed or partial
+        if (constraint === 'fixed-fixed' || constraint === 'partial') {
             var rx = beamX + beamW;
             ctx.beginPath(); ctx.moveTo(rx, beamY - 30); ctx.lineTo(rx, beamY + beamH + 30); ctx.stroke();
             for(let i=-30; i<=30+beamH; i+=10) { ctx.beginPath(); ctx.moveTo(rx, beamY + i); ctx.lineTo(rx + 15, beamY + i + 15); ctx.stroke(); }
+            if (constraint === 'partial') {
+                // Draw a gap indicator
+                ctx.fillStyle = '#ffeb3b'; ctx.font = '12px Inter'; ctx.textAlign = 'center';
+                ctx.fillText('δ gap', rx + 20, beamY + beamH/2);
+            }
         }
     }
 
@@ -641,7 +655,7 @@
     // 6. THERMAL STRESS LABORATORY
     // ==========================================
     async function updateThermalApplication() {
-        var params = { dt: val('th-dt'), L: val('th-l'), alpha: val('th-alpha') * 1e-6, E: val('th-e') * 1e9, constraint: $('th-constraint').value };
+        var params = { dt: val('th-dt'), L: val('th-l'), alpha: val('th-alpha') * 1e-6, E: val('th-e') * 1e9, constraint: $('th-constraint').value, gap: val('th-gap') };
         var btn = $('calculate-thermal-btn'); setButtonLoading(btn, true, 'Analyze Thermal State in Python');
         try {
             var d = await apiPost('/api/analyze_thermal', params, 'thermal');

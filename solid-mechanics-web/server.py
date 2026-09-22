@@ -11,7 +11,8 @@ from pydantic import BaseModel
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'solid_mechanics_app', 'src')))
 from math_engine.tensor_math import (
     get_principal_stresses, get_mohr_circle_parameters, 
-    get_failure_criteria, get_strain_tensor, get_traction_vector
+    get_failure_criteria, get_strain_tensor, get_traction_vector,
+    get_stress_invariants, get_strain_energy_density
 )
 
 app = FastAPI()
@@ -56,6 +57,8 @@ async def analyze_tensor(data: TensorInput):
     failure = get_failure_criteria(tensor_pa)
     strain = get_strain_tensor(tensor_pa, E_pa, data.nu)
     traction = get_traction_vector(tensor_pa, data.n_vec)
+    invariants = get_stress_invariants(tensor_pa)
+    energy = get_strain_energy_density(tensor_pa, E_pa, data.nu)
     
     Sy_pa = data.Sy * 1e6
     fs_vm = (Sy_pa / failure["von_mises"]) if failure["von_mises"] > 0 else None
@@ -73,9 +76,16 @@ async def analyze_tensor(data: TensorInput):
         "failure": {
             "von_mises": failure["von_mises"] / 1e6,
             "tresca": failure["tresca"] / 1e6,
+            "sigma_m": failure["sigma_m"] / 1e6,
             "fs_vm": fs_vm,
             "fs_tresca": fs_tresca
         },
+        "invariants": {
+            "I1": invariants["I1"] / 1e6,
+            "I2": invariants["I2"] / 1e12,
+            "I3": invariants["I3"] / 1e18
+        },
+        "energy": energy,
         "strain": strain,
         "traction": {
             "T": (np.array(traction["T"]) / 1e6).tolist(),
@@ -239,12 +249,23 @@ async def analyze_thermal(data: ThermalInput):
     if data.constraint == "free":
         sigma = 0.0
         actual_delta = free_delta
-    else:
+    elif data.constraint == "partial":
+        # Bar with a gap — expands freely until gap closes, then stress builds
+        gap_m = data.gap / 1000.0  # convert mm to m
+        if abs(free_delta) <= abs(gap_m):
+            # Gap doesn't close — no stress
+            sigma = 0.0
+            actual_delta = free_delta
+        else:
+            # Gap closes — remaining expansion is constrained
+            sigma = -data.E * data.alpha * data.dt + data.E * gap_m / data.L
+            actual_delta = gap_m if data.dt > 0 else -gap_m
+    else:  # fixed-fixed
         sigma = -data.E * data.alpha * data.dt
         actual_delta = 0.0
 
-    x_vals = np.linspace(0, data.L, 2)
-    def_vals = np.linspace(0, actual_delta, 2)
+    x_vals = np.linspace(0, data.L, 50)
+    def_vals = np.linspace(0, actual_delta, 50)
 
     return {
         "x": x_vals.tolist(), "deflection": (def_vals * 1000).tolist(),
@@ -336,7 +357,9 @@ async def analyze_buckling(data: BucklingInput):
     elif data.bc == "fixed-fixed":
         y_vals = 1 - np.cos(2 * math.pi * x_vals / data.L)
     else: # fixed-pinned
-        y_vals = np.sin(math.pi * x_vals / data.L) - (x_vals/data.L) * np.sin(math.pi) # Approx
+        # Correct transcendental eigenvalue: βL ≈ 4.4934
+        beta = 4.4934 / data.L
+        y_vals = np.sin(beta * x_vals) - (np.sin(4.4934) / np.sinh(4.4934)) * np.sinh(beta * x_vals)
 
     return {
         "Pcr": Pcr,

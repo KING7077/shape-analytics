@@ -633,3 +633,13 @@ input[readonly] {
 .secondary-btn:active {
     transform: scale(0.985);
 }
+
+/* =============================================
+   Diagram Canvas (replaces inline styles)
+   ============================================= */
+.diagram-canvas {
+    width: 100%;
+    border: 1px solid var(--color-panel-border);
+    border-radius: var(--radius);
+    background: var(--color-surface);
+}

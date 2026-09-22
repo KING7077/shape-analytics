@@ -41,16 +41,58 @@ def get_mohr_circle_parameters(stress_tensor: np.ndarray):
         "principal_stresses": ps
     }
 
+def get_stress_invariants(stress_tensor: np.ndarray):
+    """
+    Computes the three stress invariants (Lecture 10).
+    I1 = tr(σ), I2 = 0.5*(tr(σ)² - tr(σ²)), I3 = det(σ)
+    """
+    I1 = float(np.trace(stress_tensor))
+    I2 = float(0.5 * (np.trace(stress_tensor)**2 - np.trace(stress_tensor @ stress_tensor)))
+    I3 = float(np.linalg.det(stress_tensor))
+    sigma_m = I1 / 3.0  # Hydrostatic (mean) stress
+    deviatoric = stress_tensor - sigma_m * np.eye(3)
+    return {
+        "I1": I1, "I2": I2, "I3": I3,
+        "sigma_m": sigma_m,
+        "deviatoric_matrix": deviatoric.tolist()
+    }
+
 def get_failure_criteria(stress_tensor: np.ndarray):
     ps, _ = get_principal_stresses(stress_tensor)
     s1, s2, s3 = ps[0], ps[1], ps[2]
     vm = np.sqrt(((s1-s2)**2 + (s2-s3)**2 + (s3-s1)**2) / 2.0)
     tresca = s1 - s3
-    return {"von_mises": vm, "tresca": tresca}
+    sigma_m = float(np.trace(stress_tensor)) / 3.0
+    return {"von_mises": vm, "tresca": tresca, "sigma_m": sigma_m}
+
+def get_strain_energy_density(stress_tensor: np.ndarray, E: float, nu: float):
+    """
+    Computes the total strain energy density and its decomposition (Lectures 29-30).
+    U_total = (1/2) * σ_ij * ε_ij = (1/2) * tr(σ·ε)
+    U_vol   = (3(1-2ν) / 2E) * σ_m²    (volumetric / hydrostatic)
+    U_dist  = U_total - U_vol           (distortional, governs von Mises)
+    """
+    # Compute strain via Hooke's Law
+    s_kk = np.trace(stress_tensor)
+    strain_tensor = ((1.0 + nu) / E) * stress_tensor - (nu / E) * s_kk * np.eye(3)
+    # Total strain energy density: U = (1/2) tr(σ·ε)
+    U_total = float(0.5 * np.sum(stress_tensor * strain_tensor))
+    # Volumetric component
+    sigma_m = s_kk / 3.0
+    U_vol = float((3.0 * (1.0 - 2.0 * nu) / (2.0 * E)) * sigma_m**2)
+    # Distortional component (directly related to von Mises)
+    U_dist = U_total - U_vol
+    return {
+        "U_total": U_total,
+        "U_vol": U_vol,
+        "U_dist": U_dist
+    }
 
 def get_strain_tensor(stress_tensor: np.ndarray, E: float, nu: float):
-    # Generalized Hooke's Law for Isotropic Material
-    # e_ij = (1+nu)/E * s_ij - nu/E * s_kk * d_ij
+    """
+    Generalized Hooke's Law for Isotropic Material (Lecture 11).
+    ε_ij = (1+ν)/E * σ_ij - ν/E * σ_kk * δ_ij
+    """
     s_kk = np.trace(stress_tensor)
     strain_tensor = ((1.0 + nu) / E) * stress_tensor - (nu / E) * s_kk * np.eye(3)
     e_kk = np.trace(strain_tensor)
@@ -62,6 +104,9 @@ def get_strain_tensor(stress_tensor: np.ndarray, E: float, nu: float):
     }
 
 def get_traction_vector(stress_tensor: np.ndarray, n: list):
+    """
+    Cauchy's stress theorem (Lecture 2): T = σ · n̂
+    """
     n_arr = np.array(n, dtype=float)
     n_norm = np.linalg.norm(n_arr)
     if n_norm > 0:

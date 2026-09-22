@@ -100,6 +100,15 @@
                         <p><span><span class="math"><b>T</b></span> (Traction):</span> <span>[<span id="pt-tx">-</span>, <span id="pt-ty">-</span>, <span id="pt-tz">-</span>] MPa</span></p>
                         <p><span>Normal <span class="math">σ<sub>n</sub></span>:</span> <span><span id="pt-sn">-</span> MPa</span></p>
                         <p><span>Shear <span class="math">τ<sub>n</sub></span>:</span> <span><span id="pt-tn">-</span> MPa</span></p>
+                        <h3>Stress Invariants</h3>
+                        <p><span><span class="math">I<sub>1</sub></span>:</span> <span><span id="pt-i1">-</span> MPa</span></p>
+                        <p><span><span class="math">I<sub>2</sub></span>:</span> <span><span id="pt-i2">-</span> MPa²</span></p>
+                        <p><span><span class="math">I<sub>3</sub></span>:</span> <span><span id="pt-i3">-</span> MPa³</span></p>
+                        <p><span>Hydrostatic <span class="math">σ<sub>m</sub></span>:</span> <span><span id="pt-sm">-</span> MPa</span></p>
+                        <h3>Strain Energy Density</h3>
+                        <p><span>Total <span class="math">U<sub>0</sub></span>:</span> <span><span id="pt-u0">-</span> J/m³</span></p>
+                        <p><span>Volumetric <span class="math">U<sub>vol</sub></span>:</span> <span><span id="pt-uvol">-</span> J/m³</span></p>
+                        <p><span>Distortional <span class="math">U<sub>dist</sub></span>:</span> <span><span id="pt-udist">-</span> J/m³</span></p>
                     </div>
                 </div>
             </article>
@@ -188,7 +197,7 @@
                 
                 <div class="panel">
                     <h3>Beam Diagram</h3>
-                    <canvas id="beam-canvas" width="800" height="150" style="width: 100%; border: 1px solid #1a2233; border-radius: 4px; background: #080c16;"></canvas>
+                    <canvas id="beam-canvas" width="800" height="150" class="diagram-canvas"></canvas>
                 </div>
             </article>
         </section>
@@ -410,8 +419,13 @@
                             <label for="th-constraint">Boundary Constraint:</label>
                             <select id="th-constraint" class="select-input">
                                 <option value="free">Free Expansion (No walls)</option>
-                                <option value="fixed">Fixed Both Ends</option>
+                                <option value="fixed-fixed">Fixed Both Ends</option>
+                                <option value="partial">Partial Constraint (Gap)</option>
                             </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="th-gap">Gap <span class="math">δ<sub>gap</sub></span> (mm, for partial):</label>
+                            <input type="number" id="th-gap" value="0.5" step="0.1">
                         </div>
                         <div class="input-group">
                             <label for="th-dt">Temp Change <span class="math">ΔT</span> (°C):</label>

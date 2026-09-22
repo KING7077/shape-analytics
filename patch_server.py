@@ -1,4 +1,3 @@
-import sys
 
 with open('/home/srirammohan/Desktop/college/solid-mech-project/solid-mechanics-web/server.py', 'r') as f:
     lines = f.readlines()

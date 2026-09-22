@@ -1,4 +1,3 @@
-import sys
 
 with open('solid-mechanics-web/app.js', 'r') as f:
     content = f.read()

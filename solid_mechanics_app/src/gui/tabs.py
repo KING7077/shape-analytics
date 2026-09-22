@@ -1,11 +1,9 @@
-import sys
 import numpy as np
 import requests
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QLineEdit, QPushButton, QGroupBox,
-    QComboBox, QCheckBox, QFormLayout, QTableWidget, QTableWidgetItem, QHeaderView, QSplitter, QMessageBox, QScrollArea
+    QComboBox, QCheckBox, QFormLayout
 )
-from PyQt6.QtCore import Qt
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from gui.gl_widget import GLStressCubeWidget

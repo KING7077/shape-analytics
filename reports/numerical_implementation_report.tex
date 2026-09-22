@@ -1,0 +1,169 @@
+\documentclass[11pt, a4paper]{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\geometry{margin=1in}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{style=mystyle}
+
+\title{\textbf{Solid Mechanics Numerical Implementation Report} \\ \Large A Comparative Analysis of Theoretical Physics and Numerical Methods}
+\author{Solid Mechanics Simulator Engine}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This report outlines the core solid mechanics physics derived from the lecture syllabus (Stress/Strain Tensors, Beam Bending, Axisymmetric Problems, Section Properties, and Column Buckling) and maps them directly to the numerical implementations utilized in the Python FastAPI and PyQt6 math engine.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\section{Introduction}
+The objective of the interactive solid mechanics laboratory is to bridge analytical solid mechanics formulations with discrete numerical evaluation. The application handles multi-dimensional tensors, differential integrations for deflection, and failure criterion evaluations using \texttt{numpy} arrays and linear algebra subroutines.
+
+\section{Module 1: Stress, Strain, and Tensors}
+\subsection{Principal Stresses and Invariants (Lectures 7-10)}
+\textbf{Theory:} Principal stresses ($\sigma_1, \sigma_2, \sigma_3$) are found by solving the eigenvalue problem for the Cauchy stress tensor $\boldsymbol{\sigma}$:
+\begin{equation}
+\det(\boldsymbol{\sigma} - \lambda \mathbf{I}) = 0
+\end{equation}
+Where the roots $\lambda_i$ are the principal stresses.
+
+\textbf{Numerical Implementation:} 
+Instead of symbolically solving the cubic characteristic polynomial, the engine utilizes LAPACK routines via \texttt{numpy.linalg.eig()}, which numerically computes eigenvalues via QR decomposition.
+\begin{lstlisting}[language=Python]
+# tensor_math.py
+eigenvalues, eigenvectors = np.linalg.eig(tensor)
+idx = eigenvalues.argsort()[::-1]   
+ps = eigenvalues[idx] # [sigma_1, sigma_2, sigma_3]
+\end{lstlisting}
+
+\subsection{Arbitrary Traction Vectors (Lecture 2)}
+\textbf{Theory:} The traction vector $\mathbf{T}$ on a plane defined by normal $\mathbf{\hat{n}}$ is given by Cauchy's stress theorem:
+\begin{equation}
+\mathbf{T} = \boldsymbol{\sigma} \mathbf{\hat{n}}
+\end{equation}
+Normal stress $\sigma_n = \mathbf{T} \cdot \mathbf{\hat{n}}$ and shear stress $\tau_n = \sqrt{|\mathbf{T}|^2 - \sigma_n^2}$.
+
+\textbf{Numerical Implementation:}
+\begin{lstlisting}[language=Python]
+n_vec = np.array(n_vec)
+n_hat = n_vec / np.linalg.norm(n_vec)
+T = np.dot(tensor, n_hat)
+sigma_n = np.dot(T, n_hat)
+tau_n = np.sqrt(np.linalg.norm(T)**2 - sigma_n**2)
+\end{lstlisting}
+
+\section{Module 2: Beam Bending and Deflection}
+\subsection{Euler-Bernoulli Deflection (Lecture 27)}
+\textbf{Theory:} Deflection $v(x)$ is defined by integrating the bending moment $M(x)$ twice:
+\begin{equation}
+\frac{d^2v}{dx^2} = \frac{M(x)}{EI} \implies v(x) = \iint \frac{M(x)}{EI} dx dx + C_1 x + C_2
+\end{equation}
+
+\textbf{Numerical Implementation:}
+The beam is discretized into $N$ points. Integration is handled via cumulative trapezoidal summation. Constants $C_1$ and $C_2$ are explicitly solved using the geometric boundary conditions (e.g., $v(0)=0$ and $v(L)=0$ for simply supported beams).
+\begin{lstlisting}[language=Python]
+import scipy.integrate as integrate
+theta = integrate.cumtrapz(M / (E * I), x, initial=0)
+v = integrate.cumtrapz(theta, x, initial=0)
+# Enforce boundary conditions mathematically
+v_corrected = v - (v[-1]/L) * x 
+\end{lstlisting}
+
+\section{Module 3: Axisymmetric Problems}
+\subsection{Thick-Walled Pressure Vessels (Lecture 20)}
+\textbf{Theory:} Lam\'{e}'s equations for internal pressure $p_i$ yield radial and hoop stresses:
+\begin{equation}
+\sigma_r = \frac{p_i r_i^2}{r_o^2 - r_i^2} \left(1 - \frac{r_o^2}{r^2}\right), \quad \sigma_\theta = \frac{p_i r_i^2}{r_o^2 - r_i^2} \left(1 + \frac{r_o^2}{r^2}\right)
+\end{equation}
+
+\textbf{Numerical Implementation:}
+Evaluated over an array representing the radial continuum $r \in [r_i, r_o]$.
+\begin{lstlisting}[language=Python]
+r_vals = np.linspace(ri, ro, 50)
+term1 = (p * ri**2) / (ro**2 - ri**2)
+sigma_r = term1 * (1 - (ro**2 / r_vals**2))
+sigma_t = term1 * (1 + (ro**2 / r_vals**2))
+\end{lstlisting}
+
+\section{Module 4: Section Properties \& Shear Center}
+\subsection{Geometric Exactness (Lecture 26)}
+\textbf{Theory:} The exact moment of inertia of a composite shape is defined by the parallel axis theorem $I_x = \sum (I_{xi} + A_i d_i^2)$. The shear center eccentricity $e$ for a thin-walled C-channel is $e = \frac{b^2 h^2 t}{4 I_x}$.
+
+\textbf{Numerical Implementation:}
+The math engine avoids thin-walled approximations for fundamental geometry by computing the distinct rectangular sub-components.
+\begin{lstlisting}[language=Python]
+# Exact Centroid
+Qy = A_web * (t/2) + 2 * (A_flange * (b/2))
+xc = Qy / A_total
+
+# Exact Inertia using Parallel Axis
+Ix_flange = (b * t**3)/12.0 + A_flange * d_flange**2
+Ix_total = Ix_web + 2 * Ix_flange
+\end{lstlisting}
+
+\section{Module 5: Column Buckling}
+\subsection{Euler and Johnson Criteria (Lecture 28)}
+\textbf{Theory:} Slender columns buckle at $P_{cr} = \frac{\pi^2 EI}{(KL)^2}$. Intermediate columns yield according to the Johnson Parabola: $P_{cr} = A \left[ S_y - \frac{S_y^2 (KL/r)^2}{4 \pi^2 E} \right]$.
+
+\textbf{Numerical Implementation:}
+Conditional execution branching maps the critical slenderness ratio against the material's yield limits.
+\begin{lstlisting}[language=Python]
+slenderness = (K * L) / r
+sig_cr_euler = (math.pi**2 * E) / (slenderness**2)
+
+if sig_cr_euler > Sy / 2:
+    sig_cr = Sy - (Sy**2 * slenderness**2) / (4 * math.pi**2 * E)
+else:
+    sig_cr = sig_cr_euler
+\end{lstlisting}
+
+\section{Module 6: Theories of Failure}
+\subsection{Von Mises \& Tresca Criteria (Lectures 31-32)}
+\textbf{Theory:} 
+Tresca: $\sigma_{failure} = \sigma_1 - \sigma_3$ \\
+Von Mises: $\sigma_{VM} = \sqrt{\frac{1}{2} \left[ (\sigma_1 - \sigma_2)^2 + (\sigma_2 - \sigma_3)^2 + (\sigma_3 - \sigma_1)^2 \right]}$
+
+\textbf{Numerical Implementation:}
+These are executed immediately following the \texttt{np.linalg.eig} routine in the principal stress domain to evaluate the live Factor of Safety.
+\begin{lstlisting}[language=Python]
+tresca = ps[0] - ps[2]
+vm = np.sqrt(0.5 * ((ps[0]-ps[1])**2 + (ps[1]-ps[2])**2 + (ps[2]-ps[0])**2))
+FS_tresca = Sy / tresca
+FS_vm = Sy / vm
+\end{lstlisting}
+
+\end{document}

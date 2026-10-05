@@ -258,18 +258,19 @@ function resetColors() {
 
 // Boussinesq Approximation
 function calculateHalfSpaceDisplacement(x, y, z, Px, Py, Pz, a, nu, E) {
-    const R = Math.sqrt(x*x + y*y + z*z + a*a);
-    const Rz = R + z;
+    const z_eff = z + a;
     const r2 = x*x + y*y;
+    const R = Math.sqrt(r2 + z_eff*z_eff);
+    const Rz = R + z_eff;
     
     let ux = 0, uy = 0, uz = 0;
     
     // Normal load (Pz) - Boussinesq
     if (Math.abs(Pz) > 0) {
         const C = (Pz * (1 + nu)) / (2 * Math.PI * E * R);
-        uz += C * (2 * (1 - nu) + (z * z) / (R * R));
+        uz += C * (2 * (1 - nu) + (z_eff * z_eff) / (R * R));
         if (r2 > 0) {
-            const ur = (Pz * (1 - 2*nu) * (1 + nu)) / (2 * Math.PI * E * Math.sqrt(r2)) * ((z/R) - 1 + (r2*z)/(R*R*R));
+            const ur = (Pz * (1 - 2*nu) * (1 + nu)) / (2 * Math.PI * E * Math.sqrt(r2)) * ((z_eff/R) - 1 + (r2*z_eff)/(R*R*R));
             ux += ur * (x / Math.sqrt(r2));
             uy += ur * (y / Math.sqrt(r2));
         }
@@ -280,7 +281,7 @@ function calculateHalfSpaceDisplacement(x, y, z, Px, Py, Pz, a, nu, E) {
         const C = (Px * (1 + nu)) / (2 * Math.PI * E * R);
         ux += C * (1 + (x*x)/(R*R) + (1 - 2*nu)*(R/Rz - (x*x)/(Rz*Rz)));
         uy += C * ((x*y)/(R*R) - (1 - 2*nu)*((x*y)/(Rz*Rz)));
-        uz += C * ((x*z)/(R*R) + (1 - 2*nu)*(x/Rz));
+        uz += C * ((x*z_eff)/(R*R) + (1 - 2*nu)*(x/Rz));
     }
     
     // Shear load Y (Py) - Cerruti
@@ -288,25 +289,27 @@ function calculateHalfSpaceDisplacement(x, y, z, Px, Py, Pz, a, nu, E) {
         const C = (Py * (1 + nu)) / (2 * Math.PI * E * R);
         ux += C * ((x*y)/(R*R) - (1 - 2*nu)*((x*y)/(Rz*Rz)));
         uy += C * (1 + (y*y)/(R*R) + (1 - 2*nu)*(R/Rz - (y*y)/(Rz*Rz)));
-        uz += C * ((y*z)/(R*R) + (1 - 2*nu)*(y/Rz));
+        uz += C * ((y*z_eff)/(R*R) + (1 - 2*nu)*(y/Rz));
     }
     
     return { ux, uy, uz };
 }
 function calculateBoussinesq(r, z, P, a = 0) {
-    const R = Math.sqrt(r*r + z*z + a*a);
+    // Equivalent depth to simulate distributed patch load
+    const z_eff = z + a;
+    const R = Math.sqrt(r*r + z_eff*z_eff);
     
     const nu = 0.3; 
     const E = state.material;
     
-    const sz = (3 * P * z * z * z) / (2 * Math.PI * Math.pow(R, 5));
-    const sr = (P / (2 * Math.PI)) * ( (3 * r * r * z)/Math.pow(R, 5) - ((1 - 2*nu)/(R * (R + z))) );
-    const trz = (3 * P * r * z * z) / (2 * Math.PI * Math.pow(R, 5));
+    const sz = (3 * P * z_eff * z_eff * z_eff) / (2 * Math.PI * Math.pow(R, 5));
+    const sr = (P / (2 * Math.PI)) * ( (3 * r * r * z_eff)/Math.pow(R, 5) - ((1 - 2*nu)/(R * (R + z_eff))) );
+    const trz = (3 * P * r * z_eff * z_eff) / (2 * Math.PI * Math.pow(R, 5));
     
-    const uz = (P * (1 + nu) / (2 * Math.PI * E * R)) * (2 * (1 - nu) + (z * z) / (R * R));
+    const uz = (P * (1 + nu) / (2 * Math.PI * E * R)) * (2 * (1 - nu) + (z_eff * z_eff) / (R * R));
     let ur = 0;
     if(r > 0) {
-        ur = (P * (1 - 2*nu) * (1 + nu)) / (2 * Math.PI * E * r) * ( (z/R) - 1 + (r*r*z)/Math.pow(R,3) );
+        ur = (P * (1 - 2*nu) * (1 + nu)) / (2 * Math.PI * E * r) * ( (z_eff/R) - 1 + (r*r*z_eff)/Math.pow(R,3) );
     }
     
     return { sz, sr, trz, uz, ur };

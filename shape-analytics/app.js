@@ -1,5 +1,4 @@
-import * as THREE from 'https://unpkg.com/three@0.128.0/build/three.module.js';
-import { OrbitControls } from 'https://unpkg.com/three@0.128.0/examples/jsm/controls/OrbitControls.js';
+
 
 function $(id) { return document.getElementById(id); }
 
@@ -100,7 +99,7 @@ const renderer = new THREE.WebGLRenderer({ canvas: $('three-canvas'), antialias:
 renderer.setSize(container.clientWidth, container.clientHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 
-const controls = new OrbitControls(camera, renderer.domElement);
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
 
@@ -406,8 +405,7 @@ function animate() {
     controls.update(); 
     renderer.render(scene, camera);
 }
-updateGeometry();
-animate();
+
 
 const layoutDark = {
     paper_bgcolor: '#0e1525', plot_bgcolor: '#0e1525',
@@ -440,3 +438,7 @@ function updateAnalyticsPlots() {
 }
 
 setTimeout(updateAnalyticsPlots, 500);
+
+updateGeometry();
+animate();
+

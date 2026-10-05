@@ -316,7 +316,7 @@ function computeStressField() {
         const inPlane = relPos.clone().sub(nz.clone().multiplyScalar(depth));
         const r = inPlane.length();
         
-        const res = calculateBoussinesq(r, depth, P * Math.max(0.1, Math.abs(fz))); // Approximate normal Boussinesq
+        const res = calculateBoussinesq(r, depth, P); 
         
         // Deformation
         const scale = state.defScale * 1e6; 
@@ -325,14 +325,8 @@ function computeStressField() {
         let dir = new THREE.Vector3(0,0,0);
         if(r > 0) dir.copy(inPlane).normalize();
         
-        // Displacement: uz along inward normal, ur radially outwards
-        let disp = nz.clone().multiplyScalar(res.uz).add(dir.multiplyScalar(res.ur));
-        
-        // Apply tangential shear displacement approximation (Cerruti simplified)
-        if (state.tractionType === 'arbitrary') {
-            disp.add(nx.clone().multiplyScalar(res.uz * fx * 0.5));
-            disp.add(ny.clone().multiplyScalar(res.uz * fy * 0.5));
-        }
+        // Displacement: uz along force direction, ur radially outwards
+        let disp = forceDir.clone().multiplyScalar(res.uz).add(dir.multiplyScalar(res.ur));
         
         disp.multiplyScalar(scale);
         

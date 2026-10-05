@@ -253,7 +253,7 @@ function resetColors() {
 // Boussinesq Approximation
 function calculateBoussinesq(r, z, P) {
     const R = Math.sqrt(r*r + z*z);
-    if (R < 0.1) return { sz: 0, sr: 0, trz: 0, uz: 0, ur: 0 };
+    // Removed R < 0.1 check because we will offset depth by patch radius to avoid singularity
     
     const nu = 0.3; 
     const E = 200e9; 
@@ -310,11 +310,14 @@ function computeStressField() {
         const relPos = vertexPos.clone().sub(loadPoint);
         
         // Depth is projection along the inward normal
-        const depth = Math.max(0.01, relPos.dot(nz)); 
+        let depth = Math.max(0.01, relPos.dot(nz)); 
         
         // In-plane radial vector
         const inPlane = relPos.clone().sub(nz.clone().multiplyScalar(depth));
         const r = inPlane.length();
+        
+        // Offset depth for physics to simulate distributed load and avoid point-load singularity
+        depth += state.patch * 0.5;
         
         const res = calculateBoussinesq(r, depth, P); 
         

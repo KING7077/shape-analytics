@@ -257,9 +257,44 @@ function resetColors() {
 }
 
 // Boussinesq Approximation
-function calculateBoussinesq(r, z, P) {
-    const R = Math.sqrt(r*r + z*z);
-    // Removed R < 0.1 check because we will offset depth by patch radius to avoid singularity
+function calculateHalfSpaceDisplacement(x, y, z, Px, Py, Pz, a, nu, E) {
+    const R = Math.sqrt(x*x + y*y + z*z + a*a);
+    const Rz = R + z;
+    const r2 = x*x + y*y;
+    
+    let ux = 0, uy = 0, uz = 0;
+    
+    // Normal load (Pz) - Boussinesq
+    if (Math.abs(Pz) > 0) {
+        const C = (Pz * (1 + nu)) / (2 * Math.PI * E * R);
+        uz += C * (2 * (1 - nu) + (z * z) / (R * R));
+        if (r2 > 0) {
+            const ur = (Pz * (1 - 2*nu) * (1 + nu)) / (2 * Math.PI * E * Math.sqrt(r2)) * ((z/R) - 1 + (r2*z)/(R*R*R));
+            ux += ur * (x / Math.sqrt(r2));
+            uy += ur * (y / Math.sqrt(r2));
+        }
+    }
+    
+    // Shear load X (Px) - Cerruti
+    if (Math.abs(Px) > 0) {
+        const C = (Px * (1 + nu)) / (2 * Math.PI * E * R);
+        ux += C * (1 + (x*x)/(R*R) + (1 - 2*nu)*(R/Rz - (x*x)/(Rz*Rz)));
+        uy += C * ((x*y)/(R*R) - (1 - 2*nu)*((x*y)/(Rz*Rz)));
+        uz += C * ((x*z)/(R*R) + (1 - 2*nu)*(x/Rz));
+    }
+    
+    // Shear load Y (Py) - Cerruti
+    if (Math.abs(Py) > 0) {
+        const C = (Py * (1 + nu)) / (2 * Math.PI * E * R);
+        ux += C * ((x*y)/(R*R) - (1 - 2*nu)*((x*y)/(Rz*Rz)));
+        uy += C * (1 + (y*y)/(R*R) + (1 - 2*nu)*(R/Rz - (y*y)/(Rz*Rz)));
+        uz += C * ((y*z)/(R*R) + (1 - 2*nu)*(y/Rz));
+    }
+    
+    return { ux, uy, uz };
+}
+function calculateBoussinesq(r, z, P, a = 0) {
+    const R = Math.sqrt(r*r + z*z + a*a);
     
     const nu = 0.3; 
     const E = state.material;
@@ -315,29 +350,35 @@ function computeStressField() {
         // Vector from load point to vertex
         const relPos = vertexPos.clone().sub(loadPoint);
         
-        // Depth is projection along the inward normal
-        let depth = Math.max(0.01, relPos.dot(nz)); 
+        // Local coordinates x, y, z
+        const x = relPos.dot(nx);
+        const y = relPos.dot(ny);
+        const z = Math.max(0.01, relPos.dot(nz)); 
         
-        // In-plane radial vector
-        const inPlane = relPos.clone().sub(nz.clone().multiplyScalar(depth));
-        const r = inPlane.length();
+        const r = Math.sqrt(x*x + y*y);
         
-        // Offset depth for physics to simulate distributed load and avoid point-load singularity
-        depth += state.patch * 0.5;
+        // Stresses (Approximated using purely normal Boussinesq logic for the heat map)
+        const res = calculateBoussinesq(r, z, P, state.patch); 
         
-        const res = calculateBoussinesq(r, depth, P); 
+        // Accurate Displacements using Boussinesq + Cerruti superposition
+        const Px = P * fx;
+        const Py = P * fy;
+        const Pz = P * fz;
+        const dispVals = calculateHalfSpaceDisplacement(x, y, z, Px, Py, Pz, state.patch, 0.3, state.material);
         
-        // Deformation
+        let disp = nx.clone().multiplyScalar(dispVals.ux)
+                     .add(ny.clone().multiplyScalar(dispVals.uy))
+                     .add(nz.clone().multiplyScalar(dispVals.uz));
+        
+        // Deformation scaling
         const scale = state.defScale * 1e6; 
-        
-        // Radial vector direction
-        let dir = new THREE.Vector3(0,0,0);
-        if(r > 0) dir.copy(inPlane).normalize();
-        
-        // Displacement: uz along force direction, ur radially outwards
-        let disp = forceDir.clone().multiplyScalar(res.uz).add(dir.multiplyScalar(res.ur));
-        
         disp.multiplyScalar(scale);
+        
+        // Prevent single-vertex spikes from exceeding reasonable mesh bounds
+        const maxDisp = 5.0; 
+        if (disp.length() > maxDisp) {
+            disp.multiplyScalar(maxDisp / disp.length());
+        }
         
         positions[i*3]   = bx + disp.x;
         positions[i*3+1] = by + disp.y;

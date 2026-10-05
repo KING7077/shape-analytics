@@ -50,6 +50,16 @@
                             <option value="sphere">Sphere</option>
                         </select>
                     </div>
+                    <div class="control-group" style="margin-top: 1rem;">
+                        <label>Material (Young's Modulus)</label>
+                        <select id="in-material">
+                            <option value="200e9">Steel (200 GPa)</option>
+                            <option value="70e9">Aluminum (70 GPa)</option>
+                            <option value="30e9">Concrete (30 GPa)</option>
+                            <option value="3e9">Plastic/Polymer (3 GPa)</option>
+                            <option value="0.01e9">Rubber (10 MPa)</option>
+                        </select>
+                    </div>
                     <div id="dims-cuboid" style="display:block;">
                         <div class="control-group"><label>Length (X) <span class="val" id="val-dim-x">10 m</span></label><input type="range" id="in-dim-x" min="1" max="20" step="0.5" value="10"></div>
                         <div class="control-group"><label>Width (Y) <span class="val" id="val-dim-y">5 m</span></label><input type="range" id="in-dim-y" min="1" max="20" step="0.5" value="5"></div>

@@ -12,7 +12,8 @@ const state = {
     tractionType: 'normal',
     vecX: 1, vecY: -1, vecZ: 0,
     mapType: 'sigma_n',
-    defScale: 1
+    defScale: 1,
+    material: 200e9
 };
 
 // Current load application point and surface normal
@@ -39,6 +40,11 @@ bindSlider('sph-r', 'sphR', 'm');
 bindSlider('force', 'force', 'kN');
 bindSlider('patch', 'patch', 'm');
 bindSlider('def-scale', 'defScale', 'x');
+
+$('in-material').addEventListener('change', (e) => {
+    state.material = parseFloat(e.target.value);
+    computeStressField();
+});
 
 $('in-shape').addEventListener('change', (e) => {
     state.shape = e.target.value;
@@ -256,7 +262,7 @@ function calculateBoussinesq(r, z, P) {
     // Removed R < 0.1 check because we will offset depth by patch radius to avoid singularity
     
     const nu = 0.3; 
-    const E = 200e9; 
+    const E = state.material;
     
     const sz = (3 * P * z * z * z) / (2 * Math.PI * Math.pow(R, 5));
     const sr = (P / (2 * Math.PI)) * ( (3 * r * r * z)/Math.pow(R, 5) - ((1 - 2*nu)/(R * (R + z))) );
@@ -341,7 +347,7 @@ function computeStressField() {
         if (state.mapType === 'sigma_n') val = res.sz;
         if (state.mapType === 'tau_max') val = res.trz;
         if (state.mapType === 'von_mises') val = Math.sqrt(res.sz*res.sz - res.sz*res.sr + res.sr*res.sr + 3*res.trz*res.trz);
-        if (state.mapType === 'strain_mag') val = val / 200e9; 
+        if (state.mapType === 'strain_mag') val = val / state.material;
         
         val = val / 1e6; 
         stressValues[i] = val;
@@ -355,7 +361,7 @@ function computeStressField() {
     $('out-sigma-max').innerHTML = `${maxSigmaN.toFixed(1)} <span class="unit">MPa</span>`;
     $('out-tau-max').innerHTML = `${maxTau.toFixed(1)} <span class="unit">MPa</span>`;
     $('out-vm-max').innerHTML = `${maxVM.toFixed(1)} <span class="unit">MPa</span>`;
-    $('out-eps-max').innerHTML = `${(maxVM * 1e6 / 200e9 * 1e6).toFixed(1)} <span class="unit">με</span>`;
+    $('out-eps-max').innerHTML = `${(maxVM * 1e6 / state.material * 1e6).toFixed(1)} <span class="unit">με</span>`;
     
     const maxVal = Math.max(...stressValues);
     for (let i = 0; i < count; i++) {
@@ -430,7 +436,7 @@ function updateAnalyticsPlots() {
     ], { ...layoutDark, title: { text: 'Stress Distribution at Depth z=2m', font: { color: '#eceff4' } } });
     
     Plotly.react('plot-strain-dist', [
-        { x: rVals, y: szVals.map(v => v / 2e5 * 1e6), line: { color: '#6366f1' } } 
+        { x: rVals, y: szVals.map(v => v / (state.material / 1e6) * 1e6), line: { color: '#6366f1' } } 
     ], { ...layoutDark, title: { text: 'Strain Distribution (με)', font: { color: '#eceff4' } } });
 }
 

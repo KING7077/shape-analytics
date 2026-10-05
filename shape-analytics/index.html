@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shape Analytics | Solid Mechanics</title>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Shape Analytics <span>3D Traction & Stress Field Simulation</span></h1>
+        <nav role="tablist">
+            <button role="tab" id="tab-controls" aria-controls="panel-controls" aria-selected="true">⚙️ Geometry & Load</button>
+            <button role="tab" id="tab-analytics" aria-controls="panel-analytics" aria-selected="false">📊 Section Analytics</button>
+        </nav>
+    </header>
+
+    <main class="app-layout">
+        <!-- 3D Viewport always visible on the left -->
+        <section class="main-content">
+            <div class="viewport-container" id="three-container">
+                <canvas id="three-canvas"></canvas>
+            </div>
+            <div class="readout-grid">
+                <div class="readout-card"><span class="label">Max Normal Stress</span><span class="value" id="out-sigma-max">0.0 <span class="unit">MPa</span></span></div>
+                <div class="readout-card"><span class="label">Max Shear Stress</span><span class="value" id="out-tau-max">0.0 <span class="unit">MPa</span></span></div>
+                <div class="readout-card"><span class="label">Max Von Mises</span><span class="value" id="out-vm-max">0.0 <span class="unit">MPa</span></span></div>
+                <div class="readout-card"><span class="label">Max Strain</span><span class="value" id="out-eps-max">0.0 <span class="unit">με</span></span></div>
+            </div>
+            <div class="equation-bar">
+                <span><span class="math">t = σ^T n</span> (Cauchy's Theorem)</span>
+                <span>OrbitControls Active (Drag to Rotate, Scroll to Zoom)</span>
+            </div>
+        </section>
+
+        <!-- Right Sidebar with Tabs -->
+        <aside class="sidebar-container">
+            <!-- Controls Tab -->
+            <div id="panel-controls" role="tabpanel" aria-hidden="false" class="sidebar-panel">
+                <div class="panel">
+                    <h2>Geometry</h2>
+                    <div class="control-group">
+                        <label>Shape</label>
+                        <select id="in-shape">
+                            <option value="cuboid">Cuboid</option>
+                            <option value="cylinder">Cylinder</option>
+                            <option value="sphere">Sphere</option>
+                        </select>
+                    </div>
+                    <div id="dims-cuboid" style="display:block;">
+                        <div class="control-group"><label>Length (X) <span class="val" id="val-dim-x">10 m</span></label><input type="range" id="in-dim-x" min="1" max="20" step="0.5" value="10"></div>
+                        <div class="control-group"><label>Width (Y) <span class="val" id="val-dim-y">5 m</span></label><input type="range" id="in-dim-y" min="1" max="20" step="0.5" value="5"></div>
+                        <div class="control-group"><label>Height (Z) <span class="val" id="val-dim-z">5 m</span></label><input type="range" id="in-dim-z" min="1" max="20" step="0.5" value="5"></div>
+                    </div>
+                    <div id="dims-cylinder" style="display:none;">
+                        <div class="control-group"><label>Radius <span class="val" id="val-cyl-r">5 m</span></label><input type="range" id="in-cyl-r" min="1" max="10" step="0.5" value="5"></div>
+                        <div class="control-group"><label>Height (Z) <span class="val" id="val-cyl-h">10 m</span></label><input type="range" id="in-cyl-h" min="1" max="20" step="0.5" value="10"></div>
+                    </div>
+                    <div id="dims-sphere" style="display:none;">
+                        <div class="control-group"><label>Radius <span class="val" id="val-sph-r">5 m</span></label><input type="range" id="in-sph-r" min="1" max="10" step="0.5" value="5"></div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h2>Load Application</h2>
+                    <div class="control-group">
+                        <label>Force Magnitude <span class="val" id="val-force">100 kN</span></label>
+                        <input type="range" id="in-force" min="10" max="1000" step="10" value="100">
+                    </div>
+                    <div class="control-group">
+                        <label>Patch Size (Radius) <span class="val" id="val-patch">1.0 m</span></label>
+                        <input type="range" id="in-patch" min="0.1" max="5.0" step="0.1" value="1.0">
+                    </div>
+                    <div class="control-group" style="margin-top: 1rem;">
+                        <label>Traction Direction</label>
+                        <select id="in-traction-type">
+                            <option value="normal">Along Surface Normal (Pressure)</option>
+                            <option value="arbitrary">Arbitrary Vector (Uniform Shear+Normal)</option>
+                        </select>
+                    </div>
+                    <div id="vector-inputs" style="display:none; margin-top: 0.5rem;">
+                        <div style="display:flex; gap:0.5rem;">
+                            <input type="number" id="in-vec-x" value="1" step="0.1" title="X component">
+                            <input type="number" id="in-vec-y" value="-1" step="0.1" title="Y component">
+                            <input type="number" id="in-vec-z" value="0" step="0.1" title="Z component">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h2>Visualization</h2>
+                    <div class="control-group">
+                        <label>Display Map</label>
+                        <select id="in-map-type">
+                            <option value="sigma_n">Normal Stress (σ_n)</option>
+                            <option value="tau_max">Max Shear Stress (τ_max)</option>
+                            <option value="von_mises">Von Mises Stress (σ_v)</option>
+                            <option value="strain_mag">Strain Magnitude (|ε|)</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>Deformation Exaggeration <span class="val" id="val-def-scale">1x</span></label>
+                        <input type="range" id="in-def-scale" min="0" max="50" step="1" value="1">
+                    </div>
+                    <button class="btn-primary" id="btn-compute" style="margin-top: 1rem;">Compute Fields</button>
+                </div>
+            </div>
+
+            <!-- Analytics Tab -->
+            <div id="panel-analytics" role="tabpanel" aria-hidden="true" class="sidebar-panel">
+                <div class="panel">
+                    <h2>Cross Section</h2>
+                    <div class="control-group">
+                        <label>Slice Plane</label>
+                        <select id="in-slice">
+                            <option value="z">XY Plane (Z-slice)</option>
+                            <option value="y">XZ Plane (Y-slice)</option>
+                            <option value="x">YZ Plane (X-slice)</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>Slice Position <span class="val" id="val-slice-pos">0.0 m</span></label>
+                        <input type="range" id="in-slice-pos" min="-10" max="10" step="0.1" value="0">
+                    </div>
+                </div>
+                <div id="analysis-plots" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
+                    <div class="plot-container" id="plot-stress-dist"></div>
+                    <div class="plot-container" id="plot-strain-dist"></div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>

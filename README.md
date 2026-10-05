@@ -6,6 +6,7 @@ A comprehensive suite of interactive simulators for evaluating structural states
 - `solid_mechanics_app/`: Contains the PyQt6 Desktop application and the core `math_engine` (Python backend logic).
 - `solid-mechanics-web/`: Contains the fully responsive, native HTML/CSS/JS web application and its FastAPI server.
 - `leaf-modelling/`: Standalone leaf flutter simulator — models a leaf on a stem using Euler-Bernoulli bending + Saint-Venant torsion, with real-time 3D animation and dynamic analysis.
+- `shape-analytics/`: Interactive 3D stress field analyzer. Applies traction vectors to arbitrary geometries (Cuboids, Cylinders, Spheres) and maps normal stress, shear stress, and strain distributions.
 
 ## Running the Web Application (Recommended)
 The web application features an "Industrial Precision" aesthetic, live safety factors (von Mises & Tresca), A/B state comparisons, thick-walled pressure vessel Lamé equations, and lab report exports.
@@ -51,6 +52,28 @@ The leaf-modelling module simulates a leaf fluttering in the wind by treating th
    python server.py
    ```
 3. Open `http://127.0.0.1:8001/` in your browser.
+
+## Running the Shape Analytics Simulator
+The shape-analytics module is a 3D stress field visualizer demonstrating Cauchy's Stress Theorem and Boussinesq solutions. See [`shape-analytics/REPORT.md`](shape-analytics/REPORT.md) for the theoretical background on traction vectors and stress tensors.
+
+**Features:**
+- 🧊 **3D Geometries** — Dynamically sizable Cuboids, Cylinders, and Spheres.
+- 🎯 **Load Application** — Adjustable force magnitude and localized patch size.
+- 📐 **Traction Vectors** — Apply loads along surface normals or via arbitrary 3D vectors.
+- 🎨 **Real-Time Heatmaps** — Maps Normal Stress ($\sigma_n$), Shear Stress ($\tau_{\max}$), Von Mises stress, and Strain magnitude directly onto the 3D geometry using a custom shader logic in Three.js.
+- 📊 **Analytics Dashboard** — Sectional stress/strain distributions graphed with Plotly.
+
+### Run Instructions
+1. Navigate to the shape-analytics directory and activate the virtual environment:
+   ```bash
+   cd shape-analytics
+   source ../solid-mechanics-web/.venv/bin/activate
+   ```
+2. Start the FastAPI server (it runs on port 8002 to prevent conflicts):
+   ```bash
+   uvicorn server:app --host 127.0.0.1 --port 8002
+   ```
+3. Open `http://127.0.0.1:8002/` (or double-click `index.html`) in your browser.
 
 ## Running the Desktop Application (PyQt6)
 1. Navigate to the desktop app directory:

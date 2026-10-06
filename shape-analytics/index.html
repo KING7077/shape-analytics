@@ -29,9 +29,12 @@
                 <div class="readout-card"><span class="label">Max Shear Stress</span><span class="value" id="out-tau-max">0.0 <span class="unit">MPa</span></span></div>
                 <div class="readout-card"><span class="label">Max Von Mises</span><span class="value" id="out-vm-max">0.0 <span class="unit">MPa</span></span></div>
                 <div class="readout-card"><span class="label">Max Strain</span><span class="value" id="out-eps-max">0.0 <span class="unit">με</span></span></div>
+                <div class="readout-card"><span class="label">Bulk Modulus (K)</span><span class="value" id="out-bulk">0.0 <span class="unit">GPa</span></span></div>
+                <div class="readout-card"><span class="label">Shear Modulus (G)</span><span class="value" id="out-shear">0.0 <span class="unit">GPa</span></span></div>
+                <div class="readout-card"><span class="label">Density (ρ)</span><span class="value" id="out-density">0.0 <span class="unit">kg/m³</span></span></div>
             </div>
             <div class="equation-bar">
-                <span><span class="math">t = σ^T n</span> (Cauchy's Theorem)</span>
+                <span><span class="math">K = E / 3(1 - 2ν)</span> (Volumetric)</span>
                 <span>OrbitControls Active (Drag to Rotate, Scroll to Zoom)</span>
             </div>
         </section>
@@ -77,13 +80,26 @@
                 <div class="panel">
                     <h2>Load Application</h2>
                     <div class="control-group">
-                        <label>Force Magnitude <span class="val" id="val-force">100 kN</span></label>
-                        <input type="range" id="in-force" min="10" max="1000" step="10" value="100">
+                        <label>Load Pressure</label>
+                        <div style="display:flex; gap:0.5rem; align-items:center;">
+                            <input type="range" id="in-force" min="1" max="5000" step="10" value="1000" style="flex-grow:1;">
+                            <input type="number" id="in-force-num" min="1" max="5000" value="1000" style="width: 60px; font-size: 0.9em; padding: 2px; background: #1a2333; color: white; border: 1px solid #334155; border-radius: 3px;">
+                            <span style="font-size: 0.85em; color: #8892a4;">kN/m²</span>
+                        </div>
                     </div>
-                    <div class="control-group">
-                        <label>Patch Size (Radius) <span class="val" id="val-patch">1.0 m</span></label>
-                        <input type="range" id="in-patch" min="0.1" max="5.0" step="0.1" value="1.0">
+                    <div class="control-group" style="margin-top: 1rem;">
+                        <label>Interaction Mode</label>
+                        <select id="in-interaction-mode">
+                            <option value="orbit">Orbit Camera</option>
+                            <option value="paint">🖌️ Paint Load Area</option>
+                            <option value="erase">🧹 Erase Load Area</option>
+                        </select>
                     </div>
+                    <div class="control-group" id="brush-size-container" style="display:none; margin-top: 0.5rem;">
+                        <label>Brush Size <span class="val" id="val-brush-size">1.0 m</span></label>
+                        <input type="range" id="in-brush-size" min="0.1" max="5.0" step="0.1" value="1.0">
+                    </div>
+                    <button class="btn-secondary" id="btn-clear-paint" style="display:none; margin-top: 0.5rem; width: 100%;">Clear Painted Area</button>
                     <div class="control-group" style="margin-top: 1rem;">
                         <label>Traction Direction</label>
                         <select id="in-traction-type">
@@ -97,6 +113,16 @@
                             <input type="number" id="in-vec-y" value="-1" step="0.1" title="Y component">
                             <input type="number" id="in-vec-z" value="0" step="0.1" title="Z component">
                         </div>
+                    </div>
+                    
+                    <!-- Multiple Load Cases Manager -->
+                    <div class="control-group" style="margin-top: 1rem; border: 1px solid #334155; padding: 10px; border-radius: 5px; background: rgba(0,0,0,0.2);">
+                        <h4 style="margin-top:0; margin-bottom: 5px; color:#e2e8f0; font-size:0.95em;">Multiple Load Cases</h4>
+                        <div id="load-list" style="margin-bottom: 10px; font-size: 0.85em; color: #8892a4; max-height: 80px; overflow-y: auto;">
+                            No saved loads. Active paint will be applied.
+                        </div>
+                        <button class="btn-secondary" id="btn-save-load" style="width: 100%; font-size: 0.85em; padding: 5px;">💾 Save Current Paint as Load</button>
+                        <button class="btn-secondary" id="btn-clear-loads" style="width: 100%; margin-top: 5px; font-size: 0.85em; padding: 5px; display: none; color: #ff4444; border-color: #ff4444;">🗑️ Clear All Saved Loads</button>
                     </div>
                 </div>
 
@@ -112,8 +138,8 @@
                         </select>
                     </div>
                     <div class="control-group">
-                        <label>Deformation Exaggeration <span class="val" id="val-def-scale">1x</span></label>
-                        <input type="range" id="in-def-scale" min="0" max="50" step="1" value="1">
+                        <label>Deformation Exaggeration <span class="val" id="val-def-scale">1.0x</span></label>
+                        <input type="range" id="in-def-scale" min="1" max="5" step="0.1" value="1">
                     </div>
                     <button class="btn-primary" id="btn-compute" style="margin-top: 1rem;">Compute Fields</button>
                 </div>

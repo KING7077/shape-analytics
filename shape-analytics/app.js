@@ -8,12 +8,13 @@ const state = {
     dimX: 10, dimY: 5, dimZ: 5,
     cylR: 5, cylH: 10,
     sphR: 5,
-    force: 100, patch: 1.0,
+    force: 100, brushSize: 1.0,
     tractionType: 'normal',
     vecX: 1, vecY: -1, vecZ: 0,
     mapType: 'sigma_n',
     defScale: 1,
-    material: 200e9
+    material: 200e9,
+    interactionMode: 'orbit'
 };
 
 // Current load application point and surface normal
@@ -31,15 +32,74 @@ function bindSlider(id, key, suffix = "") {
     });
 }
 
+function bindParam(id, key, suffix = "") {
+    const el = $(`in-${id}`);
+    const valEl = $(`val-${id}`);
+    if(!el) return;
+    el.addEventListener('input', (e) => {
+        state[key] = parseFloat(e.target.value);
+        valEl.textContent = state[key].toFixed(1) + (suffix ? ' ' + suffix : '');
+        computeStressField();
+    });
+}
+
+function bindSilentParam(id, key, suffix = "") {
+    const el = $(`in-${id}`);
+    const valEl = $(`val-${id}`);
+    if(!el) return;
+    el.addEventListener('input', (e) => {
+        state[key] = parseFloat(e.target.value);
+        valEl.textContent = state[key].toFixed(1) + (suffix ? ' ' + suffix : '');
+    });
+}
+
 bindSlider('dim-x', 'dimX', 'm');
 bindSlider('dim-y', 'dimY', 'm');
 bindSlider('dim-z', 'dimZ', 'm');
 bindSlider('cyl-r', 'cylR', 'm');
 bindSlider('cyl-h', 'cylH', 'm');
 bindSlider('sph-r', 'sphR', 'm');
-bindSlider('force', 'force', 'kN');
-bindSlider('patch', 'patch', 'm');
-bindSlider('def-scale', 'defScale', 'x');
+
+const elForce = $('in-force');
+const elForceNum = $('in-force-num');
+if (elForce && elForceNum) {
+    elForce.addEventListener('input', (e) => {
+        state.force = parseFloat(e.target.value) || 0;
+        elForceNum.value = state.force;
+        computeStressField();
+    });
+    elForceNum.addEventListener('input', (e) => {
+        state.force = parseFloat(e.target.value) || 0;
+        elForce.value = state.force;
+        computeStressField();
+    });
+}
+
+bindSilentParam('brush-size', 'brushSize', 'm');
+bindParam('def-scale', 'defScale', 'x');
+
+$('in-interaction-mode').addEventListener('change', (e) => {
+    state.interactionMode = e.target.value;
+    const isInteract = state.interactionMode === 'paint' || state.interactionMode === 'erase';
+    controls.enabled = !isInteract; 
+    $('brush-size-container').style.display = isInteract ? 'block' : 'none';
+    $('btn-clear-paint').style.display = isInteract ? 'block' : 'none';
+    if (paintMesh) paintMesh.visible = isInteract;
+});
+
+let paintedVertexIndices = new Set();
+let paintMesh = null;
+
+$('btn-clear-paint').addEventListener('click', () => {
+    paintedVertexIndices.clear();
+    updatePaintedVisuals();
+    if(geometry) {
+        geometry.computeBoundingBox();
+        loadPoint.set(0, geometry.boundingBox.max.y, 0);
+    }
+    loadNormal.set(0, 1, 0);
+    computeStressField();
+});
 
 $('in-material').addEventListener('change', (e) => {
     state.material = parseFloat(e.target.value);
@@ -126,45 +186,30 @@ let basePositions;
 let arrowGroup = new THREE.Group();
 scene.add(arrowGroup);
 
-// --- Raycasting (Draggable Load) ---
+// --- Raycasting & Painting ---
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
-let isDraggingLoad = false;
+let isPainting = false;
 
 container.addEventListener('pointerdown', (e) => {
-    // Only drag with left click + shift, or just left click if we prioritize it
-    // Let's use Shift + Click to move the load point, to not conflict with OrbitControls
-    if (!e.shiftKey) return; 
-    
+    if (state.interactionMode !== 'paint' && state.interactionMode !== 'erase') return;
+    if (e.button !== 0) return; // left click only
+    isPainting = true;
     updateMousePos(e);
-    raycaster.setFromCamera(mouse, camera);
-    if(mesh) {
-        const intersects = raycaster.intersectObject(mesh);
-        if (intersects.length > 0) {
-            isDraggingLoad = true;
-            controls.enabled = false; // Disable orbit while dragging
-            updateLoadPoint(intersects[0]);
-        }
-    }
+    handlePaint();
 });
 
 container.addEventListener('pointermove', (e) => {
-    if (!isDraggingLoad) return;
+    if (!isPainting) return;
     updateMousePos(e);
-    raycaster.setFromCamera(mouse, camera);
-    if(mesh) {
-        // Need to intersect the base mesh, not the deformed one to keep stable normals
-        // For simplicity, we just intersect current mesh
-        const intersects = raycaster.intersectObject(mesh);
-        if (intersects.length > 0) {
-            updateLoadPoint(intersects[0]);
-        }
-    }
+    handlePaint();
 });
 
 container.addEventListener('pointerup', (e) => {
-    isDraggingLoad = false;
-    controls.enabled = true;
+    if (isPainting) {
+        isPainting = false;
+        finalizePaintArea();
+    }
 });
 
 function updateMousePos(e) {
@@ -173,17 +218,90 @@ function updateMousePos(e) {
     mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
 }
 
-function updateLoadPoint(intersect) {
-    loadPoint.copy(intersect.point);
-    if (intersect.face) {
-        // Get normal in world space
-        loadNormal.copy(intersect.face.normal).transformDirection(mesh.matrixWorld).normalize();
+function handlePaint() {
+    raycaster.setFromCamera(mouse, camera);
+    if (!mesh) return;
+    
+    const intersects = raycaster.intersectObject(mesh);
+    if (intersects.length > 0) {
+        const center = intersects[0].point;
+        const localCenter = center.clone().applyMatrix4(mesh.matrixWorld.clone().invert());
+        
+        const count = geometry.attributes.position.count;
+        let changed = false;
+        for (let i = 0; i < count; i++) {
+            const vx = basePositions[i*3];
+            const vy = basePositions[i*3+1];
+            const vz = basePositions[i*3+2];
+            
+            const dist = Math.sqrt((vx-localCenter.x)**2 + (vy-localCenter.y)**2 + (vz-localCenter.z)**2);
+            if (dist <= state.brushSize) {
+                if (state.interactionMode === 'paint' && !paintedVertexIndices.has(i)) {
+                    paintedVertexIndices.add(i);
+                    changed = true;
+                } else if (state.interactionMode === 'erase' && paintedVertexIndices.has(i)) {
+                    paintedVertexIndices.delete(i);
+                    changed = true;
+                }
+            }
+        }
+        
+        if (changed) {
+            updatePaintedVisuals();
+        }
     }
+}
+
+function updatePaintedVisuals() {
+    if (paintMesh) scene.remove(paintMesh);
+    if (paintedVertexIndices.size === 0) return;
+    
+    const geom = new THREE.BufferGeometry();
+    const pos = [];
+    const pts = geometry.attributes.position.array; 
+    
+    paintedVertexIndices.forEach(idx => {
+        pos.push(pts[idx*3], pts[idx*3+1], pts[idx*3+2]);
+    });
+    
+    geom.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    // Changed to bright cyan with a larger size and disabled depthTest to prevent z-fighting so it clearly pops out
+    const mat = new THREE.PointsMaterial({ color: 0x00ffff, size: 0.15, sizeAttenuation: true, depthTest: false, transparent: true, opacity: 0.8 });
+    paintMesh = new THREE.Points(geom, mat);
+    paintMesh.renderOrder = 999; // Render on top
+    paintMesh.visible = (state.interactionMode === 'paint' || state.interactionMode === 'erase');
+    scene.add(paintMesh);
+}
+
+function finalizePaintArea() {
+    if (paintedVertexIndices.size === 0) return;
+    
+    let avgX=0, avgY=0, avgZ=0;
+    const normals = geometry.attributes.normal.array;
+    let nx=0, ny=0, nz=0;
+    
+    paintedVertexIndices.forEach(idx => {
+        avgX += basePositions[idx*3];
+        avgY += basePositions[idx*3+1];
+        avgZ += basePositions[idx*3+2];
+        nx += normals[idx*3];
+        ny += normals[idx*3+1];
+        nz += normals[idx*3+2];
+    });
+    
+    const count = paintedVertexIndices.size;
+    avgX /= count; avgY /= count; avgZ /= count;
+    
+    loadPoint.set(avgX, avgY, avgZ);
+    loadNormal.set(nx, ny, nz).normalize();
+    if(loadNormal.lengthSq() < 0.1) loadNormal.set(0,1,0); 
+    
     computeStressField();
 }
 
 function updateGeometry() {
     if (mesh) scene.remove(mesh);
+
     if (wireframe) scene.remove(wireframe);
 
     if (state.shape === 'cuboid') {
@@ -216,6 +334,9 @@ function updateGeometry() {
     loadPoint.set(0, bb.max.y, 0);
     loadNormal.set(0, 1, 0);
     
+    paintedVertexIndices.clear();
+    updatePaintedVisuals();
+    
     resetColors();
     computeStressField();
 }
@@ -225,9 +346,7 @@ function drawArrows() {
         arrowGroup.remove(arrowGroup.children[0]); 
     }
     
-    const patchRadius = state.patch;
     const forceDir = new THREE.Vector3();
-    
     if (state.tractionType === 'normal') {
         forceDir.copy(loadNormal).multiplyScalar(-1); // Pointing INTO the surface
     } else {
@@ -236,14 +355,6 @@ function drawArrows() {
     
     const mainArrow = new THREE.ArrowHelper(forceDir, loadPoint.clone().add(forceDir.clone().multiplyScalar(-3)), 3, 0xff4d6a, 0.5, 0.3);
     arrowGroup.add(mainArrow);
-    
-    // Ring aligned with surface normal
-    const ringGeo = new THREE.RingGeometry(patchRadius - 0.1, patchRadius, 32);
-    const ringMat = new THREE.MeshBasicMaterial({ color: 0xff4d6a, side: THREE.DoubleSide });
-    const ring = new THREE.Mesh(ringGeo, ringMat);
-    ring.position.copy(loadPoint);
-    ring.lookAt(loadPoint.clone().add(loadNormal)); // Align ring to face
-    arrowGroup.add(ring);
 }
 
 function resetColors() {
@@ -322,84 +433,210 @@ function computeStressField() {
     const positions = geometry.attributes.position.array;
     const count = geometry.attributes.position.count;
     const colors = new Float32Array(count * 3);
-    const P = state.force * 1000; 
+    const E = state.material;
+    const nu = 0.3;
+    const K = E / (3 * (1 - 2 * nu));
+    const G = E / (2 * (1 + nu));
     
+    $('out-bulk').innerHTML = `${(K / 1e9).toFixed(1)} <span class="unit">GPa</span>`;
+    $('out-shear').innerHTML = `${(G / 1e9).toFixed(1)} <span class="unit">GPa</span>`;
+    
+    let baseDensity = 7850; 
+    if (E === 70e9) baseDensity = 2700;
+    else if (E === 30e9) baseDensity = 2400;
+    else if (E === 3e9) baseDensity = 1200;
+    else if (E === 0.01e9) baseDensity = 1100;
+    
+    const coverage = paintedVertexIndices.size / count;
+    const blend = Math.min(1.0, Math.pow(coverage, 2)); 
+    
+    let totalArea = 0;
+    let dx = state.dimX, dy = state.dimY, dz = state.dimZ;
+    if (state.shape === 'cylinder') totalArea = 2*Math.PI*state.cylR*state.cylH + 2*Math.PI*state.cylR**2;
+    else if (state.shape === 'sphere') totalArea = 4*Math.PI*state.sphR**2;
+    else totalArea = 2*(dx*dy + dy*dz + dx*dz);
+    
+    let paintedArea = totalArea * coverage;
+    if (paintedArea < 1e-6) paintedArea = 1e-6;
+    
+    const P = state.force * 1000; 
+    let pressure = P / paintedArea;
+    // For arbitrary traction, we can still use the applied pressure for surface visual mapping!
+    
+    // Hydrostatic strain applies only for normal inward pressure
+    let eps_hydro = 0;
+    if (state.tractionType === 'normal') {
+        eps_hydro = -(pressure) / (3 * K);
+    }
+    const newDensity = baseDensity / (1 + eps_hydro*3);
+    $('out-density').innerHTML = `${newDensity.toFixed(1)} <span class="unit">kg/m³</span>`;
+
     let maxSigmaN = 0, maxTau = 0, maxVM = 0;
     const stressValues = new Float32Array(count);
+    const displacements = new Array(count);
+    let maxDispMag = 0;
     
-    // Create a local coordinate system based on loadNormal
-    const nz = loadNormal.clone().multiplyScalar(-1); // Depth axis points INWARD
-    const nx = new THREE.Vector3(1, 0, 0);
-    if (Math.abs(nz.x) > 0.9) nx.set(0, 1, 0); // avoid singularity
-    nx.cross(nz).normalize();
-    const ny = new THREE.Vector3().crossVectors(nz, nx).normalize();
+    const stiffnessRatio = state.material / 200e9; 
+    const matScale = 1e6 * Math.sqrt(stiffnessRatio); 
+    const scale = state.defScale * matScale; 
     
-    // For arbitrary traction, project force vector onto local coords
-    let forceDir = nz.clone();
-    if (state.tractionType === 'arbitrary') {
-        forceDir.set(state.vecX, state.vecY, state.vecZ).normalize();
+    // Compile all loads
+    const allLoads = state.savedLoads ? [...state.savedLoads] : [];
+    if (paintedVertexIndices.size > 0) {
+        allLoads.push({
+            indices: new Set(paintedVertexIndices),
+            force: state.force,
+            tractionType: state.tractionType,
+            vecX: state.vecX, vecY: state.vecY, vecZ: state.vecZ,
+            loadPoint: loadPoint.clone(),
+            loadNormal: loadNormal.clone()
+        });
     }
-    const fz = forceDir.dot(nz); // Normal component
-    const fTangential = new THREE.Vector3().copy(forceDir).sub(nz.clone().multiplyScalar(fz));
-    const fx = fTangential.dot(nx);
-    const fy = fTangential.dot(ny);
-    
+
+    // Precompute sample points for numerical superposition of stress
+    for (const load of allLoads) {
+        if (!load.sampledPoints) {
+            load.sampledPoints = [];
+            for (let idx of load.indices) {
+                load.sampledPoints.push(new THREE.Vector3(basePositions[idx*3], basePositions[idx*3+1], basePositions[idx*3+2]));
+            }
+            if (load.sampledPoints.length === 0) load.sampledPoints.push(load.loadPoint.clone());
+        }
+    }
+
+    geometry.computeBoundingBox();
+    const minY = geometry.boundingBox.min.y;
+    const bottomCenter = new THREE.Vector3(0, minY, 0);
+
     for (let i = 0; i < count; i++) {
         const bx = basePositions[i*3];
         const by = basePositions[i*3+1];
         const bz = basePositions[i*3+2];
         const vertexPos = new THREE.Vector3(bx, by, bz);
         
-        // Vector from load point to vertex
-        const relPos = vertexPos.clone().sub(loadPoint);
+        let totalDisp = new THREE.Vector3();
+        let maxLoadSigmaN = 0;
+        let maxLoadTau = 0;
+        let maxLoadVM = 0;
         
-        // Local coordinates x, y, z
-        const x = relPos.dot(nx);
-        const y = relPos.dot(ny);
-        const z = Math.max(0.01, relPos.dot(nz)); 
-        
-        const r = Math.sqrt(x*x + y*y);
-        
-        // Stresses (Approximated using purely normal Boussinesq logic for the heat map)
-        const res = calculateBoussinesq(r, z, P, state.patch); 
-        
-        // Accurate Displacements using Boussinesq + Cerruti superposition
-        const Px = P * fx;
-        const Py = P * fy;
-        const Pz = P * fz;
-        const dispVals = calculateHalfSpaceDisplacement(x, y, z, Px, Py, Pz, state.patch, 0.3, state.material);
-        
-        let disp = nx.clone().multiplyScalar(dispVals.ux)
-                     .add(ny.clone().multiplyScalar(dispVals.uy))
-                     .add(nz.clone().multiplyScalar(dispVals.uz));
-        
-        // Deformation scaling
-        const scale = state.defScale * 1e6; 
-        disp.multiplyScalar(scale);
-        
-        // Prevent single-vertex spikes from exceeding reasonable mesh bounds
-        const maxDisp = 5.0; 
-        if (disp.length() > maxDisp) {
-            disp.multiplyScalar(maxDisp / disp.length());
+        for (const load of allLoads) {
+            const nz = load.loadNormal.clone().multiplyScalar(-1); 
+            let nx = new THREE.Vector3(1, 0, 0);
+            if (Math.abs(nz.x) > 0.9) nx.set(0, 1, 0);
+            nx.cross(nz).normalize();
+            const ny = new THREE.Vector3().crossVectors(nz, nx).normalize();
+            
+            let forceDir = nz.clone();
+            if (load.tractionType === 'arbitrary') forceDir.set(load.vecX, load.vecY, load.vecZ).normalize();
+            
+            const fz = forceDir.dot(nz);
+            const fTangential = new THREE.Vector3().copy(forceDir).sub(nz.clone().multiplyScalar(fz));
+            const fx = fTangential.dot(nx);
+            const fy = fTangential.dot(ny);
+            
+            const relPosBC = bottomCenter.clone().sub(load.loadPoint);
+            const xBC = relPosBC.dot(nx), yBC = relPosBC.dot(ny), zBC = Math.max(0.01, relPosBC.dot(nz));
+            
+            const coverage = load.indices.size / count;
+            let totalArea = 0;
+            if (state.shape === 'cylinder') totalArea = 2*Math.PI*state.cylR*state.cylH + 2*Math.PI*state.cylR**2;
+            else if (state.shape === 'sphere') totalArea = 4*Math.PI*state.sphR**2;
+            else totalArea = 2*(state.dimX*state.dimY + state.dimY*state.dimZ + state.dimX*state.dimZ);
+            
+            let paintedArea = Math.max(1e-6, totalArea * coverage);
+            
+            // load.force is now PRESSURE in kN/m^2. 
+            // Total force in kN = Pressure * Area.
+            // Total force in N = (Pressure * Area) * 1000
+            const P = load.force * paintedArea * 1000;
+            const Px = P * fx, Py = P * fy, Pz = P * fz;
+            
+            let avgDist = 0;
+            load.indices.forEach(idx => {
+                const px = basePositions[idx*3], py = basePositions[idx*3+1], pz = basePositions[idx*3+2];
+                avgDist += Math.sqrt((px-load.loadPoint.x)**2 + (py-load.loadPoint.y)**2 + (pz-load.loadPoint.z)**2);
+            });
+            const effectivePatch = load.indices.size > 0 ? (avgDist / load.indices.size) : 0.5;
+            
+            // 1. Calculate Single-Point Displacement
+            const dispValsBC = calculateHalfSpaceDisplacement(xBC, yBC, zBC, Px, Py, Pz, effectivePatch, 0.3, state.material);
+            const dispCorr = nx.clone().multiplyScalar(dispValsBC.ux).add(ny.clone().multiplyScalar(dispValsBC.uy)).add(nz.clone().multiplyScalar(dispValsBC.uz));
+            
+            const relPosCenter = vertexPos.clone().sub(load.loadPoint);
+            const xc = relPosCenter.dot(nx), yc = relPosCenter.dot(ny), zc = Math.max(0.01, relPosCenter.dot(nz));
+            
+            const dispVals = calculateHalfSpaceDisplacement(xc, yc, zc, Px, Py, Pz, effectivePatch, 0.3, state.material);
+            let dispBouss = nx.clone().multiplyScalar(dispVals.ux).add(ny.clone().multiplyScalar(dispVals.uy)).add(nz.clone().multiplyScalar(dispVals.uz)).sub(dispCorr);
+            
+            // 2. Numerical Superposition for Stresses (Perfectly continuous)
+            let load_sz = 0, load_sr = 0, load_trz = 0;
+            const dP = P / load.sampledPoints.length;
+            // Overlap the integration points by 2.5x their spacing to ensure smooth blurring
+            const patch_local = (effectivePatch / Math.max(1, Math.sqrt(load.sampledPoints.length))) * 2.5;
+            for (const sp of load.sampledPoints) {
+                const relPos = vertexPos.clone().sub(sp);
+                const x = relPos.dot(nx), y = relPos.dot(ny), z = Math.max(0.01, relPos.dot(nz));
+                const r = Math.sqrt(x*x + y*y);
+                const res = calculateBoussinesq(r, z, dP, patch_local);
+                load_sz += res.sz;
+                load_sr += res.sr;
+                load_trz += res.trz;
+            }
+            
+            let pressure = P / paintedArea;
+            
+            let eps_hydro = 0;
+            if (load.tractionType === 'normal') eps_hydro = -pressure / (3 * K);
+            
+            let dispHydro = new THREE.Vector3(bx, by, bz).multiplyScalar(eps_hydro);
+            dispHydro.y -= minY * eps_hydro;
+            
+            let blend = Math.min(1.0, coverage*coverage);
+            let disp = new THREE.Vector3().lerpVectors(dispBouss, dispHydro, blend);
+            disp.multiplyScalar(scale);
+            
+            totalDisp.add(disp);
+            
+            // For the fast JS visualization, we take the maximum scalar stress field instead of scalar addition.
+            // Scalar addition of Von Mises values is mathematically incorrect (it creates artificial 2X hotspots at corners).
+            if (load_sz > maxLoadSigmaN) maxLoadSigmaN = load_sz;
+            if (load_trz > maxLoadTau) maxLoadTau = load_trz;
+            let vm = Math.sqrt(load_sz*load_sz - load_sz*load_sr + load_sr*load_sr + 3*load_trz*load_trz);
+            if (vm > maxLoadVM) maxLoadVM = vm;
         }
         
-        positions[i*3]   = bx + disp.x;
-        positions[i*3+1] = by + disp.y;
-        positions[i*3+2] = bz + disp.z;
+        displacements[i] = totalDisp;
+        const mag = totalDisp.length();
+        if (mag > maxDispMag) maxDispMag = mag;
         
         let val = 0;
-        if (state.mapType === 'sigma_n') val = res.sz;
-        if (state.mapType === 'tau_max') val = res.trz;
-        if (state.mapType === 'von_mises') val = Math.sqrt(res.sz*res.sz - res.sz*res.sr + res.sr*res.sr + 3*res.trz*res.trz);
-        if (state.mapType === 'strain_mag') val = val / state.material;
+        if (state.mapType === 'sigma_n') val = maxLoadSigmaN;
+        if (state.mapType === 'tau_max') val = maxLoadTau;
+        if (state.mapType === 'von_mises') val = maxLoadVM;
+        if (state.mapType === 'strain_mag') val = maxLoadVM / state.material;
         
-        val = val / 1e6; 
+        val = val / 1e6;
         stressValues[i] = val;
         
-        if(res.sz/1e6 > maxSigmaN) maxSigmaN = res.sz/1e6;
-        if(res.trz/1e6 > maxTau) maxTau = res.trz/1e6;
-        const vm = Math.sqrt(res.sz*res.sz - res.sz*res.sr + res.sr*res.sr + 3*res.trz*res.trz)/1e6;
-        if(vm > maxVM) maxVM = vm;
+        if (maxLoadSigmaN/1e6 > maxSigmaN) maxSigmaN = maxLoadSigmaN/1e6;
+        if (maxLoadTau/1e6 > maxTau) maxTau = maxLoadTau/1e6;
+        if (maxLoadVM/1e6 > maxVM) maxVM = maxLoadVM/1e6;
+    }
+    
+    // Global clamp: If the maximum displacement exceeds a safe visual limit (e.g. 15.0 units),
+    // we scale DOWN all displacements uniformly. This strictly preserves the mesh's geometric shape!
+    const maxAllowedDisp = 15.0;
+    const globalClampScale = maxDispMag > maxAllowedDisp ? (maxAllowedDisp / maxDispMag) : 1.0;
+    
+    for (let i = 0; i < count; i++) {
+        const bx = basePositions[i*3];
+        const by = basePositions[i*3+1];
+        const bz = basePositions[i*3+2];
+        const disp = displacements[i];
+        
+        positions[i*3]   = bx + disp.x * globalClampScale;
+        positions[i*3+1] = by + disp.y * globalClampScale;
+        positions[i*3+2] = bz + disp.z * globalClampScale;
     }
     
     $('out-sigma-max').innerHTML = `${maxSigmaN.toFixed(1)} <span class="unit">MPa</span>`;
@@ -409,7 +646,8 @@ function computeStressField() {
     
     const maxVal = Math.max(...stressValues);
     for (let i = 0; i < count; i++) {
-        const norm = maxVal > 0 ? Math.min(1.0, Math.max(0, stressValues[i] / (maxVal * 0.5))) : 0; 
+        // Normalizing strictly to maxVal (no artificial 0.5 multiplier clamping) so different loads show relative colors
+        const norm = maxVal > 0 ? Math.min(1.0, Math.max(0, stressValues[i] / maxVal)) : 0; 
         let rv=0, gv=0, bv=0;
         if (norm < 0.25) { bv=1; gv=4*norm; }
         else if (norm < 0.5) { bv=1-4*(norm-0.25); gv=1; }
@@ -428,6 +666,10 @@ function computeStressField() {
     if(wireframe) {
         wireframe.geometry.dispose();
         wireframe.geometry = new THREE.WireframeGeometry(geometry);
+    }
+    
+    if(paintMesh) {
+        updatePaintedVisuals(); // refresh positions of painted dots
     }
     
     updateAnalyticsPlots();
@@ -461,31 +703,186 @@ const layoutDark = {
     yaxis: { gridcolor: '#1a2333', zerolinecolor: '#334155' }
 };
 
-function updateAnalyticsPlots() {
-    const rVals = [];
-    const szVals = [];
-    const tauVals = [];
+async function updateAnalyticsPlots() {
+    const slicePlane = $('in-slice').value;
+    const slicePos = parseFloat($('in-slice-pos').value);
+    $('val-slice-pos').textContent = slicePos.toFixed(1) + ' m';
     
-    for(let i=0; i<=20; i++) {
-        const r = i * 0.5;
-        const res = calculateBoussinesq(r, 2.0, state.force * 1000); 
-        rVals.push(r);
-        szVals.push(res.sz / 1e6);
-        tauVals.push(res.trz / 1e6);
+    let forceDir = loadNormal.clone().multiplyScalar(-1);
+    if (state.tractionType === 'arbitrary') {
+        forceDir.set(state.vecX, state.vecY, state.vecZ).normalize();
     }
     
-    Plotly.react('plot-stress-dist', [
-        { x: rVals, y: szVals, name: 'Normal (σz)', line: { color: '#00e5a0' } },
-        { x: rVals, y: tauVals, name: 'Shear (τrz)', line: { color: '#ff4d6a' } }
-    ], { ...layoutDark, title: { text: 'Stress Distribution at Depth z=2m', font: { color: '#eceff4' } } });
+    let dx = state.dimX, dy = state.dimY, dz = state.dimZ;
+    if (state.shape === 'cylinder') { dx = state.cylR*2; dy = state.cylR*2; dz = state.cylH; }
+    if (state.shape === 'sphere') { dx = state.sphR*2; dy = state.sphR*2; dz = state.sphR*2; }
     
-    Plotly.react('plot-strain-dist', [
-        { x: rVals, y: szVals.map(v => v / (state.material / 1e6) * 1e6), line: { color: '#6366f1' } } 
-    ], { ...layoutDark, title: { text: 'Strain Distribution (με)', font: { color: '#eceff4' } } });
+    const count = geometry.attributes.position.count;
+    
+    // Compile all loads
+    const allLoads = state.savedLoads ? [...state.savedLoads] : [];
+    if (paintedVertexIndices.size > 0) {
+        allLoads.push({
+            indices: new Set(paintedVertexIndices),
+            force: state.force,
+            tractionType: state.tractionType,
+            vecX: state.vecX, vecY: state.vecY, vecZ: state.vecZ,
+            loadPoint: loadPoint.clone(),
+            loadNormal: loadNormal.clone()
+        });
+    }
+    
+    const loadsPayload = [];
+    
+    for (const load of allLoads) {
+        let forceDir = load.loadNormal.clone().multiplyScalar(-1);
+        if (load.tractionType === 'arbitrary') {
+            forceDir.set(load.vecX, load.vecY, load.vecZ).normalize();
+        }
+        
+        const paintedPoints = [];
+        load.indices.forEach(idx => {
+            paintedPoints.push([
+                basePositions[idx*3],
+                basePositions[idx*3+1],
+                basePositions[idx*3+2]
+            ]);
+        });
+        
+        if (paintedPoints.length === 0) {
+            paintedPoints.push([load.loadPoint.x, load.loadPoint.y, load.loadPoint.z]);
+        }
+        
+        const coverage = load.indices.size / count;
+        let totalArea = 0;
+        if (state.shape === 'cylinder') totalArea = 2*Math.PI*state.cylR*state.cylH + 2*Math.PI*state.cylR**2;
+        else if (state.shape === 'sphere') totalArea = 4*Math.PI*state.sphR**2;
+        else totalArea = 2*(state.dimX*state.dimY + state.dimY*state.dimZ + state.dimX*state.dimZ);
+        
+        let paintedArea = totalArea * coverage;
+        if (paintedArea < 1e-6) paintedArea = 1e-6;
+        
+        loadsPayload.push({
+            P: load.force * paintedArea * 1000,
+            painted_points: paintedPoints,
+            load_point: [load.loadPoint.x, load.loadPoint.y, load.loadPoint.z],
+            load_normal: [load.loadNormal.x, load.loadNormal.y, load.loadNormal.z],
+            force_dir: [forceDir.x, forceDir.y, forceDir.z],
+            painted_area: paintedArea,
+            coverage: coverage,
+            traction_type: load.tractionType
+        });
+    }
+    
+    const reqBody = {
+        loads: loadsPayload,
+        slice_plane: slicePlane,
+        slice_pos: slicePos,
+        dim_x: dx,
+        dim_y: dy,
+        dim_z: dz,
+        resolution: 80,
+        nu: 0.3,
+        material_E: state.material
+    };
+
+    try {
+        const response = await fetch('http://127.0.0.1:8002/api/section', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(reqBody)
+        });
+        
+        if (!response.ok) throw new Error('API Error');
+        const data = await response.json();
+        
+        const reqBodyWithArea = { ...reqBody, coverage, totalArea };
+        // We do not need to send coverage to server for now since server calculates it from painted points count, 
+        // but we can pass it if we want. For now let's just stick to what we have.
+        
+        Plotly.react('plot-stress-dist', [{
+            z: data.von_mises,
+            x: data.axis1,
+            y: data.axis2,
+            type: 'heatmap',
+            colorscale: 'Jet',
+            colorbar: { title: 'MPa', titlefont: {color: '#8892a4'}, tickfont: {color: '#8892a4'} }
+        }], { 
+            ...layoutDark, 
+            title: { text: `Internal Von Mises Field (MPa) on ${data.title1}-${data.title2} Slice`, font: { color: '#eceff4' } },
+            xaxis: { ...layoutDark.xaxis, title: data.title1 },
+            yaxis: { ...layoutDark.yaxis, title: data.title2, scaleanchor: 'x', scaleratio: 1 },
+            height: 400
+        });
+        
+        $('plot-strain-dist').style.display = 'none';
+
+    } catch (e) {
+        console.error("Backend physics not running or error:", e);
+    }
 }
+
+$('in-slice').addEventListener('change', updateAnalyticsPlots);
+$('in-slice-pos').addEventListener('input', updateAnalyticsPlots);
+
+state.savedLoads = [];
+
+function updateLoadListUI() {
+    const list = $('load-list');
+    if (state.savedLoads.length === 0) {
+        list.innerHTML = "No saved loads. Active paint will be applied.";
+        $('btn-clear-loads').style.display = 'none';
+    } else {
+        list.innerHTML = state.savedLoads.map((l, i) => `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 4px;">
+                <span><b>Load ${i+1}</b> (${l.indices.size} pts)</span>
+                <div style="display:flex; gap: 5px; align-items: center;">
+                    <input type="number" min="0" step="10" value="${l.force}" 
+                           onchange="window.updateSavedLoadForce(${i}, this.value)" 
+                           style="width: 60px; font-size: 0.9em; padding: 2px; background: #1a2333; color: white; border: 1px solid #334155; border-radius: 3px;" title="Pressure (kN/m²)">
+                    <span style="font-size:0.8em; color:#8892a4;">kN/m²</span>
+                    <button onclick="window.deleteSavedLoad(${i})" style="background: none; border: none; color: #ff4444; cursor: pointer; font-size: 1.1em; padding: 0 5px;" title="Delete Load">❌</button>
+                </div>
+            </div>
+        `).join('');
+        $('btn-clear-loads').style.display = 'block';
+    }
+}
+
+window.updateSavedLoadForce = function(index, newForce) {
+    state.savedLoads[index].force = parseFloat(newForce) || 0;
+    computeStressField();
+};
+
+window.deleteSavedLoad = function(index) {
+    state.savedLoads.splice(index, 1);
+    updateLoadListUI();
+    computeStressField();
+};
+
+$('btn-save-load').addEventListener('click', () => {
+    if (paintedVertexIndices.size === 0) return;
+    state.savedLoads.push({
+        indices: new Set(paintedVertexIndices),
+        force: state.force,
+        tractionType: state.tractionType,
+        vecX: state.vecX, vecY: state.vecY, vecZ: state.vecZ,
+        loadPoint: loadPoint.clone(),
+        loadNormal: loadNormal.clone()
+    });
+    paintedVertexIndices.clear();
+    updatePaintedVisuals();
+    updateLoadListUI();
+    computeStressField();
+});
+
+$('btn-clear-loads').addEventListener('click', () => {
+    state.savedLoads = [];
+    updateLoadListUI();
+    computeStressField();
+});
 
 setTimeout(updateAnalyticsPlots, 500);
 
 updateGeometry();
 animate();
-

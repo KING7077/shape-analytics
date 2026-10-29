@@ -1,41 +1,105 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shape Analytics | Solid Mechanics</title>
+    <title>Shape Analytics</title>
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@400;500;600&family=IBM+Plex+Serif:ital@1&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
-        <h1>Shape Analytics <span>3D Traction & Stress Field Simulation</span></h1>
-        <nav role="tablist">
-            <button role="tab" id="tab-controls" aria-controls="panel-controls" aria-selected="true">⚙️ Geometry & Load</button>
-            <button role="tab" id="tab-analytics" aria-controls="panel-analytics" aria-selected="false">📊 Section Analytics</button>
-        </nav>
+        <div class="header-brand">
+            <h1>Shape Analytics <span>Traction and stress field in a half-space</span></h1>
+        </div>
+        <div class="header-actions">
+            <nav role="tablist" class="field-only">
+                <button role="tab" id="tab-controls" aria-controls="panel-controls" aria-selected="true">Geometry &amp; load</button>
+                <button role="tab" id="tab-analytics" aria-controls="panel-analytics" aria-selected="false">Section analytics</button>
+            </nav>
+            <button class="theme-toggle" id="theme-toggle-btn" aria-label="Toggle theme" title="Toggle Light / Dark Mode">
+                <span class="theme-toggle-icon" id="theme-icon" aria-hidden="true"></span>
+                <span id="theme-label">Light</span>
+            </button>
+        </div>
     </header>
 
-    <main class="app-layout">
+    <nav class="module-nav" id="module-nav" aria-label="Simulators"></nav>
+
+    <main class="sim-layout" id="sim-layout" hidden>
+        <aside class="sim-sidebar">
+            <div class="sim-sidebar-head">
+                <h2 id="sim-title"></h2>
+                <p class="sim-chapter">Syllabus <span id="sim-chapter"></span></p>
+                <p id="sim-blurb" class="sim-blurb"></p>
+            </div>
+            <div id="sim-controls" class="sim-controls"></div>
+            <div class="sim-actions">
+                <button type="button" class="btn-primary" id="btn-save-baseline">Save state A for comparison</button>
+                <button type="button" class="btn-secondary" id="btn-clear-baseline" hidden>Clear state A</button>
+                <p id="baseline-tag" class="sim-hint" aria-live="polite"></p>
+                <button type="button" class="btn-secondary" id="btn-reset-sim">Reset inputs</button>
+                <div class="sim-exports">
+                    <button type="button" class="btn-secondary" id="btn-export-csv">CSV data</button>
+                    <button type="button" class="btn-secondary" id="btn-export-diagram">Diagram (SVG)</button>
+                    <button type="button" class="btn-secondary" id="btn-export-spec">Design spec</button>
+                    <button type="button" class="btn-secondary" id="btn-export-report">Lab report</button>
+                </div>
+                <p class="sim-hint" id="sim-exports-hint">Each chart has its own PNG button in its top-right toolbar.</p>
+            </div>
+        </aside>
+        <section class="sim-main">
+            <div id="sim-status" class="sim-status" role="status"></div>
+            <div class="sim-top">
+                <div class="sim-left" id="sim-left">
+                    <div id="sim-view3d" class="sim-diagram sim-view3d" hidden>
+                        <canvas id="sim-canvas3d" aria-label="3D view of the twisted shaft"></canvas>
+                        <p id="sim-view3d-note" class="sim-hint"></p>
+                    </div>
+                    <div id="sim-diagram" class="sim-diagram" hidden></div>
+                </div>
+                <div id="sim-charts" class="sim-charts"></div>
+            </div>
+            <div id="sim-readouts" class="readout-grid sim-readouts"></div>
+            <div class="sim-notes">
+                <div><h3>Physical significance</h3><p id="sim-significance"></p></div>
+                <div><h3>Governing equations</h3><ul id="sim-eq"></ul></div>
+            </div>
+        </section>
+    </main>
+
+    <main class="app-layout" data-view="controls">
         <!-- 3D Viewport always visible on the left -->
         <section class="main-content">
             <div class="viewport-container" id="three-container">
                 <canvas id="three-canvas"></canvas>
+                <div class="stress-legend" aria-live="polite">
+                    <div class="legend-title" id="legend-title">Normal stress (MPa)</div>
+                    <div class="legend-bar"></div>
+                    <div class="legend-ticks"><span>0</span><span id="legend-mid">0</span><span id="legend-max">0</span></div>
+                </div>
+            </div>
+            <div id="analysis-plots" aria-label="Section analytics">
+                <div class="plot-container" id="plot-stress-dist"></div>
+                <div class="plot-container" id="plot-strain-dist"></div>
             </div>
             <div class="readout-grid">
-                <div class="readout-card"><span class="label">Max Normal Stress</span><span class="value" id="out-sigma-max">0.0 <span class="unit">MPa</span></span></div>
-                <div class="readout-card"><span class="label">Max Shear Stress</span><span class="value" id="out-tau-max">0.0 <span class="unit">MPa</span></span></div>
-                <div class="readout-card"><span class="label">Max Von Mises</span><span class="value" id="out-vm-max">0.0 <span class="unit">MPa</span></span></div>
-                <div class="readout-card"><span class="label">Max Strain</span><span class="value" id="out-eps-max">0.0 <span class="unit">με</span></span></div>
-                <div class="readout-card"><span class="label">Bulk Modulus (K)</span><span class="value" id="out-bulk">0.0 <span class="unit">GPa</span></span></div>
-                <div class="readout-card"><span class="label">Shear Modulus (G)</span><span class="value" id="out-shear">0.0 <span class="unit">GPa</span></span></div>
-                <div class="readout-card"><span class="label">Density (ρ)</span><span class="value" id="out-density">0.0 <span class="unit">kg/m³</span></span></div>
+                <div class="readout-card"><span class="label">Max normal stress</span><span class="value" id="out-sigma-max">0.0 <span class="unit">MPa</span></span></div>
+                <div class="readout-card"><span class="label">Max shear stress</span><span class="value" id="out-tau-max">0.0 <span class="unit">MPa</span></span></div>
+                <div class="readout-card"><span class="label">Max von Mises</span><span class="value" id="out-vm-max">0.0 <span class="unit">MPa</span></span></div>
+                <div class="readout-card"><span class="label">Max strain</span><span class="value" id="out-eps-max">0.0 <span class="unit">με</span></span></div>
+                <div class="readout-card"><span class="label">Bulk modulus K</span><span class="value" id="out-bulk">0.0 <span class="unit">GPa</span></span></div>
+                <div class="readout-card"><span class="label">Shear modulus G</span><span class="value" id="out-shear">0.0 <span class="unit">GPa</span></span></div>
+                <div class="readout-card"><span class="label">Density ρ</span><span class="value" id="out-density">0.0 <span class="unit">kg/m³</span></span></div>
             </div>
             <div class="equation-bar">
-                <span><span class="math">K = E / 3(1 - 2ν)</span> (Volumetric)</span>
-                <span>OrbitControls Active (Drag to Rotate, Scroll to Zoom)</span>
+                <span><span class="math">K = E / 3(1 - 2ν)</span> (bulk modulus)</span>
+                <span>Drag to rotate, scroll to zoom</span>
             </div>
         </section>
 
@@ -78,21 +142,21 @@
                 </div>
 
                 <div class="panel">
-                    <h2>Load Application</h2>
+                    <h2>Load</h2>
                     <div class="control-group">
                         <label>Load Pressure</label>
                         <div style="display:flex; gap:0.5rem; align-items:center;">
                             <input type="range" id="in-force" min="1" max="5000" step="10" value="1000" style="flex-grow:1;">
-                            <input type="number" id="in-force-num" min="1" max="5000" value="1000" style="width: 60px; font-size: 0.9em; padding: 2px; background: #1a2333; color: white; border: 1px solid #334155; border-radius: 3px;">
-                            <span style="font-size: 0.85em; color: #8892a4;">kN/m²</span>
+                            <input type="number" id="in-force-num" min="1" max="5000" value="1000" style="width: 70px; font-size: 0.9em; padding: 2px 4px;">
+                            <span style="font-size: 0.85em; color: var(--color-text-muted);">kN/m²</span>
                         </div>
                     </div>
                     <div class="control-group" style="margin-top: 1rem;">
-                        <label>Interaction Mode</label>
+                        <label>Mode</label>
                         <select id="in-interaction-mode">
                             <option value="orbit">Orbit Camera</option>
-                            <option value="paint">🖌️ Paint Load Area</option>
-                            <option value="erase">🧹 Erase Load Area</option>
+                            <option value="paint">Paint load area</option>
+                            <option value="erase">Erase load area</option>
                         </select>
                     </div>
                     <div class="control-group" id="brush-size-container" style="display:none; margin-top: 0.5rem;">
@@ -101,7 +165,7 @@
                     </div>
                     <button class="btn-secondary" id="btn-clear-paint" style="display:none; margin-top: 0.5rem; width: 100%;">Clear Painted Area</button>
                     <div class="control-group" style="margin-top: 1rem;">
-                        <label>Traction Direction</label>
+                        <label>Traction direction</label>
                         <select id="in-traction-type">
                             <option value="normal">Along Surface Normal (Pressure)</option>
                             <option value="arbitrary">Arbitrary Vector (Uniform Shear+Normal)</option>
@@ -115,42 +179,42 @@
                         </div>
                     </div>
                     
-                    <!-- Multiple Load Cases Manager -->
-                    <div class="control-group" style="margin-top: 1rem; border: 1px solid #334155; padding: 10px; border-radius: 5px; background: rgba(0,0,0,0.2);">
-                        <h4 style="margin-top:0; margin-bottom: 5px; color:#e2e8f0; font-size:0.95em;">Multiple Load Cases</h4>
-                        <div id="load-list" style="margin-bottom: 10px; font-size: 0.85em; color: #8892a4; max-height: 80px; overflow-y: auto;">
+                    <!-- Saved loads Manager -->
+                    <div class="control-group" style="margin-top: 1rem; border: 1px solid var(--color-panel-border); padding: 10px; border-radius: var(--radius-lg); background: var(--color-card-bg);">
+                        <h4 style="margin-top:0; margin-bottom: 5px; color:var(--color-text); font-size:0.95em;">Saved loads</h4>
+                        <div id="load-list" style="margin-bottom: 10px; font-size: 0.85em; color: var(--color-text-muted); max-height: 120px; overflow-y: auto;">
                             No saved loads. Active paint will be applied.
                         </div>
-                        <button class="btn-secondary" id="btn-save-load" style="width: 100%; font-size: 0.85em; padding: 5px;">💾 Save Current Paint as Load</button>
-                        <button class="btn-secondary" id="btn-clear-loads" style="width: 100%; margin-top: 5px; font-size: 0.85em; padding: 5px; display: none; color: #ff4444; border-color: #ff4444;">🗑️ Clear All Saved Loads</button>
+                        <button class="btn-secondary" id="btn-save-load" style="width: 100%; font-size: 0.85em; padding: 5px;">Save painted area as load</button>
+                        <button class="btn-secondary" id="btn-clear-loads" style="width: 100%; margin-top: 5px; font-size: 0.85em; padding: 5px; display: none; color: var(--color-danger); border-color: var(--color-danger);">Clear all saved loads</button>
                     </div>
                 </div>
 
                 <div class="panel">
                     <h2>Visualization</h2>
                     <div class="control-group">
-                        <label>Display Map</label>
+                        <label>Display map</label>
                         <select id="in-map-type">
-                            <option value="sigma_n">Normal Stress (σ_n)</option>
-                            <option value="tau_max">Max Shear Stress (τ_max)</option>
+                            <option value="sigma_n">Extreme Normal Stress (|σ1|, |σ3|)</option>
+                            <option value="tau_max">Max shear stress (τ_max)</option>
                             <option value="von_mises">Von Mises Stress (σ_v)</option>
                             <option value="strain_mag">Strain Magnitude (|ε|)</option>
                         </select>
                     </div>
                     <div class="control-group">
-                        <label>Deformation Exaggeration <span class="val" id="val-def-scale">1.0x</span></label>
+                        <label>Deformation scale <span class="val" id="val-def-scale">1.0x</span></label>
                         <input type="range" id="in-def-scale" min="1" max="5" step="0.1" value="1">
                     </div>
-                    <button class="btn-primary" id="btn-compute" style="margin-top: 1rem;">Compute Fields</button>
+                    <button class="btn-primary" id="btn-compute" style="margin-top: 1rem;">Compute fields</button>
                 </div>
             </div>
 
             <!-- Analytics Tab -->
             <div id="panel-analytics" role="tabpanel" aria-hidden="true" class="sidebar-panel">
                 <div class="panel">
-                    <h2>Cross Section</h2>
+                    <h2>Cross section</h2>
                     <div class="control-group">
-                        <label>Slice Plane</label>
+                        <label>Slice plane</label>
                         <select id="in-slice">
                             <option value="z">XY Plane (Z-slice)</option>
                             <option value="y">XZ Plane (Y-slice)</option>
@@ -158,18 +222,15 @@
                         </select>
                     </div>
                     <div class="control-group">
-                        <label>Slice Position <span class="val" id="val-slice-pos">0.0 m</span></label>
+                        <label>Slice position <span class="val" id="val-slice-pos">0.0 m</span></label>
                         <input type="range" id="in-slice-pos" min="-10" max="10" step="0.1" value="0">
                     </div>
-                </div>
-                <div id="analysis-plots" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
-                    <div class="plot-container" id="plot-stress-dist"></div>
-                    <div class="plot-container" id="plot-strain-dist"></div>
                 </div>
             </div>
         </aside>
     </main>
 
     <script type="module" src="app.js"></script>
+    <script type="module" src="sims.js"></script>
 </body>
 </html>

@@ -120,10 +120,45 @@ class SectionRequest(BaseModel):
     nu: float = 0.3
     material_E: float = 200e9
 
+
+def half_space_displacement(x, y, z, Px, Py, a, nu, E):
+    """Cerruti displacements for tangential point forces Px, Py (z into the body, z_eff = z + a)."""
+    ze = z + a
+    R = np.sqrt(x**2 + y**2 + ze**2)
+    Rz = R + ze
+    k = 1 - 2 * nu
+    Cx = Px * (1 + nu) / (2 * np.pi * E * R)
+    Cy = Py * (1 + nu) / (2 * np.pi * E * R)
+    ux = Cx * (1 + x**2 / R**2 + k * (R / Rz - x**2 / Rz**2)) + Cy * (x * y / R**2 - k * x * y / Rz**2)
+    uy = Cx * (x * y / R**2 - k * x * y / Rz**2) + Cy * (1 + y**2 / R**2 + k * (R / Rz - y**2 / Rz**2))
+    uz = Cx * (x * ze / R**2 + k * x / Rz) + Cy * (y * ze / R**2 + k * y / Rz)
+    return ux, uy, uz
+
+
+def tangential_stress(x, y, z, Px, Py, a, nu, E):
+    """Stress from tangential forces: strain = sym grad(u) (Ch. 5), then Hooke's law (Ch. 6)."""
+    ze = z + a
+    h = 1e-4 * np.sqrt(x**2 + y**2 + ze**2)
+    u = lambda xx, yy, zz: half_space_displacement(xx, yy, zz, Px, Py, a, nu, E)
+    xp, xm = u(x + h, y, z), u(x - h, y, z)
+    yp, ym = u(x, y + h, z), u(x, y - h, z)
+    zp, zm = u(x, y, z + h), u(x, y, z - h)
+    d = lambda p, m, i: (p[i] - m[i]) / (2 * h)  # du_i / d(axis)
+    exx, eyy, ezz = d(xp, xm, 0), d(yp, ym, 1), d(zp, zm, 2)
+    exy = 0.5 * (d(yp, ym, 0) + d(xp, xm, 1))
+    exz = 0.5 * (d(zp, zm, 0) + d(xp, xm, 2))
+    eyz = 0.5 * (d(zp, zm, 1) + d(yp, ym, 2))
+    lam = E * nu / ((1 + nu) * (1 - 2 * nu))
+    G = E / (2 * (1 + nu))
+    tr = exx + eyy + ezz
+    return (lam * tr + 2 * G * exx, lam * tr + 2 * G * eyy, lam * tr + 2 * G * ezz,
+            2 * G * exy, 2 * G * exz, 2 * G * eyz)
+
+
 @app.post("/api/section")
 def compute_section(req: SectionRequest):
     res = req.resolution
-    
+
     # define bounds based on shape dims
     if req.slice_plane == 'z':
         X, Y = np.meshgrid(np.linspace(-req.dim_x/2, req.dim_x/2, res),
@@ -143,20 +178,22 @@ def compute_section(req: SectionRequest):
     z = Z.flatten()
 
     nu = req.nu
-    
-    # Initialize total stress tensors
+    E = req.material_E
+
+    # Total Cauchy stress (tension positive); tensors of separate loads add (linear elasticity).
     s_xx_tot = np.zeros_like(x)
     s_yy_tot = np.zeros_like(x)
     s_zz_tot = np.zeros_like(x)
     t_xy_tot = np.zeros_like(x)
     t_xz_tot = np.zeros_like(x)
     t_yz_tot = np.zeros_like(x)
-    
+
+    last_lz = None
     for load in req.loads:
         lp = np.array(load.load_point)
         ln = np.array(load.load_normal)
         nz = -ln # Z points INTO the material
-        
+
         nx = np.array([1.0, 0.0, 0.0])
         if abs(nz[0]) > 0.9:
             nx = np.array([0.0, 1.0, 0.0])
@@ -166,79 +203,101 @@ def compute_section(req: SectionRequest):
         ny = np.cross(nz, nx)
         norm_ny = np.linalg.norm(ny)
         if norm_ny > 0: ny = ny / norm_ny
-        
+
         dx = x - lp[0]
         dy = y - lp[1]
         dz = z - lp[2]
-        
+
         lx = dx * nx[0] + dy * nx[1] + dz * nx[2]
         ly = dx * ny[0] + dy * ny[1] + dz * ny[2]
         lz = dx * nz[0] + dy * nz[1] + dz * nz[2]
-        
+        last_lz = lz
+
         fdir = np.array(load.force_dir)
-        fz_comp = np.dot(fdir, nz)
-        Pz = load.P * fz_comp
-        
+        Pz = load.P * np.dot(fdir, nz)
+        Px = load.P * np.dot(fdir, nx)
+        Py = load.P * np.dot(fdir, ny)
+
         painted_points = load.painted_points
         N_pts = len(painted_points)
-        if N_pts == 0:
+        empty = N_pts == 0
+        if empty:
             painted_points = [load.load_point]
             N_pts = 1
-            
-        dPz = Pz / N_pts
+
+        # Same equivalent-depth smoothing as the 3D view (avoids the point-load singularity)
+        P_arr = np.array(painted_points, dtype=float)
+        eff_patch = 0.5 if empty else float(np.mean(np.linalg.norm(P_arr - lp, axis=1)))
+        patch_local = eff_patch / max(1.0, np.sqrt(N_pts)) * 2.5
+
+        dPz, dPx, dPy = Pz / N_pts, Px / N_pts, Py / N_pts
         C = dPz / (2 * np.pi)
-        
-        load_s_xx = np.zeros_like(lz)
-        load_s_yy = np.zeros_like(lz)
-        load_s_zz = np.zeros_like(lz)
-        load_t_xy = np.zeros_like(lz)
-        load_t_xz = np.zeros_like(lz)
-        load_t_yz = np.zeros_like(lz)
-        
+
+        # local-frame accumulators
+        l_xx = np.zeros_like(lz); l_yy = np.zeros_like(lz); l_zz = np.zeros_like(lz)
+        l_xy = np.zeros_like(lz); l_xz = np.zeros_like(lz); l_yz = np.zeros_like(lz)
+
         for pt in painted_points:
             dx_p = pt[0] - lp[0]
             dy_p = pt[1] - lp[1]
             dz_p = pt[2] - lp[2]
-            
+
             px_local = dx_p * nx[0] + dy_p * nx[1] + dz_p * nx[2]
             py_local = dx_p * ny[0] + dy_p * ny[1] + dz_p * ny[2]
             pz_local = dx_p * nz[0] + dy_p * nz[1] + dz_p * nz[2]
-            
+
             lx_i = lx - px_local
             ly_i = ly - py_local
-            lz_i = np.maximum(lz - pz_local, 1e-5)
-            
-            R_i = np.sqrt(lx_i**2 + ly_i**2 + lz_i**2)
-            R2 = R_i**2
-            R5 = R_i**5
-            R_Rz = R_i * (R_i + lz_i)
-            
-            load_s_xx += C * ( (1 - 2*nu)/R_Rz * (1 - (lx_i**2 * (2*R_i + lz_i)) / (R2 * (R_i + lz_i))) - (3 * lx_i**2 * lz_i) / R5 )
-            load_s_yy += C * ( (1 - 2*nu)/R_Rz * (1 - (ly_i**2 * (2*R_i + lz_i)) / (R2 * (R_i + lz_i))) - (3 * ly_i**2 * lz_i) / R5 )
-            load_s_zz += C * ( - (3 * lz_i**3) / R5 )
-            load_t_xy += C * ( (1 - 2*nu)/R_Rz * (-lx_i * ly_i * (2*R_i + lz_i)) / (R2 * (R_i + lz_i)) - (3 * lx_i * ly_i * lz_i) / R5 )
-            load_t_xz += C * ( - (3 * lx_i * lz_i**2) / R5 )
-            load_t_yz += C * ( - (3 * ly_i * lz_i**2) / R5 )
-            
-        # Hydrostatic Blending for Full-Body Loading
-        blend = min(1.0, load.coverage ** 2)
-        pressure = load.P / load.painted_area if load.painted_area > 1e-6 else 0
-        if load.traction_type != 'normal':
-            pressure = 0
-            
-        s_xx_tot += load_s_xx * (1 - blend) - (pressure * blend)
-        s_yy_tot += load_s_yy * (1 - blend) - (pressure * blend)
-        s_zz_tot += load_s_zz * (1 - blend) - (pressure * blend)
-        t_xy_tot += load_t_xy * (1 - blend)
-        t_xz_tot += load_t_xz * (1 - blend)
-        t_yz_tot += load_t_yz * (1 - blend)
+            lz_i = np.maximum(lz - pz_local, 0.01)
+
+            # Boussinesq (tension positive; compressive load into the body):
+            #   sigma_r = C[(1-2v)/(R(R+z)) - 3 r^2 z/R^5],  sigma_t = C(1-2v)[z/R^3 - 1/(R(R+z))]
+            ze = lz_i + patch_local
+            r2 = lx_i**2 + ly_i**2
+            R = np.sqrt(r2 + ze**2)
+            sr = C * ((1 - 2*nu) / (R * (R + ze)) - 3 * r2 * ze / R**5)
+            st = C * (1 - 2*nu) * (ze / R**3 - 1 / (R * (R + ze)))
+            r2s = np.where(r2 < 1e-16, 1.0, r2)
+            c2 = np.where(r2 < 1e-16, 0.5, lx_i**2 / r2s)
+            s2 = 1 - c2
+            cs = np.where(r2 < 1e-16, 0.0, lx_i * ly_i / r2s)
+            trz_over_r = -3 * dPz / (2 * np.pi) * ze**2 / R**5   # tau_rz = trz_over_r * r
+            l_xx += sr * c2 + st * s2
+            l_yy += sr * s2 + st * c2
+            l_zz += -3 * dPz / (2 * np.pi) * ze**3 / R**5
+            l_xy += (sr - st) * cs
+            l_xz += trz_over_r * lx_i
+            l_yz += trz_over_r * ly_i
+
+            if dPx != 0 or dPy != 0:
+                t = tangential_stress(lx_i, ly_i, lz_i, dPx, dPy, patch_local, nu, E)
+                l_xx += t[0]; l_yy += t[1]; l_zz += t[2]
+                l_xy += t[3]; l_xz += t[4]; l_yz += t[5]
+
+        # rotate local tensor to global: sigma_g = R sigma_l R^T, R = [nx ny nz]
+        Rm = np.stack([nx, ny, nz], axis=1)
+        loc = [[l_xx, l_xy, l_xz], [l_xy, l_yy, l_yz], [l_xz, l_yz, l_zz]]
+        def g(p, q):
+            return sum(Rm[p, a] * Rm[q, b] * loc[a][b] for a in range(3) for b in range(3))
+
+        # Full-boundary pressure (Ch. 2): t = -p n everywhere gives sigma = -p I. Only valid at full coverage.
+        full = load.traction_type == 'normal' and load.coverage >= 0.99
+        if full:
+            pressure = load.P / load.painted_area if load.painted_area > 1e-6 else 0
+            s_xx_tot -= pressure; s_yy_tot -= pressure; s_zz_tot -= pressure
+        else:
+            s_xx_tot += g(0, 0); s_yy_tot += g(1, 1); s_zz_tot += g(2, 2)
+            t_xy_tot += g(0, 1); t_xz_tot += g(0, 2); t_yz_tot += g(1, 2)
 
     # Von Mises Stress Field
     vm = np.sqrt( 0.5 * ( (s_xx_tot - s_yy_tot)**2 + (s_yy_tot - s_zz_tot)**2 + (s_zz_tot - s_xx_tot)**2 + 6 * (t_xy_tot**2 + t_yz_tot**2 + t_xz_tot**2) ) )
     
-    # Mask out areas outside the physical object
-    mask = lz >= -0.1
-    vm[~mask] = 0
+    # Mask out areas outside the physical object if a load was applied
+    if last_lz is not None:
+        mask = last_lz >= -0.1
+        vm[~mask] = 0
+    else:
+        vm[:] = 0
     
     vm_mpa = vm / 1e6
     vm_grid = vm_mpa.reshape(X.shape)

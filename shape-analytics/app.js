@@ -1,5 +1,4 @@
-
-
+import { poissonOf, halfSpaceDisplacement, boussinesqTensor, tangentialTensor, principalStresses, vonMises, strainNorm } from './physics.js';
 function $(id) { return document.getElementById(id); }
 
 // --- UI Binding & State ---
@@ -145,9 +144,13 @@ document.querySelectorAll('[role="tab"]').forEach(tab => {
         document.querySelectorAll('.sidebar-panel').forEach(p => p.setAttribute('aria-hidden', 'true'));
         tab.setAttribute('aria-selected', 'true');
         $(tab.getAttribute('aria-controls')).setAttribute('aria-hidden', 'false');
+        // The plots live in a drawer under the viewport, shown only on the analytics tab.
+        document.querySelector('.app-layout').dataset.view = tab.id === 'tab-analytics' ? 'analytics' : 'controls';
         if (tab.id === 'tab-analytics') {
-            Plotly.Plots.resize('plot-stress-dist');
-            Plotly.Plots.resize('plot-strain-dist');
+            requestAnimationFrame(() => {
+                const p1 = $('plot-stress-dist');
+                if (p1 && p1.data) Plotly.Plots.resize(p1);
+            });
         }
     });
 });
@@ -155,7 +158,7 @@ document.querySelectorAll('[role="tab"]').forEach(tab => {
 // --- Three.js Setup ---
 const container = $('three-container');
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x04070d);
+scene.background = new THREE.Color(0x0f1f33);
 
 const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
 camera.position.set(20, 15, 20);
@@ -175,9 +178,16 @@ const directional = new THREE.DirectionalLight(0xffffff, 0.8);
 directional.position.set(10, 20, 10);
 scene.add(directional);
 
-const gridHelper = new THREE.GridHelper(40, 40, 0x1a2333, 0x0e1525);
-gridHelper.position.y = -10;
-scene.add(gridHelper);
+let gridHelper = null;
+function updateGridHelper(isDark) {
+    if (gridHelper) scene.remove(gridHelper);
+    const centerColor = isDark ? 0x2f4a68 : 0xb9b4a4;
+    const gridColor = isDark ? 0x1a3350 : 0xd3cfc0;
+    gridHelper = new THREE.GridHelper(40, 40, centerColor, gridColor);
+    gridHelper.position.y = -10;
+    scene.add(gridHelper);
+}
+updateGridHelper(true);
 
 let mesh;
 let wireframe;
@@ -266,7 +276,7 @@ function updatePaintedVisuals() {
     
     geom.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
     // Changed to bright cyan with a larger size and disabled depthTest to prevent z-fighting so it clearly pops out
-    const mat = new THREE.PointsMaterial({ color: 0x00ffff, size: 0.15, sizeAttenuation: true, depthTest: false, transparent: true, opacity: 0.8 });
+    const mat = new THREE.PointsMaterial({ color: 0xd0451b, size: 0.15, sizeAttenuation: true, depthTest: false, transparent: true, opacity: 0.8 });
     paintMesh = new THREE.Points(geom, mat);
     paintMesh.renderOrder = 999; // Render on top
     paintMesh.visible = (state.interactionMode === 'paint' || state.interactionMode === 'erase');
@@ -313,7 +323,7 @@ function updateGeometry() {
     }
 
     const material = new THREE.MeshPhongMaterial({ 
-        color: 0x8892a4, 
+        color: 0x8a96a3, 
         vertexColors: true,
         shininess: 30,
         flatShading: false
@@ -322,11 +332,12 @@ function updateGeometry() {
     mesh = new THREE.Mesh(geometry, material);
     scene.add(mesh);
     
-    const wireMat = new THREE.LineBasicMaterial({ color: 0x00e5a0, transparent: true, opacity: 0.1 });
+    const wireMat = new THREE.LineBasicMaterial({ color: 0x1f4e79, transparent: true, opacity: 0.18 });
     wireframe = new THREE.LineSegments(new THREE.WireframeGeometry(geometry), wireMat);
     scene.add(wireframe);
     
     basePositions = new Float32Array(geometry.attributes.position.array);
+    computeVertexAreas();
     
     // Reset load point to top center bounding box
     geometry.computeBoundingBox();
@@ -353,7 +364,7 @@ function drawArrows() {
         forceDir.set(state.vecX, state.vecY, state.vecZ).normalize();
     }
     
-    const mainArrow = new THREE.ArrowHelper(forceDir, loadPoint.clone().add(forceDir.clone().multiplyScalar(-3)), 3, 0xff4d6a, 0.5, 0.3);
+    const mainArrow = new THREE.ArrowHelper(forceDir, loadPoint.clone().add(forceDir.clone().multiplyScalar(-3)), 3, 0xd0451b, 0.5, 0.3);
     arrowGroup.add(mainArrow);
 }
 
@@ -362,124 +373,57 @@ function resetColors() {
     const count = geometry.attributes.position.count;
     const colors = new Float32Array(count * 3);
     for(let i=0; i<count; i++) {
-        colors[i*3] = 0.53; colors[i*3+1] = 0.57; colors[i*3+2] = 0.64; 
+        colors[i*3] = 0.78; colors[i*3+1] = 0.80; colors[i*3+2] = 0.82; 
     }
     geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 }
 
-// Boussinesq Approximation
-function calculateHalfSpaceDisplacement(x, y, z, Px, Py, Pz, a, nu, E) {
-    const z_eff = z + a;
-    const r2 = x*x + y*y;
-    const R = Math.sqrt(r2 + z_eff*z_eff);
-    const Rz = R + z_eff;
-    
-    let ux = 0, uy = 0, uz = 0;
-    
-    // Normal load (Pz) - Boussinesq
-    if (Math.abs(Pz) > 0) {
-        const C = (Pz * (1 + nu)) / (2 * Math.PI * E * R);
-        uz += C * (2 * (1 - nu) + (z_eff * z_eff) / (R * R));
-        if (r2 > 0) {
-            const ur = (Pz * (1 - 2*nu) * (1 + nu)) / (2 * Math.PI * E * Math.sqrt(r2)) * ((z_eff/R) - 1 + (r2*z_eff)/(R*R*R));
-            ux += ur * (x / Math.sqrt(r2));
-            uy += ur * (y / Math.sqrt(r2));
-        }
+// Per-vertex surface area (each triangle's area split equally over its corners). Painted coverage is
+// an AREA fraction, so uneven vertex density on the mesh doesn't distort the load.
+let vertexArea = null, surfaceArea = 0;
+function computeVertexAreas() {
+    const pos = geometry.attributes.position.array;
+    const idx = geometry.index ? geometry.index.array : null;
+    const nTri = idx ? idx.length / 3 : geometry.attributes.position.count / 3;
+    vertexArea = new Float64Array(geometry.attributes.position.count);
+    surfaceArea = 0;
+    for (let t = 0; t < nTri; t++) {
+        const i0 = idx ? idx[3*t] : 3*t, i1 = idx ? idx[3*t+1] : 3*t+1, i2 = idx ? idx[3*t+2] : 3*t+2;
+        const ux = pos[i1*3]-pos[i0*3], uy = pos[i1*3+1]-pos[i0*3+1], uz = pos[i1*3+2]-pos[i0*3+2];
+        const vx = pos[i2*3]-pos[i0*3], vy = pos[i2*3+1]-pos[i0*3+1], vz = pos[i2*3+2]-pos[i0*3+2];
+        const A = 0.5 * Math.hypot(uy*vz-uz*vy, uz*vx-ux*vz, ux*vy-uy*vx);
+        vertexArea[i0] += A/3; vertexArea[i1] += A/3; vertexArea[i2] += A/3;
+        surfaceArea += A;
     }
-    
-    // Shear load X (Px) - Cerruti
-    if (Math.abs(Px) > 0) {
-        const C = (Px * (1 + nu)) / (2 * Math.PI * E * R);
-        ux += C * (1 + (x*x)/(R*R) + (1 - 2*nu)*(R/Rz - (x*x)/(Rz*Rz)));
-        uy += C * ((x*y)/(R*R) - (1 - 2*nu)*((x*y)/(Rz*Rz)));
-        uz += C * ((x*z_eff)/(R*R) + (1 - 2*nu)*(x/Rz));
-    }
-    
-    // Shear load Y (Py) - Cerruti
-    if (Math.abs(Py) > 0) {
-        const C = (Py * (1 + nu)) / (2 * Math.PI * E * R);
-        ux += C * ((x*y)/(R*R) - (1 - 2*nu)*((x*y)/(Rz*Rz)));
-        uy += C * (1 + (y*y)/(R*R) + (1 - 2*nu)*(R/Rz - (y*y)/(Rz*Rz)));
-        uz += C * ((y*z_eff)/(R*R) + (1 - 2*nu)*(y/Rz));
-    }
-    
-    return { ux, uy, uz };
 }
-function calculateBoussinesq(r, z, P, a = 0) {
-    // Equivalent depth to simulate distributed patch load
-    const z_eff = z + a;
-    const R = Math.sqrt(r*r + z_eff*z_eff);
-    
-    const nu = 0.3; 
-    const E = state.material;
-    
-    const sz = (3 * P * z_eff * z_eff * z_eff) / (2 * Math.PI * Math.pow(R, 5));
-    const sr = (P / (2 * Math.PI)) * ( (3 * r * r * z_eff)/Math.pow(R, 5) - ((1 - 2*nu)/(R * (R + z_eff))) );
-    const trz = (3 * P * r * z_eff * z_eff) / (2 * Math.PI * Math.pow(R, 5));
-    
-    const uz = (P * (1 + nu) / (2 * Math.PI * E * R)) * (2 * (1 - nu) + (z_eff * z_eff) / (R * R));
-    let ur = 0;
-    if(r > 0) {
-        ur = (P * (1 - 2*nu) * (1 + nu)) / (2 * Math.PI * E * r) * ( (z_eff/R) - 1 + (r*r*z_eff)/Math.pow(R,3) );
-    }
-    
-    return { sz, sr, trz, uz, ur };
+function paintedAreaOf(indices) {
+    let s = 0;
+    indices.forEach(i => { s += vertexArea[i]; });
+    return Math.max(1e-6, s);
 }
 
 function computeStressField() {
     if (!geometry || !basePositions) return;
     drawArrows();
-    
+    if (!vertexArea || vertexArea.length !== geometry.attributes.position.count) computeVertexAreas();
+
     const positions = geometry.attributes.position.array;
     const count = geometry.attributes.position.count;
     const colors = new Float32Array(count * 3);
     const E = state.material;
-    const nu = 0.3;
-    const K = E / (3 * (1 - 2 * nu));
+    const nu = poissonOf(E);
+    const K = E / (3 * (1 - 2 * nu));   // Ch. 6: bulk modulus
     const G = E / (2 * (1 + nu));
-    
+
     $('out-bulk').innerHTML = `${(K / 1e9).toFixed(1)} <span class="unit">GPa</span>`;
     $('out-shear').innerHTML = `${(G / 1e9).toFixed(1)} <span class="unit">GPa</span>`;
-    
-    let baseDensity = 7850; 
+
+    let baseDensity = 7850;
     if (E === 70e9) baseDensity = 2700;
     else if (E === 30e9) baseDensity = 2400;
     else if (E === 3e9) baseDensity = 1200;
     else if (E === 0.01e9) baseDensity = 1100;
-    
-    const coverage = paintedVertexIndices.size / count;
-    const blend = Math.min(1.0, Math.pow(coverage, 2)); 
-    
-    let totalArea = 0;
-    let dx = state.dimX, dy = state.dimY, dz = state.dimZ;
-    if (state.shape === 'cylinder') totalArea = 2*Math.PI*state.cylR*state.cylH + 2*Math.PI*state.cylR**2;
-    else if (state.shape === 'sphere') totalArea = 4*Math.PI*state.sphR**2;
-    else totalArea = 2*(dx*dy + dy*dz + dx*dz);
-    
-    let paintedArea = totalArea * coverage;
-    if (paintedArea < 1e-6) paintedArea = 1e-6;
-    
-    const P = state.force * 1000; 
-    let pressure = P / paintedArea;
-    // For arbitrary traction, we can still use the applied pressure for surface visual mapping!
-    
-    // Hydrostatic strain applies only for normal inward pressure
-    let eps_hydro = 0;
-    if (state.tractionType === 'normal') {
-        eps_hydro = -(pressure) / (3 * K);
-    }
-    const newDensity = baseDensity / (1 + eps_hydro*3);
-    $('out-density').innerHTML = `${newDensity.toFixed(1)} <span class="unit">kg/m³</span>`;
 
-    let maxSigmaN = 0, maxTau = 0, maxVM = 0;
-    const stressValues = new Float32Array(count);
-    const displacements = new Array(count);
-    let maxDispMag = 0;
-    
-    const stiffnessRatio = state.material / 200e9; 
-    const matScale = 1e6 * Math.sqrt(stiffnessRatio); 
-    const scale = state.defScale * matScale; 
-    
     // Compile all loads
     const allLoads = state.savedLoads ? [...state.savedLoads] : [];
     if (paintedVertexIndices.size > 0) {
@@ -493,8 +437,13 @@ function computeStressField() {
         });
     }
 
-    // Precompute sample points for numerical superposition of stress
-    for (const load of allLoads) {
+    geometry.computeBoundingBox();
+    const minY = geometry.boundingBox.min.y;
+    const bottomCenter = new THREE.Vector3(0, minY, 0);
+
+    // Per-load constants, computed once (not once per vertex).
+    let eps_hydro_total = 0;
+    const infos = allLoads.map(load => {
         if (!load.sampledPoints) {
             load.sampledPoints = [];
             for (let idx of load.indices) {
@@ -502,176 +451,180 @@ function computeStressField() {
             }
             if (load.sampledPoints.length === 0) load.sampledPoints.push(load.loadPoint.clone());
         }
-    }
+        const nz = load.loadNormal.clone().multiplyScalar(-1);
+        const nx = new THREE.Vector3(1, 0, 0);
+        if (Math.abs(nz.x) > 0.9) nx.set(0, 1, 0);
+        nx.cross(nz).normalize();
+        const ny = new THREE.Vector3().crossVectors(nz, nx).normalize();
 
-    geometry.computeBoundingBox();
-    const minY = geometry.boundingBox.min.y;
-    const bottomCenter = new THREE.Vector3(0, minY, 0);
+        const forceDir = nz.clone();
+        if (load.tractionType === 'arbitrary') forceDir.set(load.vecX, load.vecY, load.vecZ).normalize();
+        const fz = forceDir.dot(nz);
+        const fT = forceDir.clone().sub(nz.clone().multiplyScalar(fz));
+        const fx = fT.dot(nx), fy = fT.dot(ny);
+
+        // load.force is a PRESSURE in kN/m^2; total force in N = pressure * painted area * 1000.
+        const area = paintedAreaOf(load.indices);
+        const coverage = area / surfaceArea;
+        const P = load.force * area * 1000;
+        const Px = P * fx, Py = P * fy, Pz = P * fz;
+        const pressure = P / area;
+
+        let avgDist = 0;
+        load.indices.forEach(idx => {
+            avgDist += Math.hypot(basePositions[idx*3]-load.loadPoint.x, basePositions[idx*3+1]-load.loadPoint.y, basePositions[idx*3+2]-load.loadPoint.z);
+        });
+        const effectivePatch = load.indices.size > 0 ? (avgDist / load.indices.size) : 0.5;
+        // Overlap the integration points by 2.5x their spacing to ensure smooth blurring
+        const patchLocal = (effectivePatch / Math.max(1, Math.sqrt(load.sampledPoints.length))) * 2.5;
+
+        // Ch. 2: pressure p on the ENTIRE boundary gives sigma = -p I (hydrostatic) everywhere. This holds
+        // only for a fully covered surface; a partial patch is the half-space (Boussinesq/Cerruti) solution.
+        const full = load.tractionType === 'normal' && coverage >= 0.99;
+        const eps_hydro = full ? -pressure / (3 * K) : 0;
+        eps_hydro_total += eps_hydro;
+
+        const rel = bottomCenter.clone().sub(load.loadPoint);
+        const dBC = halfSpaceDisplacement(rel.dot(nx), rel.dot(ny), Math.max(0.01, rel.dot(nz)), Px, Py, Pz, effectivePatch, nu, E);
+        const dispCorr = nx.clone().multiplyScalar(dBC.ux).add(ny.clone().multiplyScalar(dBC.uy)).add(nz.clone().multiplyScalar(dBC.uz));
+
+        return { nx, ny, nz, Px, Py, Pz, pressure, full, eps_hydro, effectivePatch, patchLocal, dispCorr, sp: load.sampledPoints, dP: 1 / load.sampledPoints.length, load };
+    });
+
+    $('out-density').innerHTML = `${(baseDensity / (1 + 3 * eps_hydro_total)).toFixed(1)} <span class="unit">kg/m³</span>`;
+
+    let maxSigmaN = 0, maxTau = 0, maxVM = 0, maxEps = 0;
+    const stressValues = new Float32Array(count);
+    const displacements = new Array(count);
+    let maxDispMag = 0;
+
+    // Display exaggeration only. Displacement is physically proportional to 1/E; the global clamp below
+    // rescales uniformly, so stiffness ratios between materials are preserved.
+    const scale = state.defScale * 1e6;
+
+    const rot = (info, t) => { // local tensor -> global: R T R^T with R = [nx ny nz]
+        const a = [info.nx, info.ny, info.nz], out = [0, 0, 0, 0, 0, 0];
+        const L = [[t[0], t[3], t[4]], [t[3], t[1], t[5]], [t[4], t[5], t[2]]];
+        const pairs = [[0,0],[1,1],[2,2],[0,1],[0,2],[1,2]];
+        pairs.forEach(([p, q], k) => {
+            let s = 0;
+            for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) {
+                s += L[i][j] * a[i].getComponent(p) * a[j].getComponent(q);
+            }
+            out[k] = s;
+        });
+        return out;
+    };
 
     for (let i = 0; i < count; i++) {
-        const bx = basePositions[i*3];
-        const by = basePositions[i*3+1];
-        const bz = basePositions[i*3+2];
+        const bx = basePositions[i*3], by = basePositions[i*3+1], bz = basePositions[i*3+2];
         const vertexPos = new THREE.Vector3(bx, by, bz);
-        
-        let totalDisp = new THREE.Vector3();
-        let maxLoadSigmaN = 0;
-        let maxLoadTau = 0;
-        let maxLoadVM = 0;
-        
-        for (const load of allLoads) {
-            const nz = load.loadNormal.clone().multiplyScalar(-1); 
-            let nx = new THREE.Vector3(1, 0, 0);
-            if (Math.abs(nz.x) > 0.9) nx.set(0, 1, 0);
-            nx.cross(nz).normalize();
-            const ny = new THREE.Vector3().crossVectors(nz, nx).normalize();
-            
-            let forceDir = nz.clone();
-            if (load.tractionType === 'arbitrary') forceDir.set(load.vecX, load.vecY, load.vecZ).normalize();
-            
-            const fz = forceDir.dot(nz);
-            const fTangential = new THREE.Vector3().copy(forceDir).sub(nz.clone().multiplyScalar(fz));
-            const fx = fTangential.dot(nx);
-            const fy = fTangential.dot(ny);
-            
-            const relPosBC = bottomCenter.clone().sub(load.loadPoint);
-            const xBC = relPosBC.dot(nx), yBC = relPosBC.dot(ny), zBC = Math.max(0.01, relPosBC.dot(nz));
-            
-            const coverage = load.indices.size / count;
-            let totalArea = 0;
-            if (state.shape === 'cylinder') totalArea = 2*Math.PI*state.cylR*state.cylH + 2*Math.PI*state.cylR**2;
-            else if (state.shape === 'sphere') totalArea = 4*Math.PI*state.sphR**2;
-            else totalArea = 2*(state.dimX*state.dimY + state.dimY*state.dimZ + state.dimX*state.dimZ);
-            
-            let paintedArea = Math.max(1e-6, totalArea * coverage);
-            
-            // load.force is now PRESSURE in kN/m^2. 
-            // Total force in kN = Pressure * Area.
-            // Total force in N = (Pressure * Area) * 1000
-            const P = load.force * paintedArea * 1000;
-            const Px = P * fx, Py = P * fy, Pz = P * fz;
-            
-            let avgDist = 0;
-            load.indices.forEach(idx => {
-                const px = basePositions[idx*3], py = basePositions[idx*3+1], pz = basePositions[idx*3+2];
-                avgDist += Math.sqrt((px-load.loadPoint.x)**2 + (py-load.loadPoint.y)**2 + (pz-load.loadPoint.z)**2);
-            });
-            const effectivePatch = load.indices.size > 0 ? (avgDist / load.indices.size) : 0.5;
-            
-            // 1. Calculate Single-Point Displacement
-            const dispValsBC = calculateHalfSpaceDisplacement(xBC, yBC, zBC, Px, Py, Pz, effectivePatch, 0.3, state.material);
-            const dispCorr = nx.clone().multiplyScalar(dispValsBC.ux).add(ny.clone().multiplyScalar(dispValsBC.uy)).add(nz.clone().multiplyScalar(dispValsBC.uz));
-            
-            const relPosCenter = vertexPos.clone().sub(load.loadPoint);
-            const xc = relPosCenter.dot(nx), yc = relPosCenter.dot(ny), zc = Math.max(0.01, relPosCenter.dot(nz));
-            
-            const dispVals = calculateHalfSpaceDisplacement(xc, yc, zc, Px, Py, Pz, effectivePatch, 0.3, state.material);
-            let dispBouss = nx.clone().multiplyScalar(dispVals.ux).add(ny.clone().multiplyScalar(dispVals.uy)).add(nz.clone().multiplyScalar(dispVals.uz)).sub(dispCorr);
-            
-            // 2. Numerical Superposition for Stresses (Perfectly continuous)
-            let load_sz = 0, load_sr = 0, load_trz = 0;
-            const dP = P / load.sampledPoints.length;
-            // Overlap the integration points by 2.5x their spacing to ensure smooth blurring
-            const patch_local = (effectivePatch / Math.max(1, Math.sqrt(load.sampledPoints.length))) * 2.5;
-            for (const sp of load.sampledPoints) {
-                const relPos = vertexPos.clone().sub(sp);
-                const x = relPos.dot(nx), y = relPos.dot(ny), z = Math.max(0.01, relPos.dot(nz));
-                const r = Math.sqrt(x*x + y*y);
-                const res = calculateBoussinesq(r, z, dP, patch_local);
-                load_sz += res.sz;
-                load_sr += res.sr;
-                load_trz += res.trz;
+
+        const totalDisp = new THREE.Vector3();
+        const S = [0, 0, 0, 0, 0, 0]; // total Cauchy stress: tensors of separate loads ADD (linear elasticity, Ch. 6)
+
+        for (const info of infos) {
+            const { nx, ny, nz } = info;
+            const rc = vertexPos.clone().sub(info.load.loadPoint);
+            const xc = rc.dot(nx), yc = rc.dot(ny), zc = Math.max(0.01, rc.dot(nz));
+            const dv = halfSpaceDisplacement(xc, yc, zc, info.Px, info.Py, info.Pz, info.effectivePatch, nu, E);
+            const dispBouss = nx.clone().multiplyScalar(dv.ux).add(ny.clone().multiplyScalar(dv.uy)).add(nz.clone().multiplyScalar(dv.uz)).sub(info.dispCorr);
+
+            if (info.full) {
+                const dispHydro = new THREE.Vector3(bx, by, bz).multiplyScalar(info.eps_hydro);
+                dispHydro.y -= minY * info.eps_hydro;
+                totalDisp.add(dispHydro.multiplyScalar(scale));
+                S[0] -= info.pressure; S[1] -= info.pressure; S[2] -= info.pressure;
+                continue;
             }
-            
-            let pressure = P / paintedArea;
-            
-            let eps_hydro = 0;
-            if (load.tractionType === 'normal') eps_hydro = -pressure / (3 * K);
-            
-            let dispHydro = new THREE.Vector3(bx, by, bz).multiplyScalar(eps_hydro);
-            dispHydro.y -= minY * eps_hydro;
-            
-            let blend = Math.min(1.0, coverage*coverage);
-            let disp = new THREE.Vector3().lerpVectors(dispBouss, dispHydro, blend);
-            disp.multiplyScalar(scale);
-            
-            totalDisp.add(disp);
-            
-            // For the fast JS visualization, we take the maximum scalar stress field instead of scalar addition.
-            // Scalar addition of Von Mises values is mathematically incorrect (it creates artificial 2X hotspots at corners).
-            if (load_sz > maxLoadSigmaN) maxLoadSigmaN = load_sz;
-            if (load_trz > maxLoadTau) maxLoadTau = load_trz;
-            let vm = Math.sqrt(load_sz*load_sz - load_sz*load_sr + load_sr*load_sr + 3*load_trz*load_trz);
-            if (vm > maxLoadVM) maxLoadVM = vm;
+            totalDisp.add(dispBouss.multiplyScalar(scale));
+
+            // Stress by superposition of point-force solutions over the painted points.
+            const local = [0, 0, 0, 0, 0, 0];
+            const hasTan = info.Px !== 0 || info.Py !== 0;
+            for (const sp of info.sp) {
+                const rel = vertexPos.clone().sub(sp);
+                const x = rel.dot(nx), y = rel.dot(ny), z = Math.max(0.01, rel.dot(nz));
+                const b = boussinesqTensor(x, y, z, info.Pz * info.dP, info.patchLocal, nu);
+                for (let k = 0; k < 6; k++) local[k] += b[k];
+                if (hasTan) {
+                    const c = tangentialTensor(x, y, z, info.Px * info.dP, info.Py * info.dP, info.patchLocal, nu, E);
+                    for (let k = 0; k < 6; k++) local[k] += c[k];
+                }
+            }
+            const g = rot(info, local);
+            for (let k = 0; k < 6; k++) S[k] += g[k];
         }
-        
+
         displacements[i] = totalDisp;
         const mag = totalDisp.length();
         if (mag > maxDispMag) maxDispMag = mag;
-        
+
+        // Ch. 4: extreme normal stress and tau_max = (s1 - s3)/2 from the principal stresses.
+        const [s1, , s3] = principalStresses(S);
+        const sigN = Math.max(Math.abs(s1), Math.abs(s3)) / 1e6;
+        const tau = (s1 - s3) / 2 / 1e6;
+        const vm = vonMises(S) / 1e6;
+        const eps = strainNorm(S, nu, E) * 1e6; // microstrain
+
         let val = 0;
-        if (state.mapType === 'sigma_n') val = maxLoadSigmaN;
-        if (state.mapType === 'tau_max') val = maxLoadTau;
-        if (state.mapType === 'von_mises') val = maxLoadVM;
-        if (state.mapType === 'strain_mag') val = maxLoadVM / state.material;
-        
-        val = val / 1e6;
+        if (state.mapType === 'sigma_n') val = sigN;
+        if (state.mapType === 'tau_max') val = tau;
+        if (state.mapType === 'von_mises') val = vm;
+        if (state.mapType === 'strain_mag') val = eps;
         stressValues[i] = val;
-        
-        if (maxLoadSigmaN/1e6 > maxSigmaN) maxSigmaN = maxLoadSigmaN/1e6;
-        if (maxLoadTau/1e6 > maxTau) maxTau = maxLoadTau/1e6;
-        if (maxLoadVM/1e6 > maxVM) maxVM = maxLoadVM/1e6;
+
+        if (sigN > maxSigmaN) maxSigmaN = sigN;
+        if (tau > maxTau) maxTau = tau;
+        if (vm > maxVM) maxVM = vm;
+        if (eps > maxEps) maxEps = eps;
     }
-    
+
     // Global clamp: If the maximum displacement exceeds a safe visual limit (e.g. 15.0 units),
     // we scale DOWN all displacements uniformly. This strictly preserves the mesh's geometric shape!
     const maxAllowedDisp = 15.0;
     const globalClampScale = maxDispMag > maxAllowedDisp ? (maxAllowedDisp / maxDispMag) : 1.0;
-    
+
     for (let i = 0; i < count; i++) {
-        const bx = basePositions[i*3];
-        const by = basePositions[i*3+1];
-        const bz = basePositions[i*3+2];
         const disp = displacements[i];
-        
-        positions[i*3]   = bx + disp.x * globalClampScale;
-        positions[i*3+1] = by + disp.y * globalClampScale;
-        positions[i*3+2] = bz + disp.z * globalClampScale;
+        positions[i*3]   = basePositions[i*3]   + disp.x * globalClampScale;
+        positions[i*3+1] = basePositions[i*3+1] + disp.y * globalClampScale;
+        positions[i*3+2] = basePositions[i*3+2] + disp.z * globalClampScale;
     }
-    
+
     $('out-sigma-max').innerHTML = `${maxSigmaN.toFixed(1)} <span class="unit">MPa</span>`;
     $('out-tau-max').innerHTML = `${maxTau.toFixed(1)} <span class="unit">MPa</span>`;
     $('out-vm-max').innerHTML = `${maxVM.toFixed(1)} <span class="unit">MPa</span>`;
-    $('out-eps-max').innerHTML = `${(maxVM * 1e6 / state.material * 1e6).toFixed(1)} <span class="unit">με</span>`;
-    
-    const maxVal = Math.max(...stressValues);
+    $('out-eps-max').innerHTML = `${maxEps.toFixed(1)} <span class="unit">με</span>`;
+
+    let maxVal = 0;
+    for (let i = 0; i < count; i++) if (stressValues[i] > maxVal) maxVal = stressValues[i];
+    $('legend-title').textContent = MAP_LABELS[state.mapType];
+    $('legend-mid').textContent = (maxVal / 2).toPrecision(3);
+    $('legend-max').textContent = maxVal.toPrecision(3);
     for (let i = 0; i < count; i++) {
         // Normalizing strictly to maxVal (no artificial 0.5 multiplier clamping) so different loads show relative colors
-        const norm = maxVal > 0 ? Math.min(1.0, Math.max(0, stressValues[i] / maxVal)) : 0; 
-        let rv=0, gv=0, bv=0;
-        if (norm < 0.25) { bv=1; gv=4*norm; }
-        else if (norm < 0.5) { bv=1-4*(norm-0.25); gv=1; }
-        else if (norm < 0.75) { rv=4*(norm-0.5); gv=1; }
-        else { rv=1; gv=1-4*(norm-0.75); }
-        
+        const norm = maxVal > 0 ? Math.min(1.0, Math.max(0, stressValues[i] / maxVal)) : 0;
+        const [rv, gv, bv] = stressRamp(norm);
+
         colors[i*3] = rv;
         colors[i*3+1] = gv;
         colors[i*3+2] = bv;
     }
-    
+
     geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
     geometry.attributes.position.needsUpdate = true;
     geometry.computeVertexNormals();
-    
+
     if(wireframe) {
         wireframe.geometry.dispose();
         wireframe.geometry = new THREE.WireframeGeometry(geometry);
     }
-    
+
     if(paintMesh) {
         updatePaintedVisuals(); // refresh positions of painted dots
     }
-    
+
     updateAnalyticsPlots();
 }
 
@@ -696,12 +649,73 @@ function animate() {
 }
 
 
-const layoutDark = {
-    paper_bgcolor: '#0e1525', plot_bgcolor: '#0e1525',
-    font: { color: '#8892a4' }, margin: { t: 30, r: 20, b: 40, l: 50 },
-    xaxis: { gridcolor: '#1a2333', zerolinecolor: '#334155' },
-    yaxis: { gridcolor: '#1a2333', zerolinecolor: '#334155' }
-};
+// --- Stress ramp (blue -> paper -> vermilion), shared by the 3D mesh and Plotly ---
+const RAMP_STOPS = [[0.0, [0.2, 0.42, 0.66]], [0.5, [0.95, 0.94, 0.90]], [1.0, [0.82, 0.27, 0.11]]];
+function stressRamp(t) {
+    const [a, b] = t < 0.5 ? [RAMP_STOPS[0], RAMP_STOPS[1]] : [RAMP_STOPS[1], RAMP_STOPS[2]];
+    const f = (t - a[0]) / (b[0] - a[0]);
+    return a[1].map((c, k) => c + (b[1][k] - c) * f);
+}
+const PLOTLY_RAMP = [[0, '#3a6ba8'], [0.5, '#f2efe6'], [1, '#d0451b']];
+const MAP_LABELS = { sigma_n: 'Normal stress (MPa)', tau_max: 'Max shear stress (MPa)', von_mises: 'Von Mises stress (MPa)', strain_mag: 'Strain magnitude |ε| (με)' };
+
+// --- Theme Toggle System ---
+function getThemeLayout() {
+    const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+    const bg = isDark ? '#0f1f33' : '#e9e6dc';
+    const fontColor = isDark ? '#a3b5c9' : '#4b5766';
+    const gridColor = isDark ? '#2f4a68' : '#c9c4b4';
+    const zeroColor = isDark ? '#4a6a8c' : '#9f9a8a';
+    const titleColor = isDark ? '#e6edf5' : '#1b2733';
+
+    return {
+        paper_bgcolor: bg,
+        plot_bgcolor: bg,
+        font: { color: fontColor, family: 'IBM Plex Mono, monospace' },
+        titleColor: titleColor,
+        margin: { t: 40, r: 20, b: 40, l: 50 },
+        xaxis: { gridcolor: gridColor, zerolinecolor: zeroColor, color: fontColor },
+        yaxis: { gridcolor: gridColor, zerolinecolor: zeroColor, color: fontColor }
+    };
+}
+
+function initThemeToggle() {
+    const btn = $('theme-toggle-btn');
+    const icon = $('theme-icon');
+    const label = $('theme-label');
+    if (!btn) return;
+
+    const saved = localStorage.getItem('shape-theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const initialTheme = saved || (prefersDark ? 'dark' : 'light');
+
+    applyTheme(initialTheme);
+
+    btn.addEventListener('click', () => {
+        const current = document.documentElement.getAttribute('data-theme');
+        applyTheme(current === 'dark' ? 'light' : 'dark');
+    });
+
+    function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('shape-theme', theme);
+        const isDark = theme === 'dark';
+
+        if (icon && label) {
+            label.textContent = isDark ? 'Light' : 'Dark';
+            btn.title = isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode';
+        }
+
+        // Update 3D canvas background and grid
+        if (scene) {
+            scene.background = new THREE.Color(isDark ? 0x0f1f33 : 0xf1eee5);
+            updateGridHelper(isDark);
+        }
+
+        // Refresh analytics plots
+        updateAnalyticsPlots();
+    }
+}
 
 async function updateAnalyticsPlots() {
     const slicePlane = $('in-slice').value;
@@ -717,7 +731,8 @@ async function updateAnalyticsPlots() {
     if (state.shape === 'cylinder') { dx = state.cylR*2; dy = state.cylR*2; dz = state.cylH; }
     if (state.shape === 'sphere') { dx = state.sphR*2; dy = state.sphR*2; dz = state.sphR*2; }
     
-    const count = geometry.attributes.position.count;
+    const count = geometry ? geometry.attributes.position.count : 0;
+    if (count === 0) return;
     
     // Compile all loads
     const allLoads = state.savedLoads ? [...state.savedLoads] : [];
@@ -753,14 +768,8 @@ async function updateAnalyticsPlots() {
             paintedPoints.push([load.loadPoint.x, load.loadPoint.y, load.loadPoint.z]);
         }
         
-        const coverage = load.indices.size / count;
-        let totalArea = 0;
-        if (state.shape === 'cylinder') totalArea = 2*Math.PI*state.cylR*state.cylH + 2*Math.PI*state.cylR**2;
-        else if (state.shape === 'sphere') totalArea = 4*Math.PI*state.sphR**2;
-        else totalArea = 2*(state.dimX*state.dimY + state.dimY*state.dimZ + state.dimX*state.dimZ);
-        
-        let paintedArea = totalArea * coverage;
-        if (paintedArea < 1e-6) paintedArea = 1e-6;
+        const paintedArea = paintedAreaOf(load.indices);
+        const coverage = paintedArea / surfaceArea;
         
         loadsPayload.push({
             P: load.force * paintedArea * 1000,
@@ -782,12 +791,12 @@ async function updateAnalyticsPlots() {
         dim_y: dy,
         dim_z: dz,
         resolution: 80,
-        nu: 0.3,
+        nu: poissonOf(state.material),
         material_E: state.material
     };
 
     try {
-        const response = await fetch('http://127.0.0.1:8002/api/section', {
+        const response = await fetch('/api/section', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(reqBody)
@@ -795,27 +804,28 @@ async function updateAnalyticsPlots() {
         
         if (!response.ok) throw new Error('API Error');
         const data = await response.json();
-        
-        const reqBodyWithArea = { ...reqBody, coverage, totalArea };
-        // We do not need to send coverage to server for now since server calculates it from painted points count, 
-        // but we can pass it if we want. For now let's just stick to what we have.
+        const tLayout = getThemeLayout();
         
         Plotly.react('plot-stress-dist', [{
             z: data.von_mises,
             x: data.axis1,
             y: data.axis2,
             type: 'heatmap',
-            colorscale: 'Jet',
-            colorbar: { title: 'MPa', titlefont: {color: '#8892a4'}, tickfont: {color: '#8892a4'} }
+            colorscale: PLOTLY_RAMP,
+            colorbar: { title: 'MPa', titlefont: {color: tLayout.font.color}, tickfont: {color: tLayout.font.color} }
         }], { 
-            ...layoutDark, 
-            title: { text: `Internal Von Mises Field (MPa) on ${data.title1}-${data.title2} Slice`, font: { color: '#eceff4' } },
-            xaxis: { ...layoutDark.xaxis, title: data.title1 },
-            yaxis: { ...layoutDark.yaxis, title: data.title2, scaleanchor: 'x', scaleratio: 1 },
-            height: 400
-        });
+            paper_bgcolor: tLayout.paper_bgcolor,
+            plot_bgcolor: tLayout.plot_bgcolor,
+            font: tLayout.font,
+            title: { text: `Internal Von Mises Field (MPa) on ${data.title1}-${data.title2} Slice`, font: { color: tLayout.titleColor } },
+            xaxis: { ...tLayout.xaxis, title: data.title1 },
+            yaxis: { ...tLayout.yaxis, title: data.title2, scaleanchor: 'x', scaleratio: 1 },
+            margin: tLayout.margin,
+            autosize: true
+        }, { responsive: true });
         
-        $('plot-strain-dist').style.display = 'none';
+        const strainEl = $('plot-strain-dist');
+        if (strainEl) strainEl.style.display = 'none';
 
     } catch (e) {
         console.error("Backend physics not running or error:", e);
@@ -834,14 +844,14 @@ function updateLoadListUI() {
         $('btn-clear-loads').style.display = 'none';
     } else {
         list.innerHTML = state.savedLoads.map((l, i) => `
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 4px;">
+            <div class="load-case-item">
                 <span><b>Load ${i+1}</b> (${l.indices.size} pts)</span>
-                <div style="display:flex; gap: 5px; align-items: center;">
+                <div style="display:flex; gap: 6px; align-items: center;">
                     <input type="number" min="0" step="10" value="${l.force}" 
                            onchange="window.updateSavedLoadForce(${i}, this.value)" 
-                           style="width: 60px; font-size: 0.9em; padding: 2px; background: #1a2333; color: white; border: 1px solid #334155; border-radius: 3px;" title="Pressure (kN/m²)">
-                    <span style="font-size:0.8em; color:#8892a4;">kN/m²</span>
-                    <button onclick="window.deleteSavedLoad(${i})" style="background: none; border: none; color: #ff4444; cursor: pointer; font-size: 1.1em; padding: 0 5px;" title="Delete Load">❌</button>
+                           style="width: 70px; font-size: 0.9em; padding: 2px 4px;" title="Pressure (kN/m²)">
+                    <span style="font-size:0.8em; color:var(--color-text-muted);">kN/m²</span>
+                    <button onclick="window.deleteSavedLoad(${i})" style="background: none; border: none; color: var(--color-danger); cursor: pointer; font-size: 1.1em; padding: 0 5px;" title="Delete Load">❌</button>
                 </div>
             </div>
         `).join('');
@@ -882,6 +892,7 @@ $('btn-clear-loads').addEventListener('click', () => {
     computeStressField();
 });
 
+initThemeToggle();
 setTimeout(updateAnalyticsPlots, 500);
 
 updateGeometry();

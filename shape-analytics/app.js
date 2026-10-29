@@ -595,7 +595,8 @@ function computeStressField() {
     $('out-sigma-max').innerHTML = `${maxSigmaN.toFixed(1)} <span class="unit">MPa</span>`;
     $('out-tau-max').innerHTML = `${maxTau.toFixed(1)} <span class="unit">MPa</span>`;
     $('out-vm-max').innerHTML = `${maxVM.toFixed(1)} <span class="unit">MPa</span>`;
-    $('out-eps-max').innerHTML = `${maxEps.toFixed(1)} <span class="unit">με</span>`;
+    // The model is linear and small-strain: beyond about 1% strain (10 000 με) the numbers are only indicative.
+    $('out-eps-max').innerHTML = `${maxEps.toFixed(1)} <span class="unit">με${maxEps > 1e4 ? ' (beyond small-strain theory)' : ''}</span>`;
 
     let maxVal = 0;
     for (let i = 0; i < count; i++) if (stressValues[i] > maxVal) maxVal = stressValues[i];
@@ -658,6 +659,7 @@ function stressRamp(t) {
 }
 const PLOTLY_RAMP = [[0, '#3a6ba8'], [0.5, '#f2efe6'], [1, '#d0451b']];
 const MAP_LABELS = { sigma_n: 'Normal stress (MPa)', tau_max: 'Max shear stress (MPa)', von_mises: 'Von Mises stress (MPa)', strain_mag: 'Strain magnitude |ε| (με)' };
+const MAP_UNITS = { sigma_n: 'MPa', tau_max: 'MPa', von_mises: 'MPa', strain_mag: 'με' };
 
 // --- Theme Toggle System ---
 function getThemeLayout() {
@@ -717,19 +719,29 @@ function initThemeToggle() {
     }
 }
 
+let sectionSeq = 0;   // guards against an older response overwriting a newer plot
+
 async function updateAnalyticsPlots() {
     const slicePlane = $('in-slice').value;
-    const slicePos = parseFloat($('in-slice-pos').value);
+
+    // Bounding-box extents of the body (three.js cylinders have their axis along Y).
+    let dx = state.dimX, dy = state.dimY, dz = state.dimZ;
+    if (state.shape === 'cylinder') { dx = state.cylR*2; dy = state.cylH; dz = state.cylR*2; }
+    if (state.shape === 'sphere') { dx = dy = dz = state.sphR*2; }
+
+    // Keep the slice position inside the body along the slice axis.
+    const half = ({ x: dx, y: dy, z: dz }[slicePlane]) / 2;
+    const posEl = $('in-slice-pos');
+    const lim = Math.floor(half * 10) / 10;
+    posEl.min = -lim; posEl.max = lim;
+    let slicePos = Math.min(lim, Math.max(-lim, parseFloat(posEl.value)));
+    if (slicePos !== parseFloat(posEl.value)) posEl.value = slicePos;
     $('val-slice-pos').textContent = slicePos.toFixed(1) + ' m';
     
     let forceDir = loadNormal.clone().multiplyScalar(-1);
     if (state.tractionType === 'arbitrary') {
         forceDir.set(state.vecX, state.vecY, state.vecZ).normalize();
     }
-    
-    let dx = state.dimX, dy = state.dimY, dz = state.dimZ;
-    if (state.shape === 'cylinder') { dx = state.cylR*2; dy = state.cylR*2; dz = state.cylH; }
-    if (state.shape === 'sphere') { dx = state.sphR*2; dy = state.sphR*2; dz = state.sphR*2; }
     
     const count = geometry ? geometry.attributes.position.count : 0;
     if (count === 0) return;
@@ -792,9 +804,11 @@ async function updateAnalyticsPlots() {
         dim_z: dz,
         resolution: 80,
         nu: poissonOf(state.material),
-        material_E: state.material
+        material_E: state.material,
+        shape: state.shape
     };
 
+    const seq = ++sectionSeq;
     try {
         const response = await fetch('/api/section', {
             method: 'POST',
@@ -802,22 +816,29 @@ async function updateAnalyticsPlots() {
             body: JSON.stringify(reqBody)
         });
         
-        if (!response.ok) throw new Error('API Error');
+        if (!response.ok) throw new Error('API ' + response.status);
         const data = await response.json();
+        if (seq !== sectionSeq) return;
         const tLayout = getThemeLayout();
-        
+        const z = data.fields[state.mapType];
+        const zTop = Math.max(0, ...z.flat().filter(v => v !== null));
+
         Plotly.react('plot-stress-dist', [{
-            z: data.von_mises,
+            z,
             x: data.axis1,
             y: data.axis2,
             type: 'heatmap',
+            zmin: 0,
+            zmax: zTop > 0 ? zTop : 1,
             colorscale: PLOTLY_RAMP,
-            colorbar: { title: 'MPa', titlefont: {color: tLayout.font.color}, tickfont: {color: tLayout.font.color} }
+            hoverongaps: false,
+            hovertemplate: `${data.title1} %{x:.2f} m<br>${data.title2} %{y:.2f} m<br>%{z:.3g}<extra></extra>`,
+            colorbar: { title: { text: MAP_UNITS[state.mapType], font: { color: tLayout.font.color } }, tickfont: { color: tLayout.font.color } }
         }], { 
             paper_bgcolor: tLayout.paper_bgcolor,
             plot_bgcolor: tLayout.plot_bgcolor,
             font: tLayout.font,
-            title: { text: `Internal Von Mises Field (MPa) on ${data.title1}-${data.title2} Slice`, font: { color: tLayout.titleColor } },
+            title: { text: `${MAP_LABELS[state.mapType]} on the ${data.title1}${data.title2} section at ${slicePlane} = ${slicePos.toFixed(1)} m`, font: { color: tLayout.titleColor } },
             xaxis: { ...tLayout.xaxis, title: data.title1 },
             yaxis: { ...tLayout.yaxis, title: data.title2, scaleanchor: 'x', scaleratio: 1 },
             margin: tLayout.margin,
@@ -828,7 +849,14 @@ async function updateAnalyticsPlots() {
         if (strainEl) strainEl.style.display = 'none';
 
     } catch (e) {
-        console.error("Backend physics not running or error:", e);
+        if (seq !== sectionSeq) return;
+        console.error("Section analytics request failed:", e);
+        const tLayout = getThemeLayout();
+        Plotly.react('plot-stress-dist', [], {
+            paper_bgcolor: tLayout.paper_bgcolor, plot_bgcolor: tLayout.plot_bgcolor, font: tLayout.font,
+            xaxis: { visible: false }, yaxis: { visible: false },
+            annotations: [{ text: 'Section data unavailable: the analysis server did not respond.', showarrow: false, font: { color: tLayout.font.color } }]
+        }, { responsive: true });
     }
 }
 

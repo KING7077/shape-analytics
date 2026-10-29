@@ -66,7 +66,8 @@ export function tangentialTensor(x, y, z, Px, Py, a, nu, E) {
     const g = (pair, i) => (pair[0][i] - pair[1][i]) / (2 * h); // ∂u_i/∂(that axis)
     const exx = g(dx, 0), eyy = g(dy, 1), ezz = g(dz, 2);
     const exy = 0.5 * (g(dy, 0) + g(dx, 1)), exz = 0.5 * (g(dz, 0) + g(dx, 2)), eyz = 0.5 * (g(dz, 1) + g(dy, 2));
-    const lam = (E * nu) / ((1 + nu) * (1 - 2 * nu)), G = E / (2 * (1 + nu)), tr = exx + eyy + ezz;
+    const nuL = Math.min(nu, 0.499); // lambda -> infinity as nu -> 0.5 (incompressible); cap keeps the stress finite
+    const lam = (E * nuL) / ((1 + nuL) * (1 - 2 * nuL)), G = E / (2 * (1 + nu)), tr = exx + eyy + ezz;
     return [lam * tr + 2 * G * exx, lam * tr + 2 * G * eyy, lam * tr + 2 * G * ezz, 2 * G * exy, 2 * G * exz, 2 * G * eyz];
 }
 
@@ -76,7 +77,10 @@ export function principalStresses(t) {
     const p = (a + b + c) / 3;
     const sa = a - p, sb = b - p, sc = c - p;
     const j2 = 0.5 * (sa * sa + sb * sb + sc * sc) + d * d + e * e + f * f;
-    if (j2 < 1e-12) return [p, p, p];
+    // Hydrostatic state: the deviator is zero to rounding. The test is relative to the stress scale, so a
+    // genuinely tiny stress state (e.g. far from a load) is still resolved.
+    const scale2 = a * a + b * b + c * c + 2 * (d * d + e * e + f * f);
+    if (j2 <= 1e-24 * scale2) return [p, p, p];
     const j3 = sa * (sb * sc - e * e) - d * (d * sc - e * f) + f * (d * e - sb * f);
     const r = 2 * Math.sqrt(j2 / 3);
     const phi = Math.acos(Math.max(-1, Math.min(1, (3 * Math.sqrt(3) * j3) / (2 * j2 ** 1.5)))) / 3;

@@ -1,0 +1,41 @@
+\documentclass[10.5pt,a4paper]{report}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,bm,textcomp}
+\usepackage{booktabs,array,longtable,enumitem}
+\usepackage{graphicx,xcolor,microtype}
+\usepackage{fancyvrb,fvextra,float,caption}
+\usepackage{tikz}\usetikzlibrary{arrows.meta,positioning,shapes.geometric,fit}
+\usepackage{titlesec,fancyhdr}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,urlcolor=blue!50!black]{hyperref}
+\floatstyle{plain}\newfloat{listing}{tbp}{lol}
+\setlength{\parindent}{0pt}\setlength{\parskip}{0.5em}
+\titleformat{\chapter}{\Large\bfseries}{\thechapter}{0.7em}{}
+\titlespacing*{\chapter}{0pt}{-10pt}{10pt}
+\pagestyle{fancy}\fancyhf{}\lhead{Shape Analytics: physics and code}\rhead{\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+\newcommand{\tens}[1]{\bm{#1}}
+\newcommand{\file}[1]{\texttt{#1}}
+\newcommand{\physics}[1]{\par\smallskip\noindent\textbf{Physics.} #1}
+\newcommand{\code}[1]{\par\smallskip\noindent\textbf{Code.} #1}
+\newcommand{\note}[1]{\par\smallskip\noindent\textbf{Note.} #1}
+\newenvironment{keybox}{\par\medskip\noindent\begin{tabular}{|p{0.95\linewidth}|}\hline\rule{0pt}{1.3ex}\ignorespaces}{\\\hline\end{tabular}\par\medskip}
+\setcounter{tocdepth}{2}
+\begin{document}
+\begin{titlepage}
+\vspace*{3cm}
+{\Huge\bfseries Shape Analytics}\\[0.6em]
+{\LARGE Physics, numerics and code}\\[1.2em]
+{\large A complete technical report on the solid-mechanics analysis app: the principles of the Mechanics of Solids course (Chapters 1--11), how each is implemented in the source files, and how the results are verified}\\[3em]
+\begin{tabular}{@{}ll@{}}
+Project & \texttt{shape-analytics} (FastAPI, Three.js, Plotly, numpy)\\
+Scope & 3D stress field, section analytics, nine analytical simulators, finite element tab\\
+Companion files & \texttt{REPORT.md}, \texttt{docs/physics\_report.pdf}, \texttt{docs/fem\_primer.pdf}\\
+\end{tabular}
+\vfill
+{\small Code excerpts in this report are taken directly from the source files; the numbers beside them are the line numbers in those files at the time of writing. Greek letters and mathematical symbols in the source (for example \texttt{sigma} for the Greek letter) are written out in ASCII in the listings so that they print.}
+\end{titlepage}
+\tableofcontents
+\clearpage

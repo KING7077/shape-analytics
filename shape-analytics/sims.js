@@ -4,7 +4,7 @@
 // All units: N, mm, MPa unless an input label says otherwise.
 
 const $ = (id) => document.getElementById(id);
-const fmt = (x, d = 2) => (Number.isFinite(x) ? (Math.abs(x) >= 1e5 || (x !== 0 && Math.abs(x) < 1e-3) ? x.toExponential(2) : x.toFixed(d)) : '–');
+const fmt = (x, d = 2) => (Number.isFinite(x) ? (Math.abs(x) >= 1e5 || (x !== 0 && Math.abs(x) < 1e-3) ? x.toExponential(2) : x.toFixed(d)) : x === Infinity ? '∞' : x === -Infinity ? '−∞' : '–');   // ∞: e.g. a safety factor with no load
 const linspace = (a, b, n) => Array.from({ length: n }, (_, i) => a + ((b - a) * i) / (n - 1));
 const rad = (d) => (d * Math.PI) / 180;
 const deg = (r) => (r * 180) / Math.PI;
@@ -32,7 +32,7 @@ function eig3(S) {
     const p = (a + b + c) / 3;
     const s = [[a - p, d, f], [d, b - p, e], [f, e, c - p]];
     const j2 = 0.5 * (s[0][0] ** 2 + s[1][1] ** 2 + s[2][2] ** 2) + d * d + e * e + f * f;
-    if (j2 < 1e-12) return { p1: p, p2: p, p3: p, j2: 0, p };
+    if (j2 <= 1e-24 * (a * a + b * b + c * c + 2 * (d * d + e * e + f * f))) return { p1: p, p2: p, p3: p, j2: 0, p }; // hydrostatic to rounding
     const j3 = s[0][0] * (s[1][1] * s[2][2] - e * e) - d * (d * s[2][2] - e * f) + f * (d * e - s[1][1] * f);
     const r = 2 * Math.sqrt(j2 / 3);
     const c3 = Math.max(-1, Math.min(1, (3 * Math.sqrt(3) * j3) / (2 * j2 ** 1.5)));
@@ -496,12 +496,12 @@ const energy = {
         }[v.case]);
         const h = Math.max(1e-3 * v.P, 1e-6), cast = (U(v.P + h) - U(v.P - h)) / (2 * h);
         const direct = {
-            axial: (v.P * L) / (A * E), torsion: (v.P * 1000 * L) / (G * J) / 1000,
+            axial: (v.P * L) / (A * E), torsion: ((v.P * 1000 * L) / (G * J)) * 1000,
             cant: (v.P * L ** 3) / (3 * E * I) + (sh ? (v.P * L) / (ks * G * A) : 0),
             ss: (v.P * L ** 3) / (48 * E * I) + (sh ? (v.P * L) / (4 * ks * G * A) : 0),
         }[v.case];
         const unit = { axial: 'mm', torsion: 'rad (×1000)', cant: 'mm', ss: 'mm' }[v.case];
-        const castOut = v.case === 'torsion' ? cast * 1000 / 1000 : cast; // dU/dT in N·mm/(N·m) → rad ×1000
+        const castOut = cast; // torsion: dU/dT in N·mm per N·m = φ × 1000 (rad ×1000), like the closed form
         const x = linspace(0, L, 101);
         const Mx = x.map((s) => ({ axial: 0, torsion: 0, cant: v.P * (L - s), ss: s < L / 2 ? (v.P * s) / 2 : (v.P * (L - s)) / 2 }[v.case]));
         const dens = Mx.map((q) => (q * q) / (2 * E * I));
@@ -511,7 +511,7 @@ const energy = {
         const dab = infl(0.7 * L, 0.3 * L) * v.P, dba = infl(0.3 * L, 0.7 * L) * v.P;
         const Utotal = U(v.P);
         return {
-            status: { ok: Math.abs(cast - direct) / Math.abs(direct) < 1e-4 || v.case === 'torsion', label: 'CHECKED', summary: `U = ${fmt(Utotal / 1000, 3)} J  δ = ∂U/∂P = ${fmt(castOut, 4)} ${unit}  closed form ${fmt(direct, 4)}` },
+            status: { ok: Math.abs(cast - direct) / Math.abs(direct) < 1e-4, label: 'CHECKED', summary: `U = ${fmt(Utotal / 1000, 3)} J  δ = ∂U/∂P = ${fmt(castOut, 4)} ${unit}  closed form ${fmt(direct, 4)}` },
             readouts: [
                 { label: 'Strain energy U', value: Utotal / 1000, unit: 'J' }, { label: "Castigliano ∂U/∂P (numeric)", value: castOut, unit: unit },
                 { label: 'Closed-form displacement', value: direct, unit: unit }, { label: 'Work of load ½Pδ', value: (0.5 * v.P * direct) / 1000, unit: 'J (equals U)' },
@@ -544,22 +544,24 @@ const buckling = {
         const Imin = (Math.min(v.b, v.h) ** 3 * Math.max(v.b, v.h)) / 12, A = v.b * v.h, r = Math.sqrt(Imin / A);
         const Pcr = (Math.PI ** 2 * E * Imin) / (K * L) ** 2, lam = (K * L) / r, scr = Pcr / A;
         const lamC = Math.PI * Math.sqrt(E / m.sy), valid = lam >= lamC;
-        const sf = v.P > 0 ? Pcr / (v.P * 1000) : Infinity;
+        const sJ = m.sy * (1 - (m.sy * lam * lam) / (4 * Math.PI ** 2 * E)); // Johnson parabola, joins Euler at λc with σ = σy/2
+        const sdes = valid ? scr : Math.max(sJ, 0), Pdes = sdes * A;      // Euler stress exceeds yield for short columns, so it cannot be used there
+        const sf = v.P > 0 ? Pdes / (v.P * 1000) : Infinity;
         const lams = linspace(10, 250, 120);
         const x = linspace(0, 1, 101);
         const shape = { pp: x.map((s) => Math.sin(Math.PI * s)), fr: x.map((s) => 1 - Math.cos((Math.PI * s) / 2)), ff: x.map((s) => (1 - Math.cos(2 * Math.PI * s)) / 2), fp: x.map((s) => { const kL = 4.4934; return (Math.sin(kL * s) - s * Math.sin(kL)) / 0.9; }) }[v.end];
         return {
-            status: { ok: sf >= 1, label: sf >= 1 ? 'STABLE' : 'BUCKLES', summary: `Pcr = ${fmt(Pcr / 1000)} kN  λ = ${fmt(lam, 0)}  σcr = ${fmt(scr, 1)} MPa  ${valid ? 'Euler valid' : 'yield governs'}  SF = ${fmt(sf)}` },
+            status: { ok: sf >= 1, label: sf >= 1 ? 'STABLE' : 'BUCKLES', summary: `Pcr = ${fmt(Pdes / 1000)} kN  λ = ${fmt(lam, 0)}  σcr = ${fmt(sdes, 1)} MPa  ${valid ? 'Euler valid' : 'short column: Johnson parabola'}  SF = ${fmt(sf)}` },
             readouts: [
                 { label: 'Euler load Pcr', value: Pcr / 1000, unit: 'kN' }, { label: 'Effective length factor K', value: K, unit: '' }, { label: 'Slenderness λ = KL/r', value: lam, unit: '' },
-                { label: 'Critical stress Pcr/A', value: scr, unit: 'MPa' }, { label: 'Transition slenderness', value: lamC, unit: '' }, { label: 'Radius of gyration r', value: r, unit: 'mm' },
+                { label: 'Critical stress (Euler, or Johnson if short)', value: sdes, unit: 'MPa' }, { label: 'Design critical load', value: Pdes / 1000, unit: 'kN' }, { label: 'Transition slenderness', value: lamC, unit: '' }, { label: 'Radius of gyration r', value: r, unit: 'mm' },
                 { label: 'Buckling safety factor', value: sf, unit: '' }, { label: 'Euler theory valid?', value: valid ? 'yes' : 'no, short column', unit: '' },
             ],
             charts: [
-                { id: 'sl', title: 'Critical stress versus slenderness', x: 'Slenderness λ', y: 'σcr (MPa)', traces: [{ name: 'Euler', x: lams, y: lams.map((q) => Math.min((Math.PI ** 2 * E) / q ** 2, m.sy * 3)), mode: 'lines', line: { color: 'var(--s1)' } }, { name: 'yield', x: [10, 250], y: [m.sy, m.sy], mode: 'lines', line: { color: 'var(--color-text-label)', dash: 'dash' } }, { name: 'this column', x: [lam], y: [Math.min(scr, m.sy * 3)], mode: 'markers', marker: { size: 12, color: 'var(--s2)' } }], primary: true },
+                { id: 'sl', title: 'Critical stress versus slenderness', x: 'Slenderness λ', y: 'σcr (MPa)', traces: [{ name: 'Euler', x: lams, y: lams.map((q) => Math.min((Math.PI ** 2 * E) / q ** 2, m.sy * 3)), mode: 'lines', line: { color: 'var(--s1)' } }, { name: 'yield', x: [10, 250], y: [m.sy, m.sy], mode: 'lines', line: { color: 'var(--color-text-label)', dash: 'dash' } }, { name: 'Johnson (short columns)', x: linspace(10, lamC, 40), y: linspace(10, lamC, 40).map((q) => m.sy * (1 - (m.sy * q * q) / (4 * Math.PI ** 2 * E))), mode: 'lines', line: { color: 'var(--s3)' } }, { name: 'this column', x: [lam], y: [Math.min(sdes, m.sy * 3)], mode: 'markers', marker: { size: 12, color: 'var(--s2)' } }], primary: true },
                 { id: 'mode', title: 'First buckling mode', x: 'x / L', y: 'Lateral deflection (normalised)', traces: [{ name: 'mode 1', x, y: shape, mode: 'lines', line: { color: 'var(--s2)' } }] },
             ],
-            equations: ['Pcr = π²·E·I / (K·L)²', 'λ = K·L / r,  r = √(I/A)', 'σcr = π²·E / λ²', 'Euler valid for λ > π√(E/σy)'],
+            equations: ['Pcr = π²·E·I / (K·L)²', 'λ = K·L / r,  r = √(I/A)', 'σcr = π²·E / λ²', 'Euler valid for λ > π√(E/σy)', 'Short columns: σcr = σy[1 − σy λ² / 4π²E] (Johnson)'],
         };
     },
     significance: 'A slender column under compression can become unstable long before the material yields: the straight shape stops being the stable equilibrium and the member bows sideways. The critical load falls with the square of the effective length, so end restraint matters, and it depends on bending stiffness EI rather than material strength.',
@@ -760,12 +762,27 @@ function select(id) {
     if (history.replaceState) history.replaceState(null, '', '#' + id);
 }
 
+// Extra tabs (e.g. fem.js) register here: { id, title, chapters, el, show() }. They own their own section element.
+const extras = new Map();
+const INITIAL_HASH = location.hash.slice(1);   // init() rewrites the hash before late-registering tabs load
+export function registerModule(def) {
+    extras.set(def.id, def);
+    const b = document.createElement('button');
+    b.type = 'button'; b.dataset.module = def.id; b.title = def.chapters; b.textContent = def.title;
+    $('module-nav').appendChild(b);
+    if (INITIAL_HASH === def.id) showModule(def.id);
+}
+
 export function showModule(id) {
-    const sim = id !== 'field';
-    $('sim-layout').hidden = !sim; document.querySelector('.app-layout').hidden = sim;
-    document.querySelectorAll('.field-only').forEach((el) => { el.hidden = sim; });
+    const extra = extras.get(id);
+    const sim = id !== 'field' && !extra;
+    $('sim-layout').hidden = !sim; document.querySelector('.app-layout').hidden = id !== 'field';
+    extras.forEach((x) => { x.el.hidden = x !== extra; });
+    document.querySelectorAll('.field-only').forEach((el) => { el.hidden = id !== 'field'; });
     document.querySelectorAll('.module-nav button').forEach((b) => b.setAttribute('aria-current', String(b.dataset.module === id)));
-    if (sim) select(id); else if (history.replaceState) history.replaceState(null, '', '#field');
+    if (sim) select(id);
+    else if (extra) { if (history.replaceState) history.replaceState(null, '', '#' + id); extra.show(); }
+    else if (history.replaceState) history.replaceState(null, '', '#field');
 }
 
 function init() {
@@ -784,4 +801,4 @@ function init() {
     showModule(SIMS.some((s) => s.id === start) ? start : 'field');
 }
 init();
-export { SIMS };
+export { SIMS, themed, plotLayout, css, fmt };

@@ -119,6 +119,7 @@ class SectionRequest(BaseModel):
     resolution: int
     nu: float = 0.3
     material_E: float = 200e9
+    shape: str = 'cuboid'   # 'cuboid' | 'cylinder' (axis Y) | 'sphere'; dim_* are the bounding-box extents
 
 
 def half_space_displacement(x, y, z, Px, Py, a, nu, E):
@@ -148,7 +149,8 @@ def tangential_stress(x, y, z, Px, Py, a, nu, E):
     exy = 0.5 * (d(yp, ym, 0) + d(xp, xm, 1))
     exz = 0.5 * (d(zp, zm, 0) + d(xp, xm, 2))
     eyz = 0.5 * (d(zp, zm, 1) + d(yp, ym, 2))
-    lam = E * nu / ((1 + nu) * (1 - 2 * nu))
+    nu_l = min(nu, 0.499)                      # lambda -> infinity as nu -> 0.5; the cap keeps the stress finite
+    lam = E * nu_l / ((1 + nu_l) * (1 - 2 * nu_l))
     G = E / (2 * (1 + nu))
     tr = exx + eyy + ezz
     return (lam * tr + 2 * G * exx, lam * tr + 2 * G * eyy, lam * tr + 2 * G * ezz,
@@ -157,7 +159,7 @@ def tangential_stress(x, y, z, Px, Py, a, nu, E):
 
 @app.post("/api/section")
 def compute_section(req: SectionRequest):
-    res = req.resolution
+    res = int(np.clip(req.resolution, 2, 400))   # a grid needs two points; cap the cost of one request
 
     # define bounds based on shape dims
     if req.slice_plane == 'z':
@@ -188,7 +190,6 @@ def compute_section(req: SectionRequest):
     t_xz_tot = np.zeros_like(x)
     t_yz_tot = np.zeros_like(x)
 
-    last_lz = None
     for load in req.loads:
         lp = np.array(load.load_point)
         ln = np.array(load.load_normal)
@@ -211,9 +212,10 @@ def compute_section(req: SectionRequest):
         lx = dx * nx[0] + dy * nx[1] + dz * nx[2]
         ly = dx * ny[0] + dy * ny[1] + dz * ny[2]
         lz = dx * nz[0] + dy * nz[1] + dz * nz[2]
-        last_lz = lz
 
-        fdir = np.array(load.force_dir)
+        fdir = np.array(load.force_dir, dtype=float)
+        fn = np.linalg.norm(fdir)
+        fdir = fdir / fn if fn > 0 else nz        # direction only; a zero vector falls back to the surface normal
         Pz = load.P * np.dot(fdir, nz)
         Px = load.P * np.dot(fdir, nx)
         Py = load.P * np.dot(fdir, ny)
@@ -289,19 +291,44 @@ def compute_section(req: SectionRequest):
             s_xx_tot += g(0, 0); s_yy_tot += g(1, 1); s_zz_tot += g(2, 2)
             t_xy_tot += g(0, 1); t_xz_tot += g(0, 2); t_yz_tot += g(1, 2)
 
-    # Von Mises Stress Field
-    vm = np.sqrt( 0.5 * ( (s_xx_tot - s_yy_tot)**2 + (s_yy_tot - s_zz_tot)**2 + (s_zz_tot - s_xx_tot)**2 + 6 * (t_xy_tot**2 + t_yz_tot**2 + t_xz_tot**2) ) )
-    
-    # Mask out areas outside the physical object if a load was applied
-    if last_lz is not None:
-        mask = last_lz >= -0.1
-        vm[~mask] = 0
+    S = np.zeros((x.size, 3, 3))
+    S[:, 0, 0], S[:, 1, 1], S[:, 2, 2] = s_xx_tot, s_yy_tot, s_zz_tot
+    S[:, 0, 1] = S[:, 1, 0] = t_xy_tot
+    S[:, 0, 2] = S[:, 2, 0] = t_xz_tot
+    S[:, 1, 2] = S[:, 2, 1] = t_yz_tot
+
+    # Same measures as the 3D view (Ch. 4, 5, 11): extreme normal stress, tau_max = (s1-s3)/2, von Mises, |strain|.
+    p = np.linalg.eigvalsh(S)               # ascending: s3, s2, s1
+    s1, s3 = p[:, 2], p[:, 0]
+    vm = np.sqrt(0.5 * ((s_xx_tot - s_yy_tot)**2 + (s_yy_tot - s_zz_tot)**2 + (s_zz_tot - s_xx_tot)**2
+                        + 6 * (t_xy_tot**2 + t_yz_tot**2 + t_xz_tot**2)))
+    k = (1 + nu) / E
+    m = nu * (s_xx_tot + s_yy_tot + s_zz_tot) / E
+    eps = np.sqrt((k*s_xx_tot - m)**2 + (k*s_yy_tot - m)**2 + (k*s_zz_tot - m)**2
+                  + 2 * k**2 * (t_xy_tot**2 + t_yz_tot**2 + t_xz_tot**2))
+    fields = {
+        "sigma_n": np.maximum(np.abs(s1), np.abs(s3)) / 1e6,
+        "tau_max": (s1 - s3) / 2 / 1e6,
+        "von_mises": vm / 1e6,
+        "strain_mag": eps * 1e6,            # microstrain
+    }
+
+    # Keep only points inside the body; the grid is its bounding rectangle. Outside -> null (blank in the plot).
+    hx, hy, hz = req.dim_x / 2, req.dim_y / 2, req.dim_z / 2
+    tol = 1e-9
+    if req.shape == 'cylinder':
+        inside = (x**2 + z**2 <= hx**2 + tol) & (np.abs(y) <= hy + tol)
+    elif req.shape == 'sphere':
+        inside = x**2 + y**2 + z**2 <= hx**2 + tol
     else:
-        vm[:] = 0
-    
-    vm_mpa = vm / 1e6
-    vm_grid = vm_mpa.reshape(X.shape)
-    
+        inside = (np.abs(x) <= hx + tol) & (np.abs(y) <= hy + tol) & (np.abs(z) <= hz + tol)
+
+    def grid(v):
+        g = np.where(inside, v, np.nan).reshape(X.shape)
+        return [[None if np.isnan(c) else float(c) for c in row] for row in g]
+
+    out = {name: grid(v) for name, v in fields.items()}
+
     if req.slice_plane == 'z':
         axis1, axis2 = X[0, :].tolist(), Y[:, 0].tolist()
         title1, title2 = "X", "Y"
@@ -317,8 +344,13 @@ def compute_section(req: SectionRequest):
         "axis2": axis2,
         "title1": title1,
         "title2": title2,
-        "von_mises": vm_grid.tolist()
+        "von_mises": out["von_mises"],
+        "fields": out,
+        "inside_fraction": float(inside.mean()),
     }
+
+from fem import router as fem_router
+app.include_router(fem_router)
 
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse

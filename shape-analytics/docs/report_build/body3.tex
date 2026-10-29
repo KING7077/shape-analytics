@@ -1,0 +1,146 @@
+\chapter{Verification}
+\label{ch:verify}
+
+\section{Approach}
+A simulator can be wrong in ways that look reasonable: a plausible picture with a wrong number. The checks here therefore compare the code with something independent: a closed-form result, a limiting case where the answer is known, an invariant that must hold for \emph{any} input, or a second implementation of the same physics. Where an exact answer is not available, a numerical experiment (mesh refinement, growing the body) shows the trend toward one.
+
+\begin{center}\small
+\begin{tabular}{@{}p{3.1cm}p{1.9cm}p{9.8cm}@{}}\toprule
+Component & Checks & What was verified\\\midrule
+\texttt{physics.js} & 54 & invariants and ordering of the principal stresses for 4000 random tensors over 12 decades of stress; hydrostatic, uniaxial, pure-shear and double-root cases; Boussinesq and Cerruti satisfy $\nabla\!\cdot\tens\sigma=\mathbf0$ at random points for several $\nu$; the Boussinesq stress equals Hooke's law applied to the gradient of its displacement; $\int\sigma_z\,dA=-P$ on four depths; the surface is stress-free outside the load; far-field decay; singular points stay finite\\
+\texttt{server.py} & 40 & eigen-decomposition against numpy; $|\mathbf t|^2=\sigma_{nn}^2+\tau^2$; the section is linear in load, obeys the triangle inequality for superposed loads, is symmetric, is zero for zero load, is hydrostatic for full coverage, has the right cylinder and sphere masks; and the browser physics agrees with the server for four load orientations to $2\times10^{-4}$\\
+Simulators & 110 & each closed form (Chapters~\ref{ch:stress} and~\ref{ch:sims}) plus limits, listed below\\
+Simulators, random & 22\,500 & 2500 random or extreme inputs for each of nine simulators: no exception, no NaN, and the only infinite values are safety factors with no load\\
+FEM & 43 & patch test, closed forms, equilibrium, full-pressure block, growing the block toward the half-space, 116 extreme inputs\\
+3D tab & 94 & every shape, material, load type and map with painted loads, no non-finite output, no console error\\\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Limiting cases of the simulators}
+\begin{center}\small
+\begin{tabular}{@{}p{2.7cm}p{12.3cm}@{}}\toprule
+Simulator & Limits checked\\\midrule
+Mohr & uniaxial $(\sigma_1=\sigma,\ \tau_{\max}=\sigma/2)$; hydrostatic $(\tau_{\max}=0,\ \sigma_{vM}=0)$; pure shear $(\sigma_{vM}=\sqrt3\tau)$; 400 random states: the transformation law, $\sigma_{x'}+\sigma_{y'}$ invariant, $\sigma_1+\sigma_2+\sigma_3=I_1$, $\sigma_1\sigma_2\sigma_3=I_3$, $\sigma_{vM}^2=I_1^2-3I_2$\\
+Beam & simply supported central load ($M=PL/4,\ \delta=PL^3/48EI$), UDL ($wL^2/8,\ 5wL^4/384EI$), cantilever tip load, UDL and end moment, moment at a support, equilibrium of reactions, load at a support, $a>L$ clamp, zero load; Timoshenko shear term $=PL/4k_sGA$, tends to Euler--Bernoulli for slender beams and dominates for stubby ones; $1.5V/A$, $4V/3A$ and $2V/A$ (thin tube) shear stresses; circle and tube properties\\
+Shaft & $16T/\pi D^3$, $TL/GJ$, hollow $J$, $\tau_{\min}=\tau_{\max}d/D$, thin-wall $T/2\pi r^2t$, zero torque, solid limit, linearity, $\phi\propto L/D^4$\\
+Axial & elongation $=\sum NL/EA$, fixed--fixed net elongation zero, thermal $-E\alpha\Delta T$ (fixed) and $\alpha\Delta T\,L$ (free)\\
+Pressure vessel & Lam\'e cylinder and sphere inner and outer hoop stress, external pressure, equal pressures (hydrostatic), zero pressure, thin-wall limit, inflation $u=\frac{a}{E}[\sigma_\theta-\nu(\sigma_r+\sigma_z)]$, von Mises from the Lam\'e stresses\\
+Thermal & $-E\alpha\Delta T$, $/(1-\nu)$, $/(1-2\nu)$; half restraint gives half the stress; $\Delta T=0$; cooling gives tension; $\Delta T$ to yield\\
+Failure & uniaxial tension and compression: all four theories agree; pure shear: Tresca $\sigma_y/2\tau$, von Mises $\sigma_y/\sqrt3\tau$, Rankine $\sigma_y/\tau$, St Venant $\sigma_y/[\tau(1+\nu)]$; hydrostatic: Tresca and von Mises never fail; equal biaxial tension; unsorted input; doubling the stresses halves each factor; Tresca $\ge$ von Mises $\ge\tfrac{\sqrt3}{2}$Tresca\\
+Energy & all four members with and without shear: Castigliano equals closed form, $U=\tfrac12P\delta$, reciprocity $\delta_{ab}=\delta_{ba}$\\
+Buckling & $\pi^2EI/(KL)^2$ for the four end conditions, weak-axis choice, $1/L^2$ scaling, transition slenderness $\pi\sqrt{E/\sigma_y}$, short columns flagged and capped at yield, zero load, slender column\\\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Verification of the finite element code}
+\begin{center}\small
+\begin{tabular}{@{}p{5.8cm}p{9.2cm}@{}}\toprule
+Test & Result\\\midrule
+Patch test, CST and Q4, irregular mesh & uniform stress reproduced to $10^{-8}$\\
+Uniform bar & exact at any mesh\\
+Tapered bar & ratio to exact $0.935\to0.9999$ (1 to 32 elements)\\
+Beam, tip load and UDL & nodal deflection exact to $10^{-9}$ with 1 element, $L/h=2$ and $250$\\
+Plane-stress cantilever, Q4, $\nu=0\ldots0.499$ & within $1.7\%$ of Timoshenko on a $12$-element depth mesh\\
+Coarse slender cantilever ($L/h=40$) & Q4 $0.89$ and CST $0.54$ of theory: shear locking is real, and noted\\
+Plate with a hole & $K_t=3.10\ (W/a=12)$, $3.17\ (8)$, $3.60\ (4)$: the finite-width trend toward $3$\\
+Block, full-face pressure & $\sigma_z=-q$ everywhere, $\sigma_x=\sigma_y=0$, crush $-qH/E$\\
+Block, patch load & centre stress $1.26$, $1.06$, $1.03$ times the half-space value for blocks of $2\times3$, $4\times4$, $8\times8$ m; side-face $\sigma_x$ about $0.4\%$ of $q$ against $2.6\%$\\
+Reactions & equal the applied load to rounding in all cases and on 116 extreme inputs\\\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Defects found by the tests, and what was changed}
+Each of the following was found by a limiting-case test and then corrected; the original behaviour is stated so that the reason for the code can be understood.
+\begin{enumerate}
+\item \textbf{Torsion in the energy tab} (\file{sims.js}, \texttt{energy.compute}). The closed-form displacement and the work were $10^6$ too small because the torque was converted twice. The status check had a special case that skipped torsion, which hid the error. Both corrected.
+\item \textbf{Short columns} (\texttt{buckling.compute}). Euler's critical stress was reported even above yield (up to $4\times10^4$~MPa) and the safety factor used it. A Johnson parabola now governs when $\lambda<\lambda_c$.
+\item \textbf{Principal stresses} (\file{physics.js}, \texttt{principalStresses}; \file{sims.js}, \texttt{eig3}). A fixed threshold on $J_2$ treated small non-hydrostatic stress states as hydrostatic. The threshold is now relative to the stress scale.
+\item \textbf{$\nu=0.5$} (\texttt{tangentialTensor} and \file{server.py}). The Lam\'e constant divides by $1-2\nu$: infinite stress in the browser and a division-by-zero error on the server. The value is capped at $0.499$ in that formula.
+\item \textbf{Section endpoint}. A resolution below 2 crashed the request and a force direction that was not a unit vector scaled the load. Resolution is clamped (2 to 400) and the direction is normalised. Earlier in the project the section used the wrong axis for cylinders and drew stress outside the body; both were corrected.
+\item \textbf{Display}. An infinite safety factor appeared as a dash and now shows $\infty$. Strains above $1\%$ carry a warning.
+\item \textbf{Finite plate with a hole} (not a defect but a result): the first Kirsch comparison showed $K_t$ above $3$; the trend with the width ratio explains this.
+\end{enumerate}
+
+\chapter{Limitations and how to extend the project}
+\label{ch:ext}
+
+\section{Limits of validity}
+\begin{itemize}
+\item \textbf{Linear elastic and small strain} everywhere. Plasticity, large rotation, contact, dynamics and damage are not modelled. Rubber in the 3D tab can exceed $100\%$ strain; the numbers are then indicative only.
+\item \textbf{Half-space} (3D tab, section): an infinite body. For a finite one it leaves stress on the sides and base. The FEM block quantifies this and shows the model is good for a deep, wide body. A \emph{partial} patch is not self-equilibrated in the 3D tab (there are no supports), and displacements are measured from the bottom centre.
+\item \textbf{Beams and columns}: numerical integration on 401 points; constant shear factor; ideal straight columns. The Mohr tool accepts symmetric stress matrices only.
+\item \textbf{FEM}: plane stress only (no plane strain or axisymmetric element); CST and Q4 are stiff in bending until refined; bricks lock for nearly incompressible materials; the dense 2D solver is capped near 3600 degrees of freedom and the 3D block near 9000 nodes; surface stress values are extrapolated; the block is a cuboid with a square patch aligned to the mesh.
+\item \textbf{Environment}: Three.js, Plotly and the fonts come from CDNs, so the interface needs network access.
+\end{itemize}
+
+\section{Adding a simulator}
+\begin{enumerate}[nosep]
+\item In \file{sims.js} define an object with the fields shown in Chapter~\ref{ch:sims}; the physics goes in \texttt{compute(v)}, returning readouts, charts and equations in the stated format.
+\item Add it to the \texttt{SIMS} array; the navigation, controls, A/B comparison, exports and routing follow automatically.
+\item Check it against at least two closed forms and the limits of every input (zero, minimum, maximum), since the safety factors and ratios divide by quantities that can be zero.
+\end{enumerate}
+
+\section{Removing the FEM tab}
+It is self-contained: delete \file{fem.js}, \file{fem.css}, \file{fem.py} and \file{fem3d.py}; remove the \texttt{fem.css} link and the \texttt{fem.js} script tag from \file{index.html}; remove the two \texttt{fem\_router} lines from \file{server.py}; and remove the \texttt{registerModule} function in \file{sims.js}. Nothing else depends on it. \texttt{docs/FEM\_PLAN.md} describes the design and the staged scope.
+
+\section{Ideas for further work}
+Plane-strain and axisymmetric elements (to compare with the Lam\'e vessel); thermal loads in the FEM; a finite-element field for cylinders and spheres (needs a mesher); a unit switch; and wiring the FEM block result into the 3D tab as an alternative to the half-space solution.
+
+\appendix
+\chapter{Index: physics principle to code}
+\label{app:map}
+\begin{center}\small
+\begin{longtable}{@{}p{4.4cm}p{3.2cm}p{7.4cm}@{}}\toprule
+Principle (course chapter) & File & Function or object\\\midrule\endhead
+Cauchy's formula, normal and shear traction (2, 4) & \file{server.py} & \texttt{compute\_traction}\\
+Principal stresses, invariants (4) & \file{physics.js}; \file{server.py}; \file{sims.js} & \texttt{principalStresses}; \texttt{compute\_principal} (\texttt{eigh}); \texttt{eig3}\\
+Von Mises, Tresca (11) & \file{physics.js}; \file{sims.js} & \texttt{vonMises}; \texttt{mohr}, \texttt{failure} \texttt{.compute}\\
+Strain from stress, Hooke (5, 6) & \file{physics.js} & \texttt{strainNorm}; \texttt{tangentialTensor}\\
+Boussinesq normal load (3, 6) & \file{physics.js} & \texttt{boussinesqTensor}, \texttt{halfSpaceDisplacement}\\
+Cerruti tangential load (5, 6) & \file{physics.js} & \texttt{halfSpaceDisplacement}, \texttt{tangentialTensor}\\
+Superposition (10.1) & \file{app.js}; \file{server.py} & \texttt{computeStressField} (loop over \texttt{infos}); \texttt{compute\_section} (loop over \texttt{req.loads})\\
+Tensor rotation (2.5) & \file{app.js}; \file{server.py} & \texttt{rot}; \texttt{g(p, q)}\\
+Hydrostatic compression (2, 6) & \file{app.js}; \file{server.py} & the \texttt{full} test (coverage $\ge0.99$)\\
+Statics and area (1--2) & \file{app.js} & \texttt{computeVertexAreas}, \texttt{paintedAreaOf}\\
+Beam statics, $EIv''=M$, Timoshenko (8, 9) & \file{sims.js} & \texttt{beam.compute}, \texttt{section}, \texttt{cumtrapz}\\
+Torsion (7) & \file{sims.js} & \texttt{torsion.compute}, \texttt{draw3d}\\
+Statically indeterminate bar (6, 7) & \file{sims.js} & \texttt{axial.compute}\\
+Lam\'e cylinder and sphere (7) & \file{sims.js} & \texttt{pressure.compute}\\
+Thermal stress (6.6) & \file{sims.js} & \texttt{thermal.compute}\\
+Failure theories (11) & \file{sims.js} & \texttt{failure.compute}\\
+Castigliano, reciprocity (10) & \file{sims.js} & \texttt{energy.compute}\\
+Euler and Johnson buckling (9.4) & \file{sims.js} & \texttt{buckling.compute}\\
+Bar and beam elements (energy methods) & \file{fem.py} & \texttt{run\_bar}, \texttt{run\_beam}, \texttt{hermite}\\
+Plane stress, $\mathbf B$, $\mathbf D$ (5, 6) & \file{fem.py} & \texttt{d\_matrix}, \texttt{q4\_B}, \texttt{cst\_B}, \texttt{fe2d}\\
+3D elasticity, bricks (5, 6) & \file{fem3d.py} & \texttt{d\_matrix3}, \texttt{brick}, \texttt{run\_block}\\
+Equilibrium of reactions (3) & \file{fem.py}, \file{fem3d.py} & \texttt{solve\_system}, \texttt{diagnostics}\\
+Half-space reference (3, 6) & \file{fem3d.py} & \texttt{newmark\_centre}, \texttt{halfspace}\\
+\bottomrule
+\end{longtable}
+\end{center}
+
+\chapter{Interfaces and data formats}
+\section{HTTP API}
+\begin{center}\small
+\begin{tabular}{@{}p{3.6cm}p{11.4cm}@{}}\toprule
+Route & Purpose\\\midrule
+\texttt{POST /api/traction} & input: six stress components and a normal; output: traction vector, normal stress, shear vector and magnitude\\
+\texttt{POST /api/principal} & input: six stress components; output: principal stresses and directions, $\tau_{\max}$, von Mises stress\\
+\texttt{POST /api/section} & input: loads (force, painted points, load point and normal, direction, area, coverage), slice plane and position, body extents and shape, resolution, $\nu$, $E$; output: grid axes and four stress fields (null outside the body)\\
+\texttt{POST /api/fem/solve} & input: case (\texttt{bar}, \texttt{beam}, \texttt{cantilever}, \texttt{hole}, \texttt{block}), element, mesh density and the case parameters; output: mesh view, charts, comparison table, diagnostics, optional stiffness matrix\\
+\texttt{GET /} and static files & the single page application\\\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Symbols}
+\begin{center}\small
+\begin{tabular}{@{}p{2.2cm}p{5.0cm}p{2.2cm}p{5.0cm}@{}}\toprule
+$\tens\sigma,\tens\epsilon$ & stress, strain tensors & $E,\nu$ & Young's modulus, Poisson's ratio\\
+$\sigma_1\ge\sigma_2\ge\sigma_3$ & principal stresses & $G,K,\lambda$ & shear, bulk modulus, Lam\'e constant\\
+$I_1,I_2,I_3$ & stress invariants & $\mathbf B,\mathbf D$ & strain--displacement and constitutive matrices\\
+$J_2,J_3$ & deviatoric invariants & $\mathbf K,\mathbf f,\mathbf u$ & global stiffness, load and displacement vectors\\
+$\tau_{\max}$ & maximum shear stress & $k_s$ & shear correction factor\\
+$\sigma_{vM}$ & von Mises stress & $\lambda$ & slenderness $KL/r$ (buckling)\\
+$P,q,p$ & force, patch pressure, pressure & $K_t$ & stress concentration factor\\\bottomrule
+\end{tabular}
+\end{center}

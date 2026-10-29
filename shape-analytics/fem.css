@@ -1,0 +1,19 @@
+/* FEM tab only. Delete this file, fem.js, fem.py and the matching lines in index.html/server.py/sims.js to remove the tab. */
+#fem-layout .sim-top { grid-template-columns: 1fr; }
+.fem-view { border: 1px solid var(--color-text); background: var(--color-surface); padding: var(--sp-2); display: flex; flex-direction: column; gap: var(--sp-2); }
+.fem-view-head { display: flex; flex-wrap: wrap; gap: var(--sp-3); align-items: center; justify-content: space-between; }
+.fem-view-head label { white-space: nowrap; display: flex; gap: var(--sp-2); align-items: center; font-size: 0.85rem; color: var(--color-text-label); }
+.fem-view canvas { width: 100%; height: 300px; display: block; }
+.fem-legend { display: flex; align-items: center; gap: var(--sp-2); font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-text-muted); }
+.fem-legend i { display: block; width: 160px; height: 10px; border: 1px solid var(--color-text); background: linear-gradient(90deg, #3a6ba8, #f2efe6, #d0451b); }
+#fem-layout .readout-card .delta { color: var(--color-text-muted); }
+#fem-layout .readout-card.off .value { color: var(--color-danger); }
+.fem-learn { border-top: 1px solid var(--color-text); padding-top: var(--sp-3); display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--sp-6); }
+.fem-learn h3 { font-size: 0.95rem; margin-bottom: var(--sp-1); }
+.fem-learn ol { padding-left: 1.2em; display: grid; gap: var(--sp-2); font-size: 0.9rem; max-width: 62ch; }
+.fem-learn code, .fem-kmat { font-family: var(--font-mono); }
+.fem-kmat { border-collapse: collapse; font-size: 0.7rem; }
+.fem-kmat th, .fem-kmat td { border: 1px solid var(--color-panel-border); padding: 1px 5px; text-align: right; font-weight: 400; font-variant-numeric: tabular-nums; }
+.fem-kmat td.z { color: var(--color-text-muted); }
+.fem-kwrap { overflow-x: auto; }
+@media (max-width: 900px) { .fem-learn { grid-template-columns: 1fr; } }

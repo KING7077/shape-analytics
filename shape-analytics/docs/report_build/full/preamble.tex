@@ -1,0 +1,74 @@
+\documentclass[11pt,a4paper,twoside]{report}
+\usepackage[a4paper,inner=2.6cm,outer=2.2cm,top=2.6cm,bottom=2.6cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{mathpazo}
+\usepackage[scaled=.92]{helvet}
+\renewcommand{\ttdefault}{lmtt}
+\usepackage{amsmath,amssymb,bm,textcomp}
+\usepackage{booktabs,array,longtable,enumitem,multirow}
+\usepackage{graphicx,xcolor,microtype}
+\usepackage{fancyvrb,fvextra,float,caption,subcaption}
+\usepackage{tikz}\usetikzlibrary{arrows.meta,positioning,shapes.geometric,fit,backgrounds}
+\usepackage{titlesec,fancyhdr,tcolorbox}
+\usepackage[colorlinks=true,linkcolor=blue!45!black,urlcolor=blue!45!black,citecolor=blue!45!black]{hyperref}
+\definecolor{accent}{HTML}{1F4E79}\definecolor{warm}{HTML}{C8431C}\definecolor{paper}{HTML}{F3F1EA}
+\floatstyle{plain}\newfloat{listing}{tbp}{lol}
+\newcommand{\listingname}{Listing}
+\captionsetup{font=small,labelfont={bf,color=accent},labelsep=period,justification=raggedright,singlelinecheck=false}
+\setlength{\parindent}{0pt}\setlength{\parskip}{0.55em}
+\linespread{1.06}
+\renewcommand{\arraystretch}{1.12}
+\titleformat{\chapter}[display]{\sffamily\bfseries\color{accent}}{\Large\chaptertitlename\ \thechapter}{4pt}{\Huge}
+\titlespacing*{\chapter}{0pt}{-20pt}{22pt}
+\titleformat{\section}{\sffamily\Large\bfseries\color{accent}}{\thesection}{0.7em}{}
+\titleformat{\subsection}{\sffamily\large\bfseries}{\thesubsection}{0.6em}{}
+\pagestyle{fancy}\fancyhf{}
+\fancyhead[LE]{\sffamily\small\leftmark}\fancyhead[RO]{\sffamily\small\rightmark}
+\fancyfoot[LE,RO]{\sffamily\small\thepage}\fancyfoot[RE,LO]{\sffamily\small\color{gray}Shape Analytics, technical report}
+\renewcommand{\headrulewidth}{0.3pt}
+\fancypagestyle{plain}{\fancyhf{}\fancyfoot[LE,RO]{\sffamily\small\thepage}\renewcommand{\headrulewidth}{0pt}}
+\newcommand{\tens}[1]{\bm{#1}}
+\newcommand{\file}[1]{\texttt{#1}}
+\newcommand{\physics}[1]{\par\smallskip\noindent{\sffamily\bfseries\color{accent}Theory.} #1}
+\newcommand{\code}[1]{\par\smallskip\noindent{\sffamily\bfseries\color{warm}Implementation.} #1}
+\newcommand{\note}[1]{\par\smallskip\noindent{\sffamily\bfseries Note.} #1}
+\newtcolorbox{keybox}{colback=paper,colframe=accent,boxrule=0.5pt,arc=1pt,left=6pt,right=6pt,top=4pt,bottom=4pt}
+\setcounter{tocdepth}{2}
+\newcommand{\frontmatter}{\pagenumbering{roman}}
+\newcommand{\mainmatter}{\clearpage\pagenumbering{arabic}}
+\begin{document}
+\pagestyle{empty}
+\begin{titlepage}
+\begin{tikzpicture}[remember picture,overlay]
+\fill[accent] (current page.north west) rectangle ([yshift=-12.4cm]current page.north east);
+\fill[warm] ([yshift=-12.4cm]current page.north west) rectangle ([yshift=-12.55cm]current page.north east);
+\end{tikzpicture}
+\vspace*{1.6cm}
+{\color{white}\sffamily
+{\large\bfseries TECHNICAL REPORT \quad|\quad MECHANICS OF SOLIDS}\\[1.6cm]
+{\fontsize{44}{48}\selectfont\bfseries Shape Analytics}\\[0.7cm]
+{\Large An interactive environment for stress analysis:\\ half-space elasticity, analytical simulators\\ and a finite element solver}\par}
+\vspace{4.2cm}
+{\sffamily\large
+\begin{tabular}{@{}p{3.2cm}p{10cm}@{}}
+\textbf{Software} & \texttt{shape-analytics} (JavaScript, Three.js, Plotly, Python, FastAPI, NumPy)\\[3pt]
+\textbf{Scope} & three-dimensional stress field, section analytics, nine analytical simulators, finite element tab\\[3pt]
+\textbf{Date} & \today\\
+\end{tabular}}
+\vfill
+{\small\sffamily\color{gray}Code excerpts are taken directly from the source files, with the line numbers of those files. Greek letters in the source are written out in ASCII in the listings so that they print.}
+\end{titlepage}
+\pagestyle{fancy}
+\frontmatter
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+\markboth{Abstract}{Abstract}
+Shape Analytics is a browser-based tool for exploring the stress, strain and deformation of elastic solids. It combines three levels of model: (i) a three-dimensional stress field built by superposing the Boussinesq and Cerruti half-space solutions over a load painted on the surface of a cuboid, cylinder or sphere; (ii) nine analytical simulators for classical problems (Mohr's circle, beams, shaft torsion, axial loading, pressure vessels, thermal stress, failure theories, energy methods and column buckling); and (iii) a finite element solver for bars, beams, plane-stress problems and a three-dimensional block.
+
+This report states the governing theory of each tool, shows how it is turned into code, and tests the code against independent results. The analytical simulators reproduce closed-form solutions to the printed precision in every default case examined (Table~\ref{tab:defaults}). The finite element solver reproduces exact bar and beam solutions, converges at the expected rate for the tapered bar and plane-stress cantilever (the tip deflection of the four-node element is within $0.3\%$ of beam theory on eight elements through the depth), and recovers a stress concentration factor of $K_t=3.06$ for a hole in a wide plate against the classical value of $3$. The limits of the models (linear elasticity, an infinite half-space, plane stress) are stated, and the report ends with a guide to extending the software.
+
+\tableofcontents
+\listoffigures
+\listoftables
+\mainmatter

@@ -1,0 +1,152 @@
+\chapter{The analytical simulators}
+\label{ch:sims}
+
+\section{The framework in \file{sims.js}}
+\physics{Each simulator is a function from a few input numbers to a set of results, so the interface only needs to know how to draw the inputs and the outputs. There is no physics in the framework.}
+
+\code{Every simulator is a plain object with a fixed shape. The framework builds sliders and selectors from \texttt{inputs}, calls \texttt{compute(v)} whenever an input changes (once per animation frame), and draws what it returns.}
+\begin{Verbatim}[fontsize=\fontsize{6.6}{8}\selectfont,frame=lines,rulecolor=\color{gray!60}]
+{ id, title, chapters, blurb,
+  inputs: [ { k, label, unit, min, max, step, value }  |  { k, label, type:'select', options:[[val,label],...], value } ],
+  compute(v) -> { status:{ok,label,summary},          // the coloured banner
+                  readouts:[{label,value,unit}],      // the title-block numbers
+                  charts:[{id,title,x,y,traces,primary,square}],
+                  diagram?, view3d?, equations:[...] },
+  significance }
+\end{Verbatim}
+\begin{itemize}[nosep]
+\item \textbf{Rendering} (\texttt{render}): updates the status banner, the SVG diagram, the readout cards, and one Plotly chart per entry of \texttt{charts}. Theme colours are resolved from the CSS variables, and a \texttt{MutationObserver} on the \texttt{data-theme} attribute redraws everything when the user switches between light and dark.
+\item \textbf{A/B comparison}: ``Save state A'' stores the current result. Later results are drawn with the stored traces dotted and each readout shows the stored value, so the effect of changing one parameter is visible directly.
+\item \textbf{Export}: CSV of inputs, readouts and chart data; SVG of the diagram; a design-specification sheet; and a lab report in HTML. Each chart also has Plotly's own PNG button.
+\item \textbf{Routing}: the module id is kept in the URL hash (\texttt{\#beam}), so a link opens a particular simulator.
+\item \textbf{Extension}: \texttt{registerModule} lets another file add a tab with its own page (the FEM tab does this) without \file{sims.js} knowing about it.
+\end{itemize}
+@@CODE sims.js|export function registerModule|9@@
+
+\section{Beams}
+\physics{For a beam in static equilibrium the shear force and bending moment satisfy $dV/dx=-w$ and $dM/dx=V$. In Euler--Bernoulli theory (plane sections stay plane and normal to the axis) the curvature is $v''=M/EI$, the bending stress is $\sigma=My/I$ and the shear stress is $\tau=VQ/(Ib)$ with $Q$ the first moment of the area above the point. Timoshenko theory lets the section rotate independently of the axis, which adds a shear deflection $v_s'=V/(k_sGA)$; $k_s=10(1+\nu)/(12+11\nu)$ for a rectangle and $6(1+\nu)/(7+6\nu)$ for a solid circle. The extra deflection is large only for short, deep beams: for a cantilever with a tip load $\delta=PL^3/3EI+PL/(k_sGA)$.}
+
+\code{The support reactions follow from statics for the chosen case (simply supported or cantilever; point load, uniform load and an applied moment, combined by superposition). $V(x)$ and $M(x)$ are evaluated on 401 points. The deflection is obtained by integrating $M/EI$ twice with the trapezoidal rule (\texttt{cumtrapz}) and then imposing the boundary conditions: zero deflection at both supports for the simply supported beam (subtracting the straight line that closes the end value), and zero slope and deflection at the wall for the cantilever.}
+@@CODE sims.js|const slope0 = cumtrapz|10@@
+The shear stress through the depth uses a numerical integral for $Q(y)$, so it is correct for the rectangle, the circle and the tube without separate formulas:
+@@CODE sims.js|const Q = ys.map|2@@
+\note{For the rectangle the maximum is $1.5\,V/A$ and for the circle $4V/3A$; both were reproduced to better than $0.5\%$. A hollow section with the inner diameter larger than the outer is corrected to $0.8$ of the outer diameter instead of failing.}
+
+\section{Shaft torsion}
+\physics{For a circular shaft, plane sections stay plane and rotate rigidly, so the shear strain grows linearly with radius, $\gamma=r\,d\phi/dx$, and Hooke's law gives $\tau=Gr\,d\phi/dx$. Equilibrium of the torque gives
+\begin{equation}
+\tau(r)=\frac{Tr}{J},\qquad \phi=\frac{TL}{GJ},\qquad J=\frac{\pi}{32}(D^4-d^4),\qquad G=\frac{E}{2(1+\nu)} .
+\end{equation}
+A hollow shaft is nearly as strong as a solid one of the same diameter because the material near the axis carries little stress.}
+@@CODE sims.js|const J = (Math.PI * (v.D ** 4 - v.d ** 4)) / 32|4@@
+\code{The simulator also produces a three-dimensional view (\texttt{view3d} with \texttt{draw3d} and \texttt{update3d} in \file{sims.js}): a three.js shaft with a coarse wireframe, an end face coloured by $\tau\propto r$, a fixed wall, and an axial line that follows the twist. The twist is exaggerated when it is small (the note under the view gives the factor).}
+
+\section{Axial loading}
+\physics{A bar of several segments, each with its own length $L_i$, area $A_i$ and load $P_i$, carries internal forces $N_i$ found by cutting the bar. If one end is free, $N_i$ is the sum of the loads beyond the cut; the elongation of a segment is $N_iL_i/(EA_i)+\alpha\Delta T\,L_i$. If both ends are fixed the problem is statically indeterminate: choose the wall reaction $X$ as the unknown (the redundant), write $N_i=N_i^{\text{free}}+X$, and impose compatibility that the total elongation is zero. This gives
+\begin{equation}
+X=-\frac{\sum_iN_i^{\text{free}}L_i/(EA_i)+\alpha\Delta T\sum_iL_i}{\sum_iL_i/(EA_i)} .
+\end{equation}}
+@@CODE sims.js|const Nfree = seg.map|1@@
+@@CODE sims.js|if (v.bc === 'fixed') {|6@@
+\note{With a uniform temperature rise and no load on a fixed bar the formula gives $N=-EA\alpha\Delta T$: $-120$~MPa for steel at $50^\circ$C. The net elongation of a fixed--fixed bar is zero to rounding, whatever the loads.}
+
+\section{Pressure vessels}
+\physics{Thin wall: equilibrium of half a cylinder gives a hoop stress $\sigma_\theta=pr/t$ and, with closed ends, an axial stress $pr/2t$; for a sphere $\sigma_\theta=pr/2t$. Thick wall: for an axisymmetric field the equilibrium $d\sigma_r/dr+(\sigma_r-\sigma_\theta)/r=0$ combined with compatibility gives the Lam\'e solution,
+\begin{align}
+\text{cylinder:}\quad &\sigma_r=A-\frac{B}{r^2},\ \sigma_\theta=A+\frac{B}{r^2},\ \sigma_z=A,&
+A&=\frac{p_ia^2-p_ob^2}{b^2-a^2},\ B=\frac{(p_i-p_o)a^2b^2}{b^2-a^2},\\
+\text{sphere:}\quad &\sigma_r=A-\frac{2B}{r^3},\ \sigma_\theta=\sigma_\phi=A+\frac{B}{r^3},&
+A&=\frac{p_ia^3-p_ob^3}{b^3-a^3},\ B=\frac{(p_i-p_o)a^3b^3}{2(b^3-a^3)} .
+\end{align}
+The hoop stress is greatest at the inner wall. The radial growth is $u=\frac{r}{E}[\sigma_\theta-\nu(\sigma_r+\sigma_z)]$.}
+@@CODE sims.js|if (cyl) {|8@@
+\note{The thin-wall error against Lam\'e is shown: about $0.1\%$ for $t/a=0.06$, a few tens of percent for a thick wall. Equal inside and outside pressure gives $\sigma_\theta=\sigma_r=-p$ and zero von Mises stress, as expected for hydrostatic compression.}
+
+\section{Thermal stress}
+\physics{A temperature change produces a free strain $\alpha\Delta T$ and no stress unless expansion is prevented. Fully preventing it in one direction gives $\sigma=-E\alpha\Delta T$. In a thin plate prevented in two directions (biaxial) the lateral strains are zero: $\epsilon_x=[\sigma-\nu\sigma]/E+\alpha\Delta T=0$, so $\sigma=-E\alpha\Delta T/(1-\nu)$. In a block prevented in all three directions, $\sigma=-E\alpha\Delta T/(1-2\nu)$. A partial restraint $f$ (between 0 and 100\%) scales the stress, and the free expansion is $\alpha\Delta T\,L(1-f)$.}
+@@CODE sims.js|const factor = { '1d'|3@@
+
+\section{Failure theories}
+\physics{Four theories predict yielding or fracture from a state of stress by comparing a single measure with the uniaxial strength $\sigma_{cr}$. \emph{Rankine} (maximum principal stress): $\max|\sigma_i|\le\sigma_{cr}$. \emph{St Venant} (maximum normal strain): $\epsilon_1=[\sigma_1-\nu(\sigma_2+\sigma_3)]/E\le\sigma_{cr}/E$. \emph{Tresca} (maximum shear): $\sigma_1-\sigma_3\le\sigma_{cr}$. \emph{von Mises} (distortional energy): the equivalent stress of Chapter~\ref{ch:stress} is at most $\sigma_{cr}$. For a ductile metal, Tresca and von Mises predict yield and agree for uniaxial tension (both $\sigma$) and differ most in pure shear, where Tresca gives $\tau=\sigma_y/2$ and von Mises $\tau=\sigma_y/\sqrt3$.}
+@@CODE sims.js|const [a, b, c] = [v.s1, v.s2, v.s3]|8@@
+\code{The safety factor of each theory is $\sigma_{cr}$ divided by its equivalent stress. The governing theory is the one with the smallest value. The input principal stresses are sorted first, so the order in which they are typed does not matter. In the $(\sigma_1,\sigma_2)$ plane at $\sigma_3=0$ the envelopes are drawn: a square (Rankine), a skewed square (St Venant), a hexagon (Tresca) and an ellipse (von Mises) that circumscribes it; the state is plotted as a cross.}
+
+\section{Energy methods}
+\physics{For a linear elastic body the work done by the loads is stored as strain energy, $U=\tfrac12\sum P_i\delta_i$, and depends only on the final loads. Castigliano's first theorem follows: $\delta_i=\partial U/\partial P_i$. Examples: axial bar $U=P^2L/2AE$; shaft $U=T^2L/2GJ$; bending $U=\int M^2/2EI\,dx$; shear $U=\int V^2/(2k_sGA)\,dx$. Linearity implies Maxwell--Betti reciprocity: the deflection at $b$ due to a unit load at $a$ equals the deflection at $a$ due to a unit load at $b$.}
+\code{The simulator evaluates $U(P)$ in closed form, differentiates it \emph{numerically} by a central difference, and compares with the closed-form displacement, so the theorem is verified rather than assumed. The reciprocity check uses the influence function of a simply supported beam at $0.3L$ and $0.7L$.}
+@@CODE sims.js|const U = (P) => ({|5@@
+\note{For the shaft the load is a torque in N\,m and the displacement is the twist; both Castigliano and closed-form values are shown as $\phi\times10^3$ (millirad). Earlier these two numbers differed by $10^6$ because of a unit slip in the closed form; it was found by the limiting-case tests and corrected.}
+
+\section{Column buckling}
+\physics{A straight column under axial load becomes unstable when the load reaches Euler's value; the bent shape then becomes an equilibrium state. With effective length $KL$ ($K=1,\ 0.699,\ 0.5,\ 2$ for pinned--pinned, fixed--pinned, fixed--fixed and fixed--free),
+\begin{equation}
+P_{cr}=\frac{\pi^2EI}{(KL)^2},\qquad \sigma_{cr}=\frac{\pi^2E}{\lambda^2},\qquad \lambda=\frac{KL}{r},\ r=\sqrt{I/A},
+\end{equation}
+with $I$ the \emph{smaller} second moment of area (buckling occurs about the weak axis). Euler's formula assumes that the column stays elastic, so it only holds for $\lambda>\lambda_c=\pi\sqrt{E/\sigma_y}$. A short column fails by yielding with some bending, which the Johnson parabola captures:
+\begin{equation}
+\sigma_{cr}=\sigma_y\Big[1-\frac{\sigma_y\lambda^2}{4\pi^2E}\Big],\qquad\lambda<\lambda_c,
+\end{equation}
+which meets Euler's curve at $\lambda_c$ where both equal $\sigma_y/2$.}
+@@CODE sims.js|const m = mat(v), E = m.E * 1000, K = { pp: 1|9@@
+\note{The Johnson branch was added after limiting-case testing showed that, for a stocky column, Euler's formula gave a critical stress above $4\times10^4$~MPa and a safety factor based on it. The ``Euler load'' readout is still Euler's value; the ``design critical load'' is the governing one.}
+
+\chapter{The finite element method}
+\label{ch:fem}
+
+\section{Why a finite element tab}
+The half-space solution is exact only for an infinite body; the simulators are exact only for simple members. The finite element method (FEM) solves the same governing equations numerically on a body of any shape. It is built entirely from the equations of the earlier chapters: equilibrium, strain--displacement and Hooke's law, and energy, and it provides an independent check of the half-space model (Section~\ref{sec:block}). A separate primer, \texttt{docs/fem\_primer.pdf}, explains the method from the beginning; the summary here is what is needed to read the code.
+
+\section{The method in seven steps}
+\begin{enumerate}[nosep]
+\item \textbf{Mesh}: cut the body into elements joined at nodes.
+\item \textbf{Unknowns}: the displacement components $\mathbf u$ at the nodes (the degrees of freedom).
+\item \textbf{Shape functions}: inside an element, $\mathbf u(\mathbf x)=\sum_iN_i(\mathbf x)\mathbf u_i$ with $N_i=1$ at node $i$ and $0$ at the others.
+\item \textbf{Strain and stress}: $\tens\epsilon=\mathbf B\mathbf u_e$ ($\mathbf B$ contains derivatives of $N_i$) and $\tens\sigma=\mathbf D\tens\epsilon$ (Chapter 6, $\mathbf D$ is Hooke's law in Voigt form).
+\item \textbf{Stiffness}: from the principle of virtual work or minimum potential energy, $\mathbf k_e=\int_{V_e}\mathbf B^T\mathbf D\mathbf B\,dV$; the integral is evaluated numerically at Gauss points.
+\item \textbf{Assembly and solution}: add all $\mathbf k_e$ into one global matrix $\mathbf K$ (symmetric by Maxwell--Betti) and solve $\mathbf K\mathbf u=\mathbf f$ after removing the supported degrees of freedom; otherwise $\mathbf K$ is singular because the body could move freely.
+\item \textbf{Recovery}: compute $\tens\epsilon$ and $\tens\sigma$ from $\mathbf u$, then average or extrapolate to nodes.
+\end{enumerate}
+\code{The common linear algebra is the same for every case. Eliminating the constrained degrees of freedom, solving the free system, and returning the reaction forces $\mathbf R=\mathbf K\mathbf u-\mathbf f$ (which must balance the applied load) takes seven lines.}
+@@CODE fem.py|def solve_system|9@@
+
+\section{One-dimensional elements}
+\textbf{Tapered bar.} A two-node element has a linear displacement, so its strain is constant and its stiffness is $EA/h\,[[1,-1],[-1,1]]$. For a bar whose area varies linearly, the exact displacement is $u(x)=\frac{P}{Em}\ln\frac{A(x)}{A_0}$; the FEM, using the area at the element midpoint, converges as $h^2$ (the ratio to exact is $0.935,0.980,0.995,0.9987$ for 1, 2, 4, 8 elements).
+@@CODE fem.py|K = np.zeros((n + 1, n + 1))|6@@
+\textbf{Beam.} The Euler--Bernoulli element has two unknowns at each node, deflection $v$ and slope $\theta$, and a cubic displacement within the element (Hermite functions). Its stiffness matrix follows from $\int EI\,N''^TN''\,dx$. Because the cubic is the exact solution of $EIv''''=0$ between loads, the deflection at the nodes is \emph{exact} for any number of elements (for a point load; for a distributed load the nodal values are exact when consistent nodal loads are used, which the code does), while the bending moment, which is $EIv''$ and so only linear inside an element, improves with refinement.
+@@CODE fem.py|def hermite|8@@
+@@CODE fem.py|ke = EI / hx**3|3@@
+
+\section{Two-dimensional elements}
+\physics{In plane stress ($\sigma_z=\tau_{xz}=\tau_{yz}=0$, a thin plate) the constitutive matrix in Voigt form is
+\begin{equation}
+\mathbf D=\frac{E}{1-\nu^2}\begin{bmatrix}1&\nu&0\\\nu&1&0\\0&0&\tfrac{1-\nu}{2}\end{bmatrix}.
+\end{equation}
+The \textbf{constant-strain triangle (CST)} has linear displacement, so $\mathbf B$ is constant: $\mathbf B=\frac{1}{2A}[\ldots]$ and $\mathbf k_e=tA\,\mathbf B^T\mathbf D\mathbf B$. It is simple but too stiff in bending. The \textbf{four-node quadrilateral (Q4)} has bilinear displacement and an element mapped to the unit square by the isoparametric map; $\mathbf B$ varies and the stiffness is integrated by $2\times2$ Gauss points.}
+@@CODE fem.py|def q4_B|11@@
+\code{\texttt{fe2d} loops over the elements, accumulates $\mathbf k_e$ into $\mathbf K$ with \texttt{np.ix\_}, solves, and recovers stress. For Q4 the stress is evaluated at the four Gauss points and \emph{extrapolated} to the element corners by the bilinear matrix \texttt{\_EXTRAP}; at each node the contributions of all elements sharing it are averaged (equal weights for Q4, area weights for CST).}
+@@CODE fem.py|# extrapolation matrix|3@@
+\textbf{Plane-stress cantilever.} A beam of length $L$ and depth $h$ fixed at one end and loaded by an end shear. The reference solutions are Euler--Bernoulli ($\delta=PL^3/3EI$) and Timoshenko ($+PL/k_sGA$). With a clamped end the 2D solution contains stress concentrations at the root corners that beam theory does not, so the comparison is made with $\sigma_x$ at mid-length, away from the clamp.
+
+\textbf{Plate with a hole.} One quarter of a plate in uniaxial tension is meshed with a graded polar-style grid: radial layers from the hole of radius $a$ to the plate edge of half-width $W$, with the outer edge following the square. The symmetry planes become supports ($u_x=0$ on $x=0$, $u_y=0$ on $y=0$). Kirsch's solution for an infinite plate gives $\sigma_\theta=\sigma_\infty\big[1+\frac{a^2}{2r^2}+\frac{3a^4}{2r^4}\big]$ on the line through the hole perpendicular to the load, so $K_t=3$ at the edge; a finite plate has a slightly larger $K_t$ ($3.10$ for $W/a=12$, $3.60$ for $W/a=4$ with Q4).
+@@CODE fem.py|def hole_mesh|11@@
+
+\section{The three-dimensional block}
+\label{sec:block}
+\physics{A cuboid with a square patch pressure $q$ on its top face is solved as a three-dimensional elasticity problem. Only a quarter is meshed, using the two symmetry planes ($u_x=0$ on $x=0$, $u_y=0$ on $y=0$) as supports; the base is either a smooth rigid surface ($u_z=0$) or fixed. The side faces and the unloaded part of the top are \emph{free}: the finite element weak form leaves the traction on them equal to zero without being asked (a \emph{natural} boundary condition). This is precisely what the half-space solution cannot do.}
+
+\code{Elements are uniform 8-node bricks. The Gauss rule is $2\times2\times2$. Because all bricks are identical, \texttt{brick} builds one $24\times24$ stiffness matrix and one set of $\mathbf B$ matrices that are reused everywhere. The $\mathbf D$ matrix is the full three-dimensional Hooke matrix in the order $xx,yy,zz,yz,xz,xy$.}
+@@CODE fem3d.py|def brick|17@@
+\code{A 3D mesh with thousands of nodes would be too large for a dense solver, and \texttt{scipy} is not installed, so the system is solved \emph{matrix-free} by conjugate gradients with a Jacobi (diagonal) preconditioner. The matrix $\mathbf K$ is never formed: the product $\mathbf K\mathbf x$ is assembled brick by brick, by gathering the nodal values of $\mathbf x$, multiplying by the $24\times24$ matrix, and scattering back with \texttt{np.bincount}.}
+@@CODE fem3d.py|def cg|13@@
+@@CODE fem3d.py|matvec = lambda x|4@@
+\physics{\textbf{Reference solutions.} The half-space reference is exact for a load on an infinite body. For the vertical stress under the centre of a square patch of half-width $a$ the Newmark result is $\sigma_z=4q\,I(m,n)$ with $m=n=a/z$ and
+\begin{equation}
+I=\frac{1}{4\pi}\Big[\frac{2mn\sqrt{m^2+n^2+1}}{m^2+n^2+m^2n^2+1}\,\frac{m^2+n^2+2}{m^2+n^2+1}+\tan^{-1}\!\frac{2mn\sqrt{m^2+n^2+1}}{m^2+n^2+1-m^2n^2}\Big]
+\end{equation}
+(corner factor of a rectangle; the factor 4 sums the four quarters). The side-face stress and the horizontal profile use a numerical superposition of Boussinesq point loads over the patch.}
+@@CODE fem3d.py|def newmark_centre|8@@
+\note{The brick element is stiff in bending and for nearly incompressible materials (volumetric locking), and stresses at the loaded surface are least accurate because they are extrapolated from Gauss points inside the brick (about 14\% overshoot at the loaded face with the default mesh). The block is therefore used for the \emph{trends} it shows: side-face stress about $0.4\%$ of $q$ with FEM against about $2.6\%$ with the half-space, and a centre stress that approaches the half-space value as the block grows ($1.26,\ 1.03$ for a $2\times3$~m and an $8\times8$~m block).}
+
+\section{The FEM user interface}
+The tab is built by \file{fem.js}. It keeps a table of the five problems with their sliders, sends the inputs to \texttt{POST /api/fem/solve}, and receives a common response: a mesh (nodes, deformed nodes, polygons, values for each stress field), chart data, a comparison table (FEM versus reference), diagnostics and, for the bar and beam, the stiffness matrix. The mesh is drawn on an HTML canvas coloured by the stress ramp; the charts use Plotly; and the panel ``What the solver did'' states, with the actual numbers of the current solve, the seven steps above. A request counter ignores late responses, as in the section plots.
+@@CODE fem.js|async function solve()|22@@

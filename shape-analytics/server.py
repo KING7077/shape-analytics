@@ -355,6 +355,11 @@ app.include_router(fem_router)
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
+@app.get("/health")
+def health():
+    # Cheap endpoint for uptime monitors (keeps the free Render instance awake).
+    return {"status": "ok"}
+
 @app.get("/")
 def serve_index():
     return FileResponse("index.html")

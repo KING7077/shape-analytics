@@ -1,0 +1,161 @@
+\chapter{Stress at a point}
+\label{ch:stress}
+
+\section{The stress tensor and Cauchy's formula}
+\physics{On a cut with unit normal $\mathbf n$ the surrounding material exerts a traction $\mathbf t_n$. Cauchy's tetrahedron argument shows that the tractions on all planes through a point are determined by those on three coordinate planes, and the linear map is the stress tensor,
+\begin{equation}
+\mathbf t_n=\tens\sigma\,\mathbf n,\qquad
+\sigma_{nn}=\mathbf n\cdot\tens\sigma\mathbf n,\qquad
+\tau^2=\|\mathbf t_n\|^2-\sigma_{nn}^2 .
+\end{equation}
+The last relation splits the traction into its normal and shear parts by Pythagoras.}
+
+\code{The route \texttt{/api/traction} in \file{server.py} is a direct transcription. It builds the symmetric matrix, normalises $\mathbf n$ (a zero vector falls back to the $x$ axis), applies the matrix and removes the normal component.}
+@@CODE server.py|def compute_traction|32@@
+
+\section{Principal stresses and invariants}
+\physics{Principal planes are those on which the traction is purely normal. Maximising $\sigma_{nn}$ on the unit sphere with a Lagrange multiplier gives the eigenvalue problem $\tens\sigma\mathbf n=\lambda\mathbf n$, whose characteristic equation is
+\begin{equation}
+\lambda^3-I_1\lambda^2+I_2\lambda-I_3=0,\quad
+I_1=\mathrm{tr}\,\tens\sigma,\;
+I_2=\tfrac12[(\mathrm{tr}\,\tens\sigma)^2-\mathrm{tr}(\tens\sigma^2)],\;
+I_3=\det\tens\sigma .
+\end{equation}
+The roots $\sigma_1\ge\sigma_2\ge\sigma_3$ are real because $\tens\sigma$ is symmetric. The largest shear stress acts on planes at $45^\circ$ to the extreme principal axes: $\tau_{\max}=(\sigma_1-\sigma_3)/2$. The hydrostatic part $p=I_1/3$ and the deviator $\mathbf s=\tens\sigma-p\mathbf I$ separate volume change from shape change.}
+
+\code{Two implementations exist, for two different purposes.}
+\begin{itemize}[nosep]
+\item The server (\texttt{/api/principal}) uses \texttt{numpy.linalg.eigh}, which also returns the principal \emph{directions}.
+\end{itemize}
+@@CODE server.py|def compute_principal|26@@
+\begin{itemize}[nosep]
+\item The browser needs the principal stresses at tens of thousands of mesh vertices per update, so \file{physics.js} uses the closed-form (trigonometric) solution of the cubic. With the deviator $s_{ij}$ and its invariants $J_2=\tfrac12 s_{ij}s_{ij}$ and $J_3=\det\mathbf s$, the roots are
+\begin{equation}
+\sigma_k=p+2\sqrt{J_2/3}\,\cos\!\Big(\phi-\tfrac{2\pi k}{3}\Big),\quad
+\phi=\tfrac13\arccos\!\Big(\frac{3\sqrt3\,J_3}{2J_2^{3/2}}\Big),\quad k=0,1,2 .
+\end{equation}
+\end{itemize}
+@@CODE physics.js|export function principalStresses|16@@
+\note{Three numerical details matter. (i) The argument of $\arccos$ is clamped to $[-1,1]$, because rounding can push it just outside when two roots coincide. (ii) A stress state whose deviator is zero to rounding (hydrostatic) returns three equal roots; the test is \emph{relative} to the stress scale, so very small stress states are not mistaken for hydrostatic. (iii) Results are sorted into descending order. The invariants of random tensors across twelve decades of magnitude were checked against the roots (Chapter~\ref{ch:verify}).}
+
+\section{Equivalent stresses}
+\physics{A failure theory reduces the stress tensor to one number to compare with a tension test. The two used throughout the app are
+\begin{equation}
+\sigma_{\text{Tresca}}=\sigma_1-\sigma_3,\qquad
+\sigma_{vM}=\sqrt{\tfrac12\big[(\sigma_1-\sigma_2)^2+(\sigma_2-\sigma_3)^2+(\sigma_3-\sigma_1)^2\big]}.
+\end{equation}
+The von Mises stress is $\sqrt{3J_2}$: it measures only the deviatoric (shape-changing) part, which is why it vanishes in hydrostatic compression. In terms of components it equals
+\begin{equation}\sigma_{vM}=\sqrt{\tfrac12\big[(\sigma_{xx}-\sigma_{yy})^2+(\sigma_{yy}-\sigma_{zz})^2+(\sigma_{zz}-\sigma_{xx})^2\big]+3\big(\tau_{xy}^2+\tau_{yz}^2+\tau_{zx}^2\big)}.\end{equation}}
+\code{\file{physics.js} contains the component form (\texttt{vonMises}); the simulators use the principal form.}
+@@CODE physics.js|export const vonMises|1@@
+
+\section{Mohr's circle simulator}
+\physics{Rotating the element about $z$ by $\theta$ changes the face stresses by the transformation law
+\begin{align}
+\sigma_{x'}&=\tfrac{\sigma_x+\sigma_y}{2}+\tfrac{\sigma_x-\sigma_y}{2}\cos2\theta+\tau_{xy}\sin2\theta,\\
+\tau_{x'y'}&=-\tfrac{\sigma_x-\sigma_y}{2}\sin2\theta+\tau_{xy}\cos2\theta,
+\end{align}
+so the point $(\sigma_{x'},\tau_{x'y'})$ moves around a circle of radius $\sqrt{(\tfrac{\sigma_x-\sigma_y}{2})^2+\tau_{xy}^2}$ about $(\sigma_x+\sigma_y)/2$, at twice the rotation angle. In three dimensions there are three such circles through the principal stresses, and all admissible states lie between them.}
+\code{\texttt{mohr.compute} in \file{sims.js} applies the transformation law, calls the three-dimensional solver \texttt{eig3} (the same trigonometric solution) and draws the three circles. The out-of-plane shears $\tau_{yz}$, $\tau_{zx}$ enter the eigenproblem but not the in-plane rotation.}
+@@CODE sims.js|const t2 = rad(2 * theta)|16@@
+\note{The safety factor is $\sigma_y/\sigma_{\text{eq}}$ for the chosen theory. When $\sigma_{\text{eq}}=0$ (a hydrostatic state) it is infinite and the interface shows $\infty$. The simulator accepts \emph{symmetric} stress matrices only: moment equilibrium forces $\tau_{ij}=\tau_{ji}$.}
+
+\chapter{Half-space elasticity: the equations behind the 3D field}
+\label{ch:halfspace}
+
+\section{Governing equations}
+\physics{A linear elastic body in static equilibrium satisfies
+\begin{equation}
+\nabla\!\cdot\!\tens\sigma+\mathbf b=\mathbf 0,\qquad
+\tens\epsilon=\tfrac12(\nabla\mathbf u+\nabla\mathbf u^{T}),\qquad
+\tens\sigma=\lambda\,\mathrm{tr}(\tens\epsilon)\mathbf I+2G\tens\epsilon,
+\end{equation}
+with $\lambda=E\nu/[(1+\nu)(1-2\nu)]$ and $G=E/[2(1+\nu)]$ (and $K=E/[3(1-2\nu)]$ for the bulk modulus, also shown in the app). Combined, these give the Navier equations for the displacement. They have closed-form solutions only for special geometries. The simplest useful one is the \emph{half-space}: the body fills $z>0$, the surface $z=0$ is free except where a load acts, and the body is infinitely deep and wide.}
+
+The app uses this solution because it is the textbook model of ``a load pressed on the surface of a big solid'', and because loads from a painted area can be built by superposition. The price is the infinite body: the half-space solution does not give zero traction on the sides and base of a finite body. Chapter~\ref{ch:fem} quantifies that error with a finite element model.
+
+\section{Normal point load: Boussinesq}
+The solution for a normal point force on the surface of a half-space is due to Boussinesq~\cite{boussinesq}; Johnson~\cite{johnson} gives a modern derivation.
+\physics{A force $P$ pressing into the surface at the origin produces, at depth $z$ and radius $r$ ($R^2=r^2+z^2$), the stress components (tension positive)
+\begin{align}
+\sigma_z&=-\frac{3Pz^3}{2\pi R^5}, & \tau_{rz}&=-\frac{3Prz^2}{2\pi R^5},\\
+\sigma_r&=\frac{P}{2\pi}\Big[\frac{1-2\nu}{R(R+z)}-\frac{3r^2z}{R^5}\Big], &
+\sigma_\theta&=\frac{P(1-2\nu)}{2\pi}\Big[\frac{z}{R^3}-\frac{1}{R(R+z)}\Big].
+\end{align}
+The hoop stress $\sigma_\theta$ is not zero; leaving it out would give the wrong von Mises stress and strain. Three tests of correctness are used: (i) $\nabla\!\cdot\tens\sigma=\mathbf 0$; (ii) the surface $z=0$ is stress-free outside the load; (iii) the vertical force through every horizontal plane equals the load, $\int_0^\infty\sigma_z\,2\pi r\,dr=-P$.}
+\code{\texttt{boussinesqTensor} evaluates these in cylindrical form and rotates to Cartesian components with the azimuth $(\cos\varphi,\sin\varphi)=(x/r,y/r)$. On the axis ($r=0$) the azimuth is undefined, but $\sigma_r=\sigma_\theta$ there, so the code returns the average and zero shear.}
+@@CODE physics.js|export function boussinesqTensor|14@@
+
+\section{Tangential point load: Cerruti}
+The tangential counterpart is due to Cerruti~\cite{cerruti}.
+\physics{A force along the surface produces a different field, known in closed form as a displacement (Cerruti). The program uses exactly the standard chain: take the displacement, form the strain as the symmetric gradient, and apply Hooke's law. The displacement of a point load $P_z$ also uses the Boussinesq form, for example $u_z=\frac{P(1+\nu)}{2\pi ER}\big[2(1-\nu)+z^2/R^2\big]$, and at the surface this reduces to the familiar $u_z=P(1-\nu^2)/(\pi Er)$.}
+@@CODE physics.js|if (Pz !== 0) { // Boussinesq|9@@
+\code{\texttt{tangentialTensor} differentiates the displacement field numerically with a central step $h=10^{-4}\sqrt{x^2+y^2+z_e^2}$ and then applies Hooke's law. Using the displacement as the primary object guarantees that the resulting strain satisfies compatibility, and only the displacement formula (which is shorter and easier to verify) has to be typed in.}
+@@CODE physics.js|export function tangentialTensor|16@@
+\note{$\lambda\to\infty$ as $\nu\to0.5$ (incompressible), so $\nu$ is capped at $0.499$ in this formula; the 3D tab's materials never reach this value (rubber is $0.49$).}
+
+\section{Equivalent depth: removing the singularity}
+Under a point load the half-space stress is infinite. A painted patch, however, is a pressure distributed over an area, not a point. The code represents the patch by point loads at its mesh vertices and shifts each source by an equivalent depth, $z_e=z+a$ (the \texttt{a} argument). The offset is chosen from the geometry of the patch (average distance of the painted vertices from the load point, divided by the square root of their number, times 2.5) so that neighbouring point loads overlap smoothly. It is a numerical smoothing, not a physical parameter; a finite element model of the same patch (Section~\ref{sec:block}) shows how well it behaves away from the surface.
+
+\section{Superposition}
+Because the governing equations are linear, the field of several loads is the sum of the fields of each. This is used twice: over the painted vertices of one patch, and over \emph{saved load cases}. The sum must be taken on the \textbf{tensors}. Earlier versions of the code took the maximum of scalars, which is wrong because von Mises stress and principal stresses are not linear in the tensor. The next chapter shows where the sum is made.
+
+\chapter{The 3D stress field pipeline}
+\label{ch:field}
+
+\section{From geometry to loads}
+\physics{A pressure $p$ over a patch of area $A$ is statically equivalent to a force $P=pA$ along the load direction. The patch area is the sum of the areas of the mesh triangles it covers, not the number of painted vertices, so the force does not depend on how finely the mesh is sampled.}
+
+\code{The body is a three.js mesh (box, cylinder or sphere) whose original vertex positions are kept in \texttt{basePositions}. \texttt{computeVertexAreas} gives each vertex a third of the area of every triangle it belongs to; \texttt{paintedAreaOf} then sums these for a set of painted vertices.}
+@@CODE app.js|function computeVertexAreas|20@@
+The load pressure typed in kN/m$^2$ becomes a force in newtons as \texttt{P = load.force * area * 1000}, with \texttt{area} in m$^2$.
+
+\section{A local frame for each load}
+\physics{Both half-space solutions are written in a frame whose $z$ axis points into the body. For a load on a face with outward normal $\mathbf n_s$ the frame is $\mathbf n_z=-\mathbf n_s$, with any two perpendicular tangent vectors $\mathbf n_x,\mathbf n_y$. A load direction $\mathbf f$ is split into a normal part $f_z=\mathbf f\cdot\mathbf n_z$ and a tangential part with components $(f_x,f_y)$ in the face plane.}
+@@CODE app.js|const nz = load.loadNormal.clone().multiplyScalar(-1);|22@@
+\note{The server builds its frame with the opposite sign convention for the tangent vectors ($\mathbf n_x\to-\mathbf n_x$, $\mathbf n_y\to-\mathbf n_y$). The two frames are rotated by $180^\circ$ about $\mathbf n_z$ relative to each other, so the global tensor is identical; this was confirmed numerically by comparing the browser and the server on four load orientations.}
+
+\section{Superposition and rotation to global axes}
+\physics{The tensor of one point source is computed in the local frame and rotated to global axes by $\tens\sigma_g=\mathbf R\,\tens\sigma_l\,\mathbf R^{T}$, where the columns of $\mathbf R$ are $\mathbf n_x,\mathbf n_y,\mathbf n_z$. Rotating the \emph{tensor}, not just its components, is the transformation law of the stress matrix.}
+@@CODE app.js|const rot = (info, t) =>|12@@
+\code{For every vertex, the loop below adds the tensors from every point of every load into one array \texttt{S}. Only after the loop are the principal stresses, von Mises stress and strain computed from \texttt{S}.}
+@@CODE app.js|for (const info of infos) {|36@@
+
+\section{Full-surface pressure}
+\physics{If a normal pressure $p$ acts on the \emph{entire} boundary, the traction is $\mathbf t=-p\mathbf n$ on every face, and the uniform state $\tens\sigma=-p\mathbf I$ satisfies equilibrium and the boundary condition everywhere. The body is compressed hydrostatically: all principal stresses are $-p$ and the von Mises stress is zero. The half-space solution is the wrong model for this case.}
+\code{The program switches to the hydrostatic state only when the normal pressure covers at least 99\% of the surface \emph{area}. Below that, the field is the half-space solution. The volumetric strain $\epsilon_V=-p/K$ shrinks the displayed body and changes the density to $\rho/(1+\epsilon_V)$.}
+@@CODE app.js|const full = load.tractionType|3@@
+
+\section{Quantities displayed}
+\physics{Four maps are available. With $\sigma_1,\sigma_3$ the extreme principal stresses of the \emph{summed} tensor:
+\begin{center}\small
+\begin{tabular}{@{}ll@{}}\toprule
+Map & Definition\\\midrule
+Normal stress & $\max(|\sigma_1|,|\sigma_3|)$\\
+Max shear & $\tau_{\max}=(\sigma_1-\sigma_3)/2$\\
+Von Mises & $\sqrt{\tfrac12[(\sigma_{xx}-\sigma_{yy})^2+\dots]+3(\tau^2)}$\\
+Strain & $\|\tens\epsilon\|$ with $\tens\epsilon=[(1+\nu)\tens\sigma-\nu\,\mathrm{tr}(\tens\sigma)\mathbf I]/E$ (inverse Hooke)\\\bottomrule
+\end{tabular}
+\end{center}
+Poisson's ratio is chosen per material (steel 0.30, aluminium 0.33, concrete 0.20, polymer 0.38, rubber 0.49).}
+@@CODE app.js|// Ch. 4: extreme normal stress|10@@
+\code{Colour is a normalised stress ramp: blue (low) through paper to vermilion (high), identical to the ramp used by the section plots and the FEM tab (\texttt{stressRamp}). Displacements are the Boussinesq--Cerruti displacements summed over the loads, measured relative to the bottom centre of the body, then multiplied by a user-adjustable exaggeration factor. The factor does not depend on $E$, so the ratio of displacements between two materials is physical. If the largest displacement would exceed a safe visual limit, \emph{all} displacements are scaled down by the same factor so the shape is not distorted.}
+\note{Strain above 1\% (10\,000\,$\mu\epsilon$) is outside small-strain theory. Rubber at high load can exceed 100\%; the strain readout then carries the label ``beyond small-strain theory''.}
+
+\chapter{Section analytics}
+\label{ch:section}
+
+\section{What a section shows}
+The drawer under the 3D viewport shows the stress on a plane cut through the body. The user chooses the plane ($xy$, $xz$ or $yz$) and its position. This is useful because the 3D map shows only the \emph{surface} of the body while the interior stress is different: under a surface load the stress decays with depth and shear stress appears below the surface.
+
+\section{Server-side evaluation}
+\physics{The same half-space tensor of Chapter~\ref{ch:halfspace} is evaluated on a regular grid of points in the cut plane, summed over all loads, and converted to the four displayed measures. The grid is the bounding rectangle of the body, so points that fall outside a cylinder or a sphere must be removed.}
+\code{\texttt{compute\_section} in \file{server.py} repeats the frame construction and superposition of the browser, vectorised over the grid with numpy. It then forms the stress array, takes its eigenvalues for all points at once with \texttt{numpy.linalg.eigvalsh}, and evaluates the four fields.}
+@@CODE server.py|# Same measures as the 3D view|16@@
+Points outside the body are replaced by \texttt{null}, which Plotly draws as blank. The mask follows the true shape (box, cylinder with its axis along $y$, sphere):
+@@CODE server.py|# Keep only points inside the body|11@@
+
+\section{Front end}
+\file{app.js} (\texttt{updateAnalyticsPlots}) assembles the request from the current geometry, material and loads. It clamps the slice-position slider to the extent of the body along the slice axis, so a plane can never lie outside it. Each request carries a sequence number; a reply that arrives after a newer request was sent is ignored, so dragging the slider cannot display a stale picture. If the server is unreachable the plot shows a message instead of an old result. The section uses the same map selector as the 3D view, so the colour scale and the quantity are consistent between the two.
+
+\note{Resolution is clamped to 2--400 on the server (a grid needs two points and the cost grows with the square), and the force direction is normalised there as a defence against inconsistent requests.}

@@ -105,7 +105,6 @@ root.innerHTML = `
 <aside class="sim-sidebar">
   <div class="sim-sidebar-head">
     <h2>Finite element method</h2>
-    <p class="sim-chapter">Beyond the syllabus: a numerical method for the equations of Ch. 3, 5, 6 and 10</p>
     <p id="fem-blurb" class="sim-blurb"></p>
   </div>
   <div class="sim-controls">
@@ -291,10 +290,10 @@ function renderSteps(d) {
     const twoD = ['cantilever', 'hole', 'block'].includes(store.c.id);
     $('fem-steps').innerHTML = [
         `<b>Mesh.</b> The body is cut into <code>${g.n_elem}</code> elements. Their nodes carry <code>${g.n_dof}</code> unknown displacements (degrees of freedom).`,
-        `<b>Element stiffness.</b> Each element gets a small matrix <code>k = ∫ Bᵀ D B dV</code>: B turns nodal displacements into strain (Ch. 5), D is Hooke's law (Ch. 6).`,
+        `<b>Element stiffness.</b> Each element gets a small matrix <code>k = ∫ Bᵀ D B dV</code>: B turns nodal displacements into strain, D is Hooke's law.`,
         g.cg_iters
-            ? `<b>Assembly.</b> The element matrices would fill a ${g.n_dof} × ${g.n_dof} matrix K that is ${pct}% zeros, so it is never formed: every product K·x is built brick by brick. Each element matrix is symmetric to ${g.sym_err.toExponential(1)} (Maxwell–Betti reciprocity, Ch. 10).`
-            : `<b>Assembly.</b> The element matrices add into one global matrix K of size ${g.n_dof} × ${g.n_dof}. It is ${pct}% zeros and symmetric to ${g.sym_err.toExponential(1)} (Maxwell–Betti reciprocity, Ch. 10).`,
+            ? `<b>Assembly.</b> The element matrices would fill a ${g.n_dof} × ${g.n_dof} matrix K that is ${pct}% zeros, so it is never formed: every product K·x is built brick by brick. Each element matrix is symmetric to ${g.sym_err.toExponential(1)} (Maxwell–Betti reciprocity).`
+            : `<b>Assembly.</b> The element matrices add into one global matrix K of size ${g.n_dof} × ${g.n_dof}. It is ${pct}% zeros and symmetric to ${g.sym_err.toExponential(1)} (Maxwell–Betti reciprocity).`,
         `<b>Loads and supports.</b> Loads become nodal forces f. ${g.n_fixed} displacements are fixed${store.c.id === 'hole' ? ' (the two symmetry planes)' : store.c.id === 'block' ? ' (the two symmetry planes and the base)' : ''}; without that K cannot be solved because the body could move freely.`,
         g.cg_iters
             ? `<b>Solve.</b> <code>K u = f</code> is solved iteratively (conjugate gradients): ${g.cg_iters} iterations to a relative residual of ${g.cg_residual.toExponential(1)}, ${g.solve_ms.toFixed(0)} ms in total.`

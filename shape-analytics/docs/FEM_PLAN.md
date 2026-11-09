@@ -58,7 +58,7 @@ Not in the syllabus, needed for FEM: weak form, shape functions, numerical integ
 ## Verification
 - `python fem_test.py`: patch test (uniform stress to 1e-10), bar and cantilever vs closed form, Kirsch hole concentration factor ≈ 3 with refinement, K symmetric and singular without supports, equilibrium (sum of reactions = applied load).
 - Convergence study: halve the element size and check the error falls (CST ~ O(h), Q4 ~ O(h) in stress).
-- Browser: `./run_shape_analytics.sh` then `python test_browser.py` (no `ERROR:` lines) and a manual look at the new FEM tab in light and dark themes.
+- Browser: `./run_shape_analytics.sh` then drive the page with Playwright (no console or page errors) and a manual look at the new FEM tab in light and dark themes.
 
 ## Decisions for the user
 - Scope to build: 2D only, or continue to 3D.

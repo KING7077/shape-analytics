@@ -3,12 +3,11 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Layout
-- The git root is the parent directory (`solid-mech-project/`), not `shape-analytics/`. Sibling apps (`solid-mechanics-web/`, `leaf-modelling/`, `solid_mechanics_app/`) are separate projects; don't edit them for shape-analytics work.
+- The git root is the parent directory (`solid-mech-project/`), not `shape-analytics/`. It holds only this app, the root `README.md` and `run_shape_analytics.sh`.
 - `__pycache__/*.pyc` files are tracked in git, so they show as modified after running Python. Don't commit them with unrelated changes.
-- `patch_disp.js` is a scratch script, not loaded by the app.
 
 ## Run / test
-- Run: `./run_shape_analytics.sh` (uses the venv at `../solid-mechanics-web/.venv`, serves http://127.0.0.1:8002). Run it from anywhere, but it starts uvicorn in the background.
+- Run: `./run_shape_analytics.sh` (uses the venv at `shape-analytics/.venv`: fastapi, uvicorn, numpy, pydantic, playwright; serves http://127.0.0.1:8002). Run it from anywhere, but it starts uvicorn in the background.
 - Tests: the project has no test files (removed at the owner's request). To check a change, run the server and drive the page with Playwright from the venv, watching for console or page errors.
 - No formatter or linter is configured.
 

@@ -728,7 +728,7 @@ function exportCSV() {
 }
 function exportSpec() {
     const sim = store.sim, r = store.result;
-    const t = [`DESIGN SPECIFICATION: ${sim.title} (${sim.chapters})`, `Generated ${new Date().toISOString().slice(0, 10)}`, '', `Status: ${r.status.label}`, r.status.summary, '', 'INPUTS', ...inputsTable(sim, store.values).map((x) => `  ${x[0]}: ${x[1]} ${x[2]}`), '', 'RESULTS', ...r.readouts.map((o) => `  ${o.label}: ${typeof o.value === 'number' ? fmt(o.value, 3) : o.value} ${o.unit}`), '', 'GOVERNING EQUATIONS', ...r.equations.map((e) => '  ' + e)];
+    const t = [`DESIGN SPECIFICATION: ${sim.title} `, `Generated ${new Date().toISOString().slice(0, 10)}`, '', `Status: ${r.status.label}`, r.status.summary, '', 'INPUTS', ...inputsTable(sim, store.values).map((x) => `  ${x[0]}: ${x[1]} ${x[2]}`), '', 'RESULTS', ...r.readouts.map((o) => `  ${o.label}: ${typeof o.value === 'number' ? fmt(o.value, 3) : o.value} ${o.unit}`), '', 'GOVERNING EQUATIONS', ...r.equations.map((e) => '  ' + e)];
     download(`${sim.id}-design-spec.txt`, t.join('\n'), 'text/plain');
 }
 async function exportReport() {
@@ -736,7 +736,7 @@ async function exportReport() {
     const imgs = await Promise.all(r.charts.map((c) => Plotly.toImage($('sim-chart-' + c.id), { format: 'png', width: 900, height: 480 }).catch(() => '')));
     const table = (rows) => `<table>${rows.map((q) => `<tr>${q.map((c) => `<td>${c}</td>`).join('')}</tr>`).join('')}</table>`;
     const html = `<!doctype html><meta charset="utf-8"><title>Lab report: ${sim.title}</title><style>body{font:15px/1.5 Georgia,serif;max-width:820px;margin:2rem auto;padding:0 1rem;color:#1b2733}h1,h2{font-family:Arial,sans-serif}table{border-collapse:collapse;width:100%}td{border:1px solid #999;padding:3px 8px}img{max-width:100%}code{font-family:monospace}</style>
-<h1>Lab report: ${sim.title}</h1><p>${sim.chapters}. ${new Date().toDateString()}</p>
+<h1>Lab report: ${sim.title}</h1><p>${new Date().toDateString()}</p>
 <h2>1. Aim</h2><p>${sim.blurb}</p><h2>2. Physical significance</h2><p>${sim.significance}</p>
 <h2>3. Governing equations</h2><ul>${r.equations.map((e) => `<li><code>${e}</code></li>`).join('')}</ul>
 <h2>4. Inputs</h2>${table(inputsTable(sim, store.values))}
@@ -755,7 +755,7 @@ function exportDiagram() {
 function select(id) {
     const sim = SIMS.find((s) => s.id === id) || SIMS[0];
     store.sim = sim; store.values = defaults(sim);
-    $('sim-title').textContent = sim.title; $('sim-chapter').textContent = sim.chapters; $('sim-blurb').textContent = sim.blurb; $('sim-significance').textContent = sim.significance;
+    $('sim-title').textContent = sim.title; $('sim-blurb').textContent = sim.blurb; $('sim-significance').textContent = sim.significance;
     document.querySelectorAll('.module-nav button').forEach((b) => b.setAttribute('aria-current', String(b.dataset.module === id)));
     $('sim-charts').innerHTML = ''; buildControls(sim); $('sim-exports-hint').textContent = '';
     render();
@@ -768,7 +768,7 @@ const INITIAL_HASH = location.hash.slice(1);   // init() rewrites the hash befor
 export function registerModule(def) {
     extras.set(def.id, def);
     const b = document.createElement('button');
-    b.type = 'button'; b.dataset.module = def.id; b.title = def.chapters; b.textContent = def.title;
+    b.type = 'button'; b.dataset.module = def.id; b.textContent = def.title;
     $('module-nav').appendChild(b);
     if (INITIAL_HASH === def.id) showModule(def.id);
 }
@@ -787,7 +787,7 @@ export function showModule(id) {
 
 function init() {
     const nav = $('module-nav');
-    nav.innerHTML = [['field', '3D stress field', 'Ch. 2–6'], ...SIMS.map((s) => [s.id, s.title, s.chapters])].map(([id, t, c]) => `<button type="button" data-module="${id}" title="${c}">${t}</button>`).join('');
+    nav.innerHTML = [['field', '3D stress field'], ...SIMS.map((s) => [s.id, s.title])].map(([id, t]) => `<button type="button" data-module="${id}">${t}</button>`).join('');
     nav.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) showModule(b.dataset.module); });
     $('btn-save-baseline').addEventListener('click', () => { store.baseline = { id: store.sim.id, result: JSON.parse(JSON.stringify(store.result)) }; render(); });
     $('btn-clear-baseline').addEventListener('click', () => { store.baseline = null; render(); });

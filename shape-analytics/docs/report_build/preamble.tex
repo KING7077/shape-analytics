@@ -1,41 +1,73 @@
-\documentclass[10.5pt,a4paper]{report}
-\usepackage[margin=2.2cm]{geometry}
+\documentclass[11pt,a4paper,oneside,openany]{report}
+\usepackage[a4paper,left=2.3cm,right=2.3cm,top=2.4cm,bottom=2.4cm]{geometry}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-\usepackage{lmodern}
+\usepackage{mathpazo}
+\usepackage[scaled=.92]{helvet}
+\renewcommand{\ttdefault}{lmtt}
 \usepackage{amsmath,amssymb,bm,textcomp}
-\usepackage{booktabs,array,longtable,enumitem}
+\usepackage{booktabs,array,longtable,enumitem,multirow}
 \usepackage{graphicx,xcolor,microtype}
-\usepackage{fancyvrb,fvextra,float,caption}
-\usepackage{tikz}\usetikzlibrary{arrows.meta,positioning,shapes.geometric,fit}
-\usepackage{titlesec,fancyhdr}
-\usepackage[colorlinks=true,linkcolor=blue!50!black,urlcolor=blue!50!black]{hyperref}
+\usepackage{fancyvrb,fvextra,float,caption,subcaption}
+\usepackage{tikz}\usetikzlibrary{arrows.meta,positioning,shapes.geometric,fit,backgrounds}
+\usepackage{titlesec,fancyhdr,tcolorbox}
+\usepackage[colorlinks=true,linkcolor=blue!45!black,urlcolor=blue!45!black,citecolor=blue!45!black]{hyperref}
+\definecolor{accent}{HTML}{1F4E79}\definecolor{warm}{HTML}{C8431C}\definecolor{paper}{HTML}{F3F1EA}
 \floatstyle{plain}\newfloat{listing}{tbp}{lol}
-\setlength{\parindent}{0pt}\setlength{\parskip}{0.5em}
-\titleformat{\chapter}{\Large\bfseries}{\thechapter}{0.7em}{}
-\titlespacing*{\chapter}{0pt}{-10pt}{10pt}
-\pagestyle{fancy}\fancyhf{}\lhead{Shape Analytics: physics and code}\rhead{\thepage}
+\newcommand{\listingname}{Listing}
+\captionsetup{font=small,labelfont={bf,color=accent},labelsep=period,justification=raggedright,singlelinecheck=false}
+\setlength{\parindent}{0pt}\setlength{\parskip}{0.45em}
+\linespread{1.03}
+\renewcommand{\arraystretch}{1.12}
+\titleformat{\chapter}[display]{\sffamily\bfseries\color{accent}}{\large\chaptertitlename\ \thechapter}{2pt}{\LARGE}
+\titlespacing*{\chapter}{0pt}{-30pt}{14pt}
+\titleformat{\section}{\sffamily\Large\bfseries\color{accent}}{\thesection}{0.7em}{}
+\titleformat{\subsection}{\sffamily\large\bfseries}{\thesubsection}{0.6em}{}
+\pagestyle{fancy}\fancyhf{}
+\fancyhead[R]{\sffamily\small\leftmark}
+\fancyfoot[R]{\sffamily\small\thepage}\fancyfoot[L]{\sffamily\small\color{gray}Shape Analytics, IIT Hyderabad}
 \renewcommand{\headrulewidth}{0.3pt}
+\fancypagestyle{plain}{\fancyhf{}\fancyfoot[R]{\sffamily\small\thepage}\renewcommand{\headrulewidth}{0pt}}
 \newcommand{\tens}[1]{\bm{#1}}
 \newcommand{\file}[1]{\texttt{#1}}
-\newcommand{\physics}[1]{\par\smallskip\noindent\textbf{Physics.} #1}
-\newcommand{\code}[1]{\par\smallskip\noindent\textbf{Code.} #1}
-\newcommand{\note}[1]{\par\smallskip\noindent\textbf{Note.} #1}
-\newenvironment{keybox}{\par\medskip\noindent\begin{tabular}{|p{0.95\linewidth}|}\hline\rule{0pt}{1.3ex}\ignorespaces}{\\\hline\end{tabular}\par\medskip}
-\setcounter{tocdepth}{2}
+\newcommand{\physics}[1]{\par\smallskip\noindent{\sffamily\bfseries\color{accent}Theory.} #1}
+\newcommand{\code}[1]{\par\smallskip\noindent{\sffamily\bfseries\color{warm}Implementation.} #1}
+\newcommand{\note}[1]{\par\smallskip\noindent{\sffamily\bfseries Note.} #1}
+\newtcolorbox{keybox}{colback=paper,colframe=accent,boxrule=0.5pt,arc=1pt,left=6pt,right=6pt,top=4pt,bottom=4pt}
+\setcounter{tocdepth}{1}
+\newcommand{\frontmatter}{\pagenumbering{roman}}
+\newcommand{\mainmatter}{\clearpage\pagenumbering{arabic}}
 \begin{document}
+\pagestyle{empty}
 \begin{titlepage}
-\vspace*{3cm}
-{\Huge\bfseries Shape Analytics}\\[0.6em]
-{\LARGE Physics, numerics and code}\\[1.2em]
-{\large A complete technical report on the solid-mechanics analysis app: the principles of the Mechanics of Solids course (Chapters 1--11), how each is implemented in the source files, and how the results are verified}\\[3em]
-\begin{tabular}{@{}ll@{}}
-Project & \texttt{shape-analytics} (FastAPI, Three.js, Plotly, numpy)\\
-Scope & 3D stress field, section analytics, nine analytical simulators, finite element tab\\
-Companion files & \texttt{REPORT.md}, \texttt{docs/physics\_report.pdf}, \texttt{docs/fem\_primer.pdf}\\
-\end{tabular}
+\begin{tikzpicture}[remember picture,overlay]
+\fill[accent] ([yshift=-13.4cm]current page.north west) rectangle (current page.south east);
+\fill[warm] ([yshift=-13.25cm]current page.north west) rectangle ([yshift=-13.4cm]current page.north east);
+\end{tikzpicture}
+\centering
+\vspace*{-0.6cm}
+\includegraphics[height=4.6cm]{../figures/iith_logo.png}\par
+\vspace{0.9cm}
+{\sffamily\color{accent}
+{\large\bfseries COURSE PROJECT REPORT \quad|\quad MECHANICS OF SOLIDS}\\[0.7cm]
+{\fontsize{38}{42}\selectfont\bfseries Shape Analytics}\\[0.5cm]
+{\large An interactive environment for stress analysis:\\ half-space elasticity, analytical simulators\\ and a finite element solver}\par}
+\vspace{2.6cm}
+{\color{white}\sffamily
+{\large\bfseries Submitted by}\\[0.45cm]
+{\large
+\begin{tabular}{@{}l@{\hspace{1.4cm}}l@{}}
+Abhinav Kumar Sudhir Choudhary & CO25BTECH11001\\[4pt]
+Rudra Thummar & CO25BTECH11024\\[4pt]
+Tilak Asodariya & CO25BTECH11028\\[4pt]
+Sriramnarayanan Mohan & CO25BTECH11027\\
+\end{tabular}}\\[1.2cm]
+{\large\bfseries Under the guidance of}\\[0.35cm]
+{\Large Prof. Prakhar Gupta}\par}
 \vfill
-{\small Code excerpts in this report are taken directly from the source files; the numbers beside them are the line numbers in those files at the time of writing. Greek letters and mathematical symbols in the source (for example \texttt{sigma} for the Greek letter) are written out in ASCII in the listings so that they print.}
 \end{titlepage}
-\tableofcontents
-\clearpage
+\pagestyle{fancy}
+\pagenumbering{roman}
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+\markboth{Abstract}{Abstract}

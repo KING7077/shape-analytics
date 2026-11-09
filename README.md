@@ -1,92 +1,83 @@
-# Solid Mechanics Analyzer
+# Shape Analytics
 
-A comprehensive suite of interactive simulators for evaluating structural states, originally scoped for a Mechanics of Materials course. This repository contains both a PyQt desktop application, a highly polished browser-based web application powered by a Python FastAPI math engine, and a standalone leaf flutter simulation using 3D beam theory.
+**An interactive environment for stress analysis: half-space elasticity, analytical simulators and a finite element solver.**
 
-## Project Structure
-- `solid_mechanics_app/`: Contains the PyQt6 Desktop application and the core `math_engine` (Python backend logic).
-- `solid-mechanics-web/`: Contains the fully responsive, native HTML/CSS/JS web application and its FastAPI server.
-- `leaf-modelling/`: Standalone leaf flutter simulator — models a leaf on a stem using Euler-Bernoulli bending + Saint-Venant torsion, with real-time 3D animation and dynamic analysis.
-- `shape-analytics/`: Interactive 3D stress field analyzer. Applies traction vectors to arbitrary geometries (Cuboids, Cylinders, Spheres) and maps normal stress, shear stress, and strain distributions.
+Course project, Mechanics of Solids, Indian Institute of Technology Hyderabad.
 
-## Running the Web Application (Recommended)
-The web application features an "Industrial Precision" aesthetic, live safety factors (von Mises & Tresca), A/B state comparisons, thick-walled pressure vessel Lamé equations, and lab report exports.
+| Member | Roll no. |
+|---|---|
+| Abhinav Kumar Sudhir Choudhary | CO25BTECH11001 |
+| Rudra Thummar | CO25BTECH11024 |
+| Tilak Asodariya | CO25BTECH11028 |
+| Sriramnarayanan Mohan | CO25BTECH11027 |
 
-### Prerequisites
-1. Python 3.8+
-2. Required Python packages: `fastapi`, `uvicorn`, `numpy`, `pydantic`.
+**Under the guidance of Prof. Prakhar Gupta.**
 
-### Setup & Run Instructions
-1. Open a terminal in the root directory.
-2. Navigate into the web directory:
-   ```bash
-   cd solid-mechanics-web
-   ```
-3. Activate the virtual environment (if you have one setup, e.g. `.venv`):
-   ```bash
-   source .venv/bin/activate
-   ```
-   *(If you don't have one, create it with `python -m venv .venv` and install requirements: `pip install fastapi uvicorn numpy pydantic`)*
-4. Start the FastAPI backend server:
-   ```bash
-   python server.py
-   ```
-5. Open your web browser and navigate directly to the `index.html` file (e.g., `file:///path/to/solid-mechanics-web/index.html`) or serve it via a simple HTTP server (e.g., `python -m http.server 8080`).
+The full report is in [`shape-analytics/docs/project_report.pdf`](shape-analytics/docs/project_report.pdf).
 
-## Running the Leaf Flutter Simulator
-The leaf-modelling module simulates a leaf fluttering in the wind by treating the stem as a 3D cantilever beam (Euler-Bernoulli bending + Saint-Venant torsion) with the leaf blade as a rigid elliptical body at the tip. See [`leaf-modelling/REPORT.md`](leaf-modelling/REPORT.md) for the full physics derivation.
+## What it does
 
-**Features:**
-- 🍃 **Live 3D Animation** — Real-time Three.js rendering of the deforming stem and rotating leaf at 60fps
-- 📊 **Dynamic Analysis** — Plotly.js plots of tip displacement history, deflection curves, bending moments, and stress distributions
-- ⚙️ **Fully Configurable** — Sliders for Young's modulus, Poisson's ratio, stem length/diameter, leaf semi-axes (a, b), wind strength/frequency/gust
-- ⚠️ **Resonance Detection** — Computes natural frequencies and warns when wind frequency approaches resonance
+Shape Analytics is a browser application for exploring stress, strain and deformation in elastic solids. It has three groups of tools:
 
-### Run Instructions
-1. Navigate to the leaf-modelling directory and activate the virtual environment:
-   ```bash
-   cd leaf-modelling
-   source ../solid-mechanics-web/.venv/bin/activate
-   ```
-2. Start the server:
-   ```bash
-   python server.py
-   ```
-3. Open `http://127.0.0.1:8001/` in your browser.
+- **3D stress field.** Paint a load on the surface of a cuboid, cylinder or sphere. The app superposes the Boussinesq (normal) and Cerruti (tangential) half-space solutions over the painted patch and colours the body by normal stress, maximum shear, von Mises stress or strain. **Section analytics** shows the same field on a plane cut through the body.
+- **Nine analytical simulators.** Mohr's circle, beams (Euler–Bernoulli and Timoshenko), shaft torsion, axial loading (including statically indeterminate bars), pressure vessels (thin wall and Lamé), thermal stress, failure theories, energy methods (Castigliano, Maxwell–Betti) and column buckling (Euler and Johnson). Each shows its governing equations beside the result, with A/B comparison and CSV, SVG and lab-report export.
+- **Finite element tab.** Bar, beam, plane-stress cantilever and plate-with-a-hole problems (CST and Q4 elements), plus a 3D brick model of a block under a patch load, each compared against a closed-form reference.
 
-## Running the Shape Analytics Simulator
-The shape-analytics module is a 3D stress field visualizer demonstrating Cauchy's Stress Theorem and Boussinesq solutions. See [`shape-analytics/REPORT.md`](shape-analytics/REPORT.md) for the theoretical background on traction vectors and stress tensors.
+Every simulator reproduces its closed-form solution to the printed precision for its default inputs; the FEM solver converges at the expected rates. Chapter 5 of the report has the verification.
 
-**Features:**
-- 🧊 **3D Geometries** — Dynamically sizable Cuboids, Cylinders, and Spheres.
-- 🎯 **Load Application** — Adjustable force magnitude and localized patch size.
-- 📐 **Traction Vectors** — Apply loads along surface normals or via arbitrary 3D vectors.
-- 🎨 **Real-Time Heatmaps** — Maps Normal Stress ($\sigma_n$), Shear Stress ($\tau_{\max}$), Von Mises stress, and Strain magnitude directly onto the 3D geometry using a custom shader logic in Three.js.
-- 📊 **Analytics Dashboard** — Sectional stress/strain distributions graphed with Plotly.
+## Running locally
 
-### Run Instructions
-1. Navigate to the shape-analytics directory and activate the virtual environment:
-   ```bash
-   cd shape-analytics
-   source ../solid-mechanics-web/.venv/bin/activate
-   ```
-2. Start the FastAPI server (it runs on port 8002 to prevent conflicts):
-   ```bash
-   uvicorn server:app --host 127.0.0.1 --port 8002
-   ```
-3. Open `http://127.0.0.1:8002/` (or double-click `index.html`) in your browser.
+Requires Python 3.12 or newer.
 
-## Running the Desktop Application (PyQt6)
-1. Navigate to the desktop app directory:
-   ```bash
-   cd solid_mechanics_app
-   ```
-2. Install requirements (PyQt6, numpy, pyqtgraph, matplotlib):
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. Run the main script:
-   ```bash
-   python src/main.py
-   ```
+```bash
+./run_shape_analytics.sh
+```
 
-> **Note on Desktop App:** The Desktop App (`solid_mechanics_app`) has been completely overhauled to feature an 8-tab PyQt6 interface matching the Web App. It now uses the same Python Math Engine by directly calling the FastAPI server endpoints. **Therefore, you must have the FastAPI web server running (`python server.py`) before calculating in the Desktop App.**
+Then open <http://127.0.0.1:8002>. The first run creates a virtual environment in `shape-analytics/.venv` and installs the dependencies.
+
+To do the same by hand:
+
+```bash
+cd shape-analytics
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+.venv/bin/uvicorn server:app --host 127.0.0.1 --port 8002
+```
+
+The page loads Three.js and Plotly from CDNs, so it needs an internet connection.
+
+## Deployment
+
+`render.yaml` deploys the app as a free web service on [Render](https://render.com) (New → Blueprint → this repository). The `/health` route is a lightweight endpoint for an uptime monitor to ping, which stops the free instance from going to sleep.
+
+## Project structure
+
+```
+README.md
+render.yaml               Render deployment config
+run_shape_analytics.sh    local start script
+shape-analytics/
+  index.html, style.css   page layout and themes (light and dark)
+  app.js                  3D stress field: geometry, painting, loads, section plots
+  physics.js              half-space solutions, principal stresses, von Mises, strain
+  sims.js                 the nine simulators and the framework that renders them
+  fem.js, fem.css         finite element tab (user interface)
+  server.py               FastAPI server: API routes and static files
+  fem.py, fem3d.py        finite element solvers (1D, 2D, 3D brick)
+  requirements.txt        Python dependencies
+  docs/project_report.pdf project report
+```
+
+## API
+
+| Route | Purpose |
+|---|---|
+| `POST /api/traction` | traction, normal and shear stress on a plane |
+| `POST /api/principal` | principal stresses and directions, maximum shear, von Mises stress |
+| `POST /api/section` | stress fields on a section plane through the loaded body |
+| `POST /api/fem/solve` | solve a finite element problem (`bar`, `beam`, `cantilever`, `hole`, `block`) |
+| `GET /health` | health check |
+
+## Built with
+
+JavaScript, Three.js, Plotly, Python, FastAPI, NumPy.

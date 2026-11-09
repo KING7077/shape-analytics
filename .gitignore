@@ -1,0 +1,11 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Local tooling (not part of the submission)
+node_modules/
+package.json
+package-lock.json
+shape-analytics/CLAUDE.md
+shape-analytics/.claude/

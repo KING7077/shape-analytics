@@ -1,6 +1,6 @@
 """Finite-element solver for the FEM tab (numpy only).
 
-Self-contained: server.py mounts `router`; nothing else imports this module. See docs/FEM_PLAN.md.
+Self-contained: server.py mounts `router`; nothing else imports this module.
 Cases: bar and beam (1D elements), cantilever and plate-with-hole (2D plane stress, CST or Q4), and a 3D block (fem3d.py).
 Internal units are SI (m, N, Pa); requests and responses use engineering units (mm, kN, MPa).
 """

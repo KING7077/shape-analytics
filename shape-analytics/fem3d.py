@@ -1,4 +1,4 @@
-"""3D finite block under a patch load (FEM stage 3). Part of the FEM tab; see docs/FEM_PLAN.md.
+"""3D finite block under a patch load (FEM stage 3). Part of the FEM tab.
 
 Quarter model of a cuboid (symmetry planes x = 0 and y = 0) built from uniform 8-node bricks, solved matrix-free
 with Jacobi-preconditioned conjugate gradients (numpy only). Compared with the half-space solution used by the 3D tab.

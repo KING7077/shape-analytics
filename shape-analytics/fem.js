@@ -1,5 +1,5 @@
 // FEM tab: a separate module that talks to /api/fem/solve (fem.py). Remove this file, fem.css, fem.py and the
-// registration lines in index.html, server.py and sims.js to take the tab out. See docs/FEM_PLAN.md.
+// registration lines in index.html, server.py and sims.js to take the tab out.
 import { registerModule, plotLayout, css, fmt } from './sims.js';
 
 const $ = (id) => document.getElementById(id);

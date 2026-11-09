@@ -15,6 +15,9 @@ Course project, Mechanics of Solids, Indian Institute of Technology Hyderabad.
 
 The full report is in [`shape-analytics/docs/project_report.pdf`](shape-analytics/docs/project_report.pdf).
 
+> [!IMPORTANT]
+> **The app requires WebGL to be enabled in the browser, or it will not work.** The 3D stress field (the default view) and the shaft-torsion view are drawn with Three.js, which needs a WebGL context. Open <https://get.webgl.org> to check: if no spinning cube appears, enable hardware acceleration (Chrome/Edge: *Settings → System → Use graphics acceleration when available*; Firefox: set `webgl.disabled` to `false` in `about:config`) and restart the browser.
+
 ## What it does
 
 Shape Analytics is a browser application for exploring stress, strain and deformation in elastic solids. It has three groups of tools:

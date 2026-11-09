@@ -48,7 +48,23 @@ The page loads Three.js and Plotly from CDNs, so it needs an internet connection
 
 ## Deployment
 
-`render.yaml` deploys the app as a free web service on [Render](https://render.com) (New → Blueprint → this repository). The `/health` route is a lightweight endpoint for an uptime monitor to ping, which stops the free instance from going to sleep.
+The app deploys as a free web service on [Render](https://render.com), with [UptimeRobot](https://uptimerobot.com) keeping it awake.
+
+**Render**
+
+1. Sign in to Render with GitHub and choose **New → Blueprint**.
+2. Select this repository. Render reads `render.yaml` (free plan, `main` branch, Python 3.14.9, root directory `shape-analytics/`).
+3. Click **Apply**. The first build takes a few minutes; the app is then live at `https://<service-name>.onrender.com`. Every push to `main` redeploys it.
+
+**UptimeRobot**
+
+A free Render service goes to sleep after 15 minutes without traffic, and the next visit then waits about a minute for it to wake. A monitor that requests the site every 5 minutes keeps it awake.
+
+1. Sign up at UptimeRobot and choose **New monitor → HTTP(s)**.
+2. Set the URL to `https://<service-name>.onrender.com/health` and the interval to **5 minutes**.
+3. Save. UptimeRobot also emails you if the site goes down.
+
+`/health` answers both GET and HEAD (UptimeRobot sends HEAD by default) without loading the page.
 
 ## Project structure
 

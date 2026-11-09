@@ -355,12 +355,13 @@ app.include_router(fem_router)
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
-@app.get("/health")
+# GET and HEAD: uptime monitors such as UptimeRobot send HEAD requests by default.
+@app.api_route("/health", methods=["GET", "HEAD"])
 def health():
     # Cheap endpoint for uptime monitors (keeps the free Render instance awake).
     return {"status": "ok"}
 
-@app.get("/")
+@app.api_route("/", methods=["GET", "HEAD"])
 def serve_index():
     return FileResponse("index.html")
 
